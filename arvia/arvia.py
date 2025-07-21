@@ -6,18 +6,18 @@ ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
 VERSION = "v0.1.0"
 
-ascii =f"""
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}           _______      _______          {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
-{Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
-"""
+# ascii =f"""
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}           _______      _______          {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
+# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
+# """
 
-print(ascii)
+# print(ascii)
 
 
 from arvia.utils.user_parser import get_parser

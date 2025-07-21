@@ -389,27 +389,3 @@ def get_genome_ids(input_files: set, patts=POSSIBLE_FASTA_TERMINATIONS + POSSIBL
     ), f"Unexpected error: While stripping input terminations ({patts}) a different number of unique IDs in comparison to input files was obtained"
     return d
 
-
-# --- Test ---
-# input_files = {
-#     "/test/path/s1_genomic.fna",
-#     "/test/path/s2_genomic.fasta",
-#     "/test/path/s3.fasta",
-#     "/test/path/s4.fas",
-#     "/test/path/s5_.fasta_genomic.fna",
-# }
-# get_fasta_ids(input_files)
-
-# from bactasys.utils.config.local_paths import GENOME_REFS_PRESETS
-
-# genome_ref = GENOME_REFS_PRESETS["pputida"]["ref"]
-# extra_genome_refs = GENOME_REFS_PRESETS['pputida']['extra']
-
-# get_fasta_ids(
-#     [
-#         genome_ref,
-#         *set(
-#             [j for l in [glob.glob(fr"{extra_genome_refs}/*")] for j in l]
-#         )
-#     ]
-# )

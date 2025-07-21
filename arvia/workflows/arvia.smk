@@ -8,12 +8,14 @@ from snakemake.logging import logger
 import logging
 import warnings
 import datetime
+from pprint import pprint
 import arvia
 
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
-
+from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res
+from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
 from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG #, KPNEUMONIAE_SELECTED_GENES
 from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK
 from arvia.utils.local_paths import CONDA_ENVS
@@ -114,28 +116,30 @@ for k,v in INPUT_FILES.items():
 
 # ---- Output folders ----
 PIPELINE_OUTPUT = config["output_folder"]
+PIPELINE_WD_OUTPUT = f"{PIPELINE_OUTPUT}/temp"
 
 # Input
-GET_ASSEMBLIES_OUTPUT = f"{PIPELINE_OUTPUT}/00_input_assemblies"
-GET_READS_OUTPUT = f"{PIPELINE_OUTPUT}/00_input_reads"
+# GET_ASSEMBLIES_OUTPUT = f"{PIPELINE_WD_OUTPUT}/00_input_assemblies"
+# GET_READS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/00_input_reads"
 
 # General snippy
-PAERUGINOSA_MUTS_OUTPUT = f"{PIPELINE_OUTPUT}/variant_calling/run"
-PAERUGINOSA_MUTS_PROCESS_OUTPUT = f"{PIPELINE_OUTPUT}/variant_calling/process"
+PAERUGINOSA_MUTS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/variant_calling/run"
+PAERUGINOSA_MUTS_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/variant_calling/process"
 
 # OprD
-PAERUGINOSA_OPRD_OUTPUT = f"{PIPELINE_OUTPUT}/oprd"
+PAERUGINOSA_OPRD_OUTPUT = f"{PIPELINE_WD_OUTPUT}/oprd"
 ALIGN_OPRD = f"{PAERUGINOSA_OPRD_OUTPUT}/01_align"
 DECIDE_BEST_OPRD = f"{PAERUGINOSA_OPRD_OUTPUT}/02_decide"
 SNIPPY_OPRD = f"{PAERUGINOSA_OPRD_OUTPUT}/03_snippy"
 
 # Truncated genes
-PAERUGINOSA_TRUNC_OUTPUT = f"{PIPELINE_OUTPUT}/truncations"
+PAERUGINOSA_TRUNC_OUTPUT = f"{PIPELINE_WD_OUTPUT}/truncations"
 EXTRACT_PAERUGINOSA_REF_GENES_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/01_extract_ref_genes"
 MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/02_blastdb"
 BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/03_blast"
 
-RESULTS_PER_SAMPLE = f"{PIPELINE_OUTPUT}/reunite"
+RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
+RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 
 # ---- Params ----
 
@@ -290,9 +294,9 @@ rule blast_paeruginosa_genes_to_assembly:
         res=Path(BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT,"{barcode}","{barcode}.tsv"),
     threads: 20
     conda:
-        CONDA_ENVS["arvia"] # uses this but it just needs blast
+        CONDA_ENVS["arvia"]
     params:
-        outfmt="6 qseqid sseqid stitle pident qcovs qcovhsp qcovus length mismatch gapopen qlen slen qstart qend sstart send evalue bitscore qseq sseq", # warning: different to the default blst_outfmt used in other rules
+        outfmt=BLAST_OUTFMT, 
         blast_type="blastn",
         max_target_seqs=5,
     log:
@@ -401,6 +405,27 @@ use rule snippy as paeruginosa_oprd with:
 
 
 
+# # ---- Get input stats ----
+# rule get_estimated_coverage:
+#     input:
+#         reads=lambda wc: get_input_reads(wc),
+#     output:
+#         folder = directory(Path(ESTIMATED_COV_OUTPUT, "{barcode}")),
+#         cov = Path(ESTIMATED_COV_OUTPUT, "{barcode}", "stats.tsv"),
+#     params:
+#         estimated_upper_genome_size_mb = 7
+#         estimated_lower_genome_size_mb = 5.5
+#     threads: 2
+#     run:
+#         shell("mkdir -p {output.folder}")
+#         shell("seqkit stats -T -j {threads} {input} > {output.folder}/seqkit_stats.tsv")
+#         df = pd.read_csv(f"{output.folder}/seqkit_stats.tsv", sep="\t")
+#         df["bc"] = wildcards.barcode
+#         df = df.groupby("bc")[["sum_len"]].sum().reset_index()
+#         df["est_highest_coverage"] = df["sum_len"].apply(lambda x: int(x/(params.estimated_lower_genome_size_mb*1000000)))
+#         df["est_lowest_coverage"] = df["sum_len"].apply(lambda x: int(x/(params.estimated_upper_genome_size_mb*1000000)))
+#         df.to_csv(output.cov, sep="\t", index=None)
+
 # ---------------
 def decide_steps(wc):
     # use_assembly_or_reads = get_if_use_assembly_or_reads(wc)
@@ -408,7 +433,8 @@ def decide_steps(wc):
     pipeline = INPUT_FILES[wc.barcode]["pipeline"] # full_pipeline | only_reads | only_assembly
     if pipeline in ["full_pipeline", "only_assembly"]:
         steps = {
-            "process_paeruginosa_mutations": rules.process_paeruginosa_mutations.output.res,
+            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res,
+            "paeruginosa_processed_mutations": rules.process_paeruginosa_mutations.output.res,
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
@@ -416,7 +442,8 @@ def decide_steps(wc):
         }
     elif pipeline == "only_reads":
         steps = {
-            "process_paeruginosa_mutations": rules.process_paeruginosa_mutations.output.res,
+            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res,
+            "paeruginosa_processed_mutations": rules.process_paeruginosa_mutations.output.res,
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
@@ -432,75 +459,90 @@ rule get_results_per_sample:
     input:
         unpack(lambda wc: decide_steps(wc))
     output:
-        folder = directory(Path(RESULTS_PER_SAMPLE, "{barcode}")),
-    shell:
-        """
-        mkdir -p {output.folder}
-        cp {input} {output.folder}
-        """
+        folder = directory(Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}")),
+    params:
+        # Cant define all output files in output section as one file can be missing
+        # but we place the expected paths here
+        paeruginosa_mutations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_muts.tsv"),
+        paeruginosa_processed_mutations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_filtered_muts.tsv"),
+        paeruginosa_gene_coverage = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_gene_coverage.tsv"),
+        paeruginosa_oprd = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_muts.tsv"),
+        paeruginosa_oprd_refs = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_ref.txt"),
+        paeruginosa_assembly_blast = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_assembly_blast.tsv"),
+    # log: Path(RESULTS_MERGED_OUTPUT, "arvia.log"),
+    run:
+        # Create folder
+        shell("mkdir -p {output.folder}")
+        # pprint(input.__dict__) # see contents of input_dict
 
+        # Get input values 
+        paeruginosa_mutations = input.__dict__.get("paeruginosa_mutations")
+        paeruginosa_processed_mutations = input.__dict__.get("paeruginosa_processed_mutations")
+        paeruginosa_gene_coverage = input.__dict__.get("paeruginosa_gene_coverage")
+        paeruginosa_oprd = input.__dict__.get("paeruginosa_oprd")
+        paeruginosa_oprd_refs = input.__dict__.get("paeruginosa_oprd_refs")
+        paeruginosa_assembly_blast = input.__dict__.get("paeruginosa_assembly_blast")
 
+        # Assert the minimum input required
+        assert paeruginosa_mutations and paeruginosa_processed_mutations and paeruginosa_gene_coverage and paeruginosa_oprd, f"One of these did not exist: {paeruginosa_mutations=}; {paeruginosa_processed_mutations=}; {paeruginosa_gene_coverage=}; {paeruginosa_oprd=}"
+
+        # Modify names and save
+        shell(f"cp {paeruginosa_mutations} {expand(params.paeruginosa_mutations, barcode=[wildcards.barcode])[0]}")
+        shell(f"cp {paeruginosa_processed_mutations} {expand(params.paeruginosa_processed_mutations, barcode=[wildcards.barcode])[0]}")
+        shell(f"cp {paeruginosa_gene_coverage} {expand(params.paeruginosa_gene_coverage, barcode=[wildcards.barcode])[0]}")
+        shell(f"cp {paeruginosa_oprd} {expand(params.paeruginosa_oprd, barcode=[wildcards.barcode])[0]}")
+        shell(f"cp {paeruginosa_oprd_refs} {expand(params.paeruginosa_oprd_refs, barcode=[wildcards.barcode])[0]}")
+
+        if paeruginosa_assembly_blast:
+            shell(f"cp {paeruginosa_assembly_blast} {expand(params.paeruginosa_assembly_blast, barcode=[wildcards.barcode])[0]}") # FIXME: format this table for user
+
+rule merge_results:
+    input:
+        folder = expand(rules.get_results_per_sample.output.folder, zip, barcode=list(INPUT_FILES.keys())),
+    output:
+        folder = directory(Path(RESULTS_MERGED_OUTPUT)),
+        default_result = Path(RESULTS_MERGED_OUTPUT, "pao1_snippy_comparison.xlsx"),
+        advanced_result = Path(RESULTS_MERGED_OUTPUT, "full_wide.xlsx"),
+        combined_long = Path(RESULTS_MERGED_OUTPUT, "full_long.tsv"),
+    params:
+        barcodes = list(INPUT_FILES.keys()),
+        final_result = Path(PIPELINE_OUTPUT, "arvia_results.xlsx")
+    run:
+        # Default results with no truncation info or oprd
+        # Rows are mutations and columns are samples
+        default_df, bcs = get_default_snippy_combination(
+            expand(rules.get_results_per_sample.params.paeruginosa_processed_mutations, barcode=params.barcodes), 
+            output.default_result, 
+            selected_bcs=params.barcodes, 
+            paeruginosa=True
+        )
+
+        # Second version where
+        bcs_with_assembly = [k for k,v in INPUT_FILES.items() if v["pipeline"] in ["full_pipeline", "only_assembly"]]
+        bcs_without_assembly = [k for k,v in INPUT_FILES.items() if v["pipeline"] in ["only_reads"]]
+
+        _ = paeruginosa_combine_all_mutational_res(
+            default_df=default_df,
+            oprd_fs=expand(rules.get_results_per_sample.params.paeruginosa_oprd, barcode=params.barcodes),
+            oprd_refs_fs=expand(rules.get_results_per_sample.params.paeruginosa_oprd_refs, barcode=params.barcodes),
+            gene_coverage_fs=expand(rules.get_results_per_sample.params.paeruginosa_gene_coverage, barcode=params.barcodes),
+            truncation_fs=expand(rules.get_results_per_sample.params.paeruginosa_assembly_blast, barcode=bcs_with_assembly), # not all samples will have this file (it happens if no assembly was given)
+            bcs=params.barcodes,
+            output_file=output.advanced_result,
+            bcs_without_assembly=bcs_without_assembly,
+            filter_poly=False,
+        )
+
+        
 rule all:
     input:
-        expand(rules.get_results_per_sample.output.folder, zip, barcode=list(INPUT_FILES.keys()))
-        # rules.merge_species_specific_results.output.folder,
+        results_per_sample_folders = expand(rules.get_results_per_sample.output.folder, zip, barcode=list(INPUT_FILES.keys())),
+        merged_advanced_result = rules.merge_results.output.advanced_result,
     default_target: True
 
 
-# ---- Merge ----
-# Full or assembly
-# Only reads
+onsuccess:
+    combined_advanced_result = rules.merge_results.output.advanced_result
+    shell(f"cp {combined_advanced_result} {PIPELINE_OUTPUT}/arvia_result.xlsx")
 
-# rule merge_species_specific_results:
-#     input:
-#         json_files = expand(rules.get_species_specific_results.output.input_files, **wildcards_dict),
-#     output:
-#         folder = directory(Path(MERGE_SPECIES_SPECIFIC_RESULTS)),
-#     run:
-#         shell("mkdir -p {output.folder}")
-
-#         # Read JSONs into list of dicts
-#         l = []
-#         for i in input.json_files:
-#             with open(i) as json_handle:
-#                 d = json.load(json_handle)
-#                 l.append(d)
-        
-#         # Combine values if their keys match
-#         # Example:
-#         #   Input: [{"a": 1, "b": 2},{"a": 5, "b": 7, "c": 0,}] 
-#         #   Output: {'a': [1, 5], 'b': [2, 7], 'c': [0]}
-#         combined_jsons = {}
-#         for d in l:
-#             for k,v in d.items():
-#                 if combined_jsons.get(k) is None:
-#                     combined_jsons[k] = [v]
-#                 else:
-#                     combined_jsons[k] += [v]
-
-#         # Paeruginosa merge (from annotation.smk's SPECIES_SPECIFIC_ANALYSES)
-#         paeruginosa_expected_keys = [
-#             "process_paeruginosa_mutations", "paeruginosa_gene_coverage",
-#             "paeruginosa_oprd", "paeruginosa_oprd_refs", "paeruginosa_assembly_blast",
-#         ]
-#         paeruginosa_results_exist = len([i for i in paeruginosa_expected_keys if i not in combined_jsons])==0
-#         if paeruginosa_results_exist:
-#             from bactasys.utils.genomics.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res
-
-#             default_df, bcs = get_default_snippy_combination(
-#                 combined_jsons["process_paeruginosa_mutations"], 
-#                 output.folder, 
-#                 selected_bcs=[], 
-#                 paeruginosa=True
-#             )
-#             paeruginosa_combine_all_mutational_res(
-#                 default_df=default_df,
-#                 oprd_fs=combined_jsons["paeruginosa_oprd"],
-#                 oprd_refs_fs=combined_jsons["paeruginosa_oprd_refs"],
-#                 gene_coverage_fs=combined_jsons["paeruginosa_gene_coverage"],
-#                 truncation_fs=combined_jsons["paeruginosa_assembly_blast"],
-#                 bcs=bcs,
-#                 output_folder=output.folder,
-#                 filter_poly=False,
-#             )
 
