@@ -63,8 +63,8 @@ OPRD_CONFIG = {
 BASE_YAML_CONFIG = {
     "input": {
         "command": "run",
-        "reads_folder": None,
-        "assembly_folder": None,
+        "reads": [],
+        "assemblies": [],
     },
     "output": {"output_folder": None},
     "general_params": {

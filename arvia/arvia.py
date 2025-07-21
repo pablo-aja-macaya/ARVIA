@@ -1,23 +1,22 @@
 import os
 from colorama import Fore, Style
-from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR
+from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise
 
 ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
 VERSION = "v0.1.0"
 
-# ascii =f"""
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}           _______      _______          {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTBLUE_EX}                                         {Style.RESET_ALL}
-# """
+ascii =f"""
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}           _______      _______          {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}                                         {Style.RESET_ALL}
+"""
 
-# print(ascii)
+print(ascii)
 
 
 from arvia.utils.user_parser import get_parser
@@ -34,6 +33,8 @@ def main():
 
         CONSOLE_STDOUT.log("Starting ARVIA...", style="info")
         if command == "run":
+            if not parameters["reads"] and not parameters["assemblies"]:
+                log_error_and_raise("Provide reads (--reads) and/or assemblies (--assemblies), please.")
             # Run
             run_snakemake(
                 f"{ARVIA_DIR}/workflows/arvia.smk",

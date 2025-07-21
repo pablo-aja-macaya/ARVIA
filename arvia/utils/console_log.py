@@ -34,10 +34,10 @@ CONSOLE_THEMES = Theme(
         "success": "bold green",
     }
 )
-CONSOLE_STDOUT = Console(log_time_format="[%Y-%m-%d %X] ", log_path=False, theme=CONSOLE_THEMES)  # , width=180
+CONSOLE_STDOUT = Console(log_time_format="[%Y-%m-%d %X] ", log_path=False, theme=CONSOLE_THEMES,)
 CONSOLE_STDERR = Console(
-    stderr=True, style="danger", log_time_format="[%Y-%m-%d %X] ", log_path=True, theme=CONSOLE_THEMES
-)  # , width=180
+    stderr=True, style="danger", log_time_format="[%Y-%m-%d %X] ", log_path=True, theme=CONSOLE_THEMES,
+) 
 CONSOLE_STDOUT._log_render.omit_repeated_times = False
 CONSOLE_STDERR._log_render.omit_repeated_times = False
 PROGRESS_BARS = Progress(

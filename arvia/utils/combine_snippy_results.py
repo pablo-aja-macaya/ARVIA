@@ -379,7 +379,7 @@ def paeruginosa_combine_all_mutational_res(
 
     # Pivot and apply style
     temp = (
-        yyy.pivot(index=index_cols, columns=["locus_tag", "section"], values="value")
+        yyy.pivot(index=index_cols, columns=["locus_tag", "section"], values="value").rename_axis(None)
         .style.applymap(
             color_cells_v2,
         )

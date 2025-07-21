@@ -1,5 +1,3 @@
-# ARVIA
-
 ## Summary
 
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads** and/or **assemblies** to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Its main functions are:

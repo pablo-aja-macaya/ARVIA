@@ -11,6 +11,7 @@ import datetime
 from pprint import pprint
 import arvia
 
+from arvia.utils.process_user_input import associate_user_input_files, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
@@ -52,66 +53,10 @@ if snakemake_console_log is not None:
 
 
 # ---- Input set-up ----
-temp_input_assembly_folder = "/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly"
-temp_input_shortreads_folder = "/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads"
-temp_input_longreads_folder = "/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/00_long_clean_reads"
-INPUT_FILES = {
-    # Single reads with or without assembly
-    "ARGA00461": { # full pipeline
-        "reads": [f"{temp_input_longreads_folder}/ARGA00461/ARGA00461.fastq.gz"],
-        "assembly": [f"{temp_input_assembly_folder}/ARGA00461/ARGA00461_assembly.fasta"]
-    },
-    "ARGA00190": { # truncation cant be done
-        "reads": [f"{temp_input_longreads_folder}/ARGA00190/ARGA00190.fastq.gz"],
-        "assembly": []
-    },
-    # Paired reads with or without assembly
-    "ARGA00024": { # full pipeline
-        "reads": [f"{temp_input_shortreads_folder}/ARGA00024/ARGA00024_R1.fastq.gz", f"{temp_input_shortreads_folder}/ARGA00024/ARGA00024_R2.fastq.gz"],
-        "assembly": [f"{temp_input_assembly_folder}/ARGA00024/ARGA00024_assembly.fasta"]
-    },
-    "ARGA00025": { # truncation cant be done
-        "reads": [f"{temp_input_shortreads_folder}/ARGA00025/ARGA00025_R1.fastq.gz", f"{temp_input_shortreads_folder}/ARGA00025/ARGA00025_R2.fastq.gz"],
-        "assembly": [f"{temp_input_assembly_folder}/ARGA00025/ARGA00025_assembly.fasta"]
-    },
-    # Assembly without reads
-    "ARGA00031": { # everything with assembly
-        "reads": [],
-        "assembly": [f"{temp_input_assembly_folder}/ARGA00031/ARGA00031_assembly.fasta"]
-    },
-}
-  
-for k,v in INPUT_FILES.items():
-    reads = v["reads"]
-    assembly = v["assembly"]
-
-    assert type(reads)==list, "Reads are not in list format"
-    assert type(assembly)==list, "Assembly is not in list format"
-    check_reads_exists = [i for i in reads if not Path(i).exists()]
-    check_assembly_exists = [i for i in assembly if not Path(i).exists()]
-
-    # If reads are supplied
-    if (len(reads) in [1,2]):
-        # assert len(check_reads_exists)==0, f"At least a file path does not exist: {check_reads_exists}"
-        v["reads_type"] = "single_end" if len(reads)==1 else "paired_end"
-
-        # If assembly is supplied
-        if assembly:
-            # assert check_assembly_exists, f"At least a file path does not exist: {assembly}"
-            v["pipeline"] = "full_pipeline"
-        else:
-            v["pipeline"] = "only_reads"
-    
-    elif assembly:
-        # assert check_assembly_exists, f"At least a file path does not exist: {assembly}"
-        v["pipeline"] = "only_assembly"
-        v["reads_type"] = None
-    
-    else:
-        raise Exception(f"Unexpected input -> {k}: {v}")
-
-# CONSOLE_STDOUT.print(INPUT_FILES)
-
+INPUT_FILES = associate_user_input_files(config)
+INPUT_FILES = check_input_file_dict_and_decide_pipeline(INPUT_FILES)
+if config.get("barcodes"):
+    INPUT_FILES = {k:v for k,v in INPUT_FILES.items() if k in config["barcodes"]}
 
 
 # ---- Output folders ----
@@ -143,6 +88,9 @@ RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 
 # ---- Params ----
 
+# --- Other ----
+# Save file manifest
+input_files_dict_to_df(INPUT_FILES).to_csv(f"{PIPELINE_OUTPUT}/file_manifest.tsv", sep="\t", index=None)
 
 ##########################################
 # --------------- Rules ---------------- #
