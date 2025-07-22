@@ -4,9 +4,9 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - **Point mutations (SNVs, indels, frameshifts) in PAO1**.
 - **Variant calling of closest oprD reference**. 
 - Detection of possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
-- Detection of possible **truncated genes** (only with assembly!).
+- Detection of possible **truncated genes** due to big chromosomic rearrangements (only with assembly!).
 - Detection of **mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
-- Detection of possible **polymorphisms** that do not influence on antibiotic resistance.
+- Detection of possible **polymorphisms** that do not influence antibiotic resistance.
 - Creation of comparative tables.
 
 ## Usage
