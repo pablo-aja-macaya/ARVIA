@@ -90,30 +90,32 @@ def check_input_file_dict_and_decide_pipeline(d):
 
 def expand_input_file_dict_into_multiple_cols(row):
     """
-    Takes column 1 and expands it into columns reads_1, reads_2 and assembly
+    Takes column "temp" and expands it into columns reads_1, reads_2 and assembly
     depending on the number of files and their presence
     """
-    read_file_count = len(row[1]["reads"])
-    assembly_file_count = len(row[1]["assembly"])
+    read_file_count: int = len(row[1]["reads"])
+    assembly_file_count: int = len(row[1]["assembly"])
 
     if read_file_count==2:
-        row["reads_1"] = row[1]["reads"][0]
-        row["reads_2"] = row[1]["reads"][1]
+        row["reads_1"] = row["temp"]["reads"][0]
+        row["reads_2"] = row["temp"]["reads"][1]
     elif read_file_count==1:
-        row["reads_1"] = row[1]["reads"][0]
+        row["reads_1"] = row["temp"]["reads"][0]
     elif read_file_count>2:
-        raise Exception(f"Unexpected number of reads: {row}")
+        raise Exception(f"Unexpected number of reads: {row}")        
 
     if assembly_file_count == 1:
-        row["assembly"] = row[1]["assembly"][0]
+        row["assembly"] = row["temp"]["assembly"][0]
+
     return row
 
 def input_files_dict_to_df(d: dict) -> pd.DataFrame:
     file_manifest_df = pd.DataFrame(d.items())
-    file_manifest_df.columns = ["sample", 1]
+    file_manifest_df.columns = ["sample", "temp"]
     file_manifest_df = file_manifest_df.apply(expand_input_file_dict_into_multiple_cols, axis=1)
-    file_manifest_df = file_manifest_df.drop(columns=[1])
+    file_manifest_df = file_manifest_df.drop(columns=["temp"])
     file_manifest_df = file_manifest_df.fillna("-")
+    file_manifest_df = file_manifest_df[["sample"]+ [i for i in file_manifest_df.columns if i!="sample"]]
     return file_manifest_df
 
 # # Read config (user input)
