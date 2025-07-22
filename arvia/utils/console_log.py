@@ -177,7 +177,7 @@ def display_progress(snakemake_console_log, dry_run: bool = False, step_selectio
             time.sleep(0.25)
 
     CONSOLE_STDOUT.print()
-    rich_display_dataframe(pd.DataFrame(table_lines.values()), "To-do")
+    rich_display_dataframe(pd.DataFrame(table_lines.values()), "To-do list\n(not in order of execution)")
     CONSOLE_STDOUT.print()
 
     if dry_run:

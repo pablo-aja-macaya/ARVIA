@@ -58,7 +58,7 @@ parser_run_arvia__phylo = parser_run_arvia.add_argument_group("Phylogenetics")
 parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Optional parameters")
 
 parser_run_arvia__in_out.add_argument(
-    "--reads",
+    "-r", "--reads", 
     required=False,
     metavar="path",
     type=os.path.abspath,
@@ -67,7 +67,7 @@ parser_run_arvia__in_out.add_argument(
     dest="reads",
 )
 parser_run_arvia__in_out.add_argument(
-    "--assemblies",
+    "-a", "--assemblies", 
     required=False,
     metavar="path",
     type=os.path.abspath,
@@ -76,7 +76,7 @@ parser_run_arvia__in_out.add_argument(
     dest="assemblies",
 )
 parser_run_arvia__in_out.add_argument(
-    "--output_folder",
+    "-o", "--output_folder", 
     required=True,
     metavar="path",
     type=os.path.abspath,
@@ -84,7 +84,7 @@ parser_run_arvia__in_out.add_argument(
     dest="output_folder",
 )
 parser_run_arvia__opt_params.add_argument(
-    "--cores",
+    "-c", "--cores", 
     required=False,
     metavar="int",
     default=max(1, os.cpu_count()-1),
@@ -93,10 +93,10 @@ parser_run_arvia__opt_params.add_argument(
     dest="cores",
 )
 parser_run_arvia__opt_params.add_argument(
-    "--previsualize",
+    "-p", "--previsualize", 
     required=False,
     action="store_true",
-    help=f"Previsualize pipeline to see if everything is correct",
+    help=f"Previsualize pipeline to see if everything is as expected",
     dest="previsualize",
 )
 parser_run_arvia__opt_params.add_argument(

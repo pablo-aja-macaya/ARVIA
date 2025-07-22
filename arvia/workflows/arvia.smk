@@ -13,7 +13,7 @@ import arvia
 
 from arvia.utils.process_user_input import associate_user_input_files, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
-from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise
+from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
 from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res
 from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
@@ -90,7 +90,11 @@ RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 
 # --- Other ----
 # Save file manifest
-input_files_dict_to_df(INPUT_FILES).to_csv(f"{PIPELINE_OUTPUT}/file_manifest.tsv", sep="\t", index=None)
+file_manifest_df = input_files_dict_to_df(INPUT_FILES)
+file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/file_manifest.tsv", sep="\t", index=None)
+# onstart:
+#     rich_display_dataframe(file_manifest_df, "File manifest")
+
 
 ##########################################
 # --------------- Rules ---------------- #
@@ -116,6 +120,7 @@ rule snippy:
     output:
         folder=directory(Path("folder")),
         res=Path(".tab"),
+        res_with_het=Path("snps.nofilt.tab"),
         gene_coverage=Path(".tsv"),
     params:
         selected_input=None, # "paired_end" | "single_end" | "assembly",
@@ -177,6 +182,7 @@ use rule snippy as paeruginosa_mutations with:
     output:
         folder=directory(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}")),
         res=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "snps.tab"),
+        res_with_het=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "snps.nofilt.tab"),
         gene_coverage=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "gene_coverage.tsv"),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
@@ -187,9 +193,16 @@ use rule snippy as paeruginosa_mutations with:
     log:
         Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "arvia.log")
 
+# def get_type_of_muts(wc, include_het_muts: bool = INLCUDE_HET_MUTS):
+#     assert type(include_het_muts) == bool, f"Parameter include_het_muts is not a bool: {include_het_muts=}"
+#     if include_het_muts:
+#         return rules.paeruginosa_mutations.output.res_with_het
+#     else:
+#         return rules.paeruginosa_mutations.output.res_with
+
 rule process_paeruginosa_mutations:
     input:
-        res=rules.paeruginosa_mutations.output.res,
+        res=rules.paeruginosa_mutations.output.res_with_het,
     output:
         folder=directory(Path(PAERUGINOSA_MUTS_PROCESS_OUTPUT, "{barcode}")),
         res=Path(PAERUGINOSA_MUTS_PROCESS_OUTPUT, "{barcode}", "{barcode}_filtered_snps.tab"),
@@ -341,6 +354,7 @@ use rule snippy as paeruginosa_oprd with:
     output:
         folder = directory(Path(SNIPPY_OPRD, "{barcode}")),
         res = Path(SNIPPY_OPRD, "{barcode}", "snps.tab"),
+        res_with_het=Path(SNIPPY_OPRD, "{barcode}", "snps.nofilt.tab"),
         gene_coverage=Path(SNIPPY_OPRD, "{barcode}", "gene_coverage.tsv"),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
@@ -381,19 +395,19 @@ def decide_steps(wc):
     pipeline = INPUT_FILES[wc.barcode]["pipeline"] # full_pipeline | only_reads | only_assembly
     if pipeline in ["full_pipeline", "only_assembly"]:
         steps = {
-            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res,
+            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res_with_het,
             "paeruginosa_processed_mutations": rules.process_paeruginosa_mutations.output.res,
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
-            "paeruginosa_oprd": rules.paeruginosa_oprd.output.res,
+            "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
         }
     elif pipeline == "only_reads":
         steps = {
-            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res,
+            "paeruginosa_mutations": rules.paeruginosa_mutations.output.res_with_het,
             "paeruginosa_processed_mutations": rules.process_paeruginosa_mutations.output.res,
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
-            "paeruginosa_oprd": rules.paeruginosa_oprd.output.res,
+            "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
             # "paeruginosa_assembly_blast": NULL,
         }

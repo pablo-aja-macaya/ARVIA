@@ -13,13 +13,13 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ```sh
 # Full pipeline (reads+assemblies)
-arvia --input_assemblies folder/*.fasta --input_reads folder/*.fastq.gz --output_folder arvia --threads 60
+arvia run --assemblies folder/*.fasta --reads folder/*.fastq.gz --output_folder arvia --threads 60
 
 # Full pipeline using only assemblies (no depth inference in variant calling)
-arvia --input_assemblies folder/*.fasta --output_folder arvia --threads 60
+arvia run --assemblies folder/*.fasta --output_folder arvia --threads 60
 
 # Partial pipeline using only reads (truncation information in assembly from assembly is missing)
-arvia --input_reads folder/*.fastq.gz --output_folder arvia --threads 60
+arvia run --reads folder/*.fastq.gz --output_folder arvia --threads 60
 ```
 
 ## Installation
