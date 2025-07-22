@@ -4,8 +4,8 @@ import json
 import re
 import traceback
 from pathlib import Path
-from snakemake.logging import logger
 import logging
+from snakemake.logging import logger
 import warnings
 import datetime
 from pprint import pprint
@@ -24,6 +24,7 @@ from arvia.utils.local_paths import CONDA_ENVS
 # from bactasys.utils.config.local_paths import CARD_JSON
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # remove warning from pandas
+warnings.simplefilter(action='ignore', category=UserWarning) # remove warning from deprecated package in setuptools
 ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of bactasys
 DATETIME_OF_CALL = datetime.datetime.now()
 
@@ -49,7 +50,12 @@ if snakemake_console_log is not None:
     handler = logging.FileHandler(snakemake_console_log, mode='a')
     formatter = logging.Formatter('%(message)s')
     handler.setFormatter(formatter)
-    logger.set_stream_handler(handler)
+    try:
+        # For old snakemake versions
+        logger.set_stream_handler(handler)
+    except Exception as e:
+        # For new snakemake versions
+        logger.handlers = [handler] 
 
 
 # ---- Input set-up ----
@@ -135,17 +141,15 @@ rule snippy:
     shell:
         """
         (
-        rm -r {output.folder}
-
         if [[ {params.selected_input} == "paired_end" ]]; then
             reads=({input.reads})
-            snippy --R1 ${{reads[0]}} --R2 ${{reads[1]}} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet
+            snippy --R1 ${{reads[0]}} --R2 ${{reads[1]}} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet --force
 
         elif [[ {params.selected_input} == "single_end" ]]; then
-            snippy --se {input.reads} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet
+            snippy --se {input.reads} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet --force
 
         elif [[ {params.selected_input} == "assembly" ]]; then
-            snippy --ctgs {input.assembly} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet
+            snippy --ctgs {input.assembly} --ref {input.ref_gbk} --mincov {params.min_depth} --maxsoft {params.maxsoft} --outdir {output.folder} --cpus {threads} --quiet --force
         else
             exit 1
         fi
