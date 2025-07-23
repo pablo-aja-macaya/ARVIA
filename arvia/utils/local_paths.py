@@ -63,6 +63,7 @@ OPRD_CONFIG = {
 BASE_YAML_CONFIG = {
     "input": {
         "command": "run",
+        "input_yaml": None,
         "reads": [],
         "assemblies": [],
     },

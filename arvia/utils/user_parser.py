@@ -53,6 +53,14 @@ parser_run_arvia__req_params = parser_run_arvia.add_argument_group("Required par
 parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Optional parameters")
 
 parser_run_arvia__in_out.add_argument(
+    "-i", "--input_yaml", 
+    required=False,
+    metavar="path",
+    type=os.path.abspath,
+    help=f"Input files from a YAML. Each key is a sample_id containning two lists of paths with keys 'reads' and 'assembly'",
+    dest="input_yaml",
+)
+parser_run_arvia__in_out.add_argument(
     "-r", "--reads", 
     required=False,
     metavar="path",

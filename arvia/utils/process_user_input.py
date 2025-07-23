@@ -2,7 +2,8 @@ import yaml
 import re
 from pathlib import Path
 import pandas as pd
-
+import os
+from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 
 # Possible input file patterns so we can associate the sample name 
 INPUT_FILE_PATTERNS = {
@@ -21,11 +22,40 @@ INPUT_FILE_PATTERNS = {
 
 }
 
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    """
+    Special YAML loader with duplicate key checking
+    # from https://stackoverflow.com/a/63215043
+    """
+    def construct_mapping(self, node, deep=False):
+        mapping = []
+        for key_node, value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            assert key not in mapping, f"At least a key is repeated in --input_yaml file: {key}"
+            mapping.append(key)
+        return super().construct_mapping(node, deep)
+
 def associate_user_input_files(config: dict) -> dict:
     """    
-    Transform user input (dict) into expected dictionary associating sample ids in name file.
+    Transform user input ({"reads": [], "assemblies": []}) into expected dictionary associating sample ids in name file.
     Sample IDs are extracted from files through a set of possible patterns
-    Expected structure below
+    # Input:
+    {
+        "reads": ["f1","f2","f3"],
+        "assemblies": ["f4"]
+    }
+    # Output:
+    {
+        "ARGA00461": { 
+            "reads": ["ARGA00461.fastq.gz"],
+            "assembly": ["ARGA00461.fasta"]
+        },
+        "ARGA00190": { 
+            "reads": ["ARGA00190.fastq.gz"],
+            "assembly": ["ARGA00190.fasta"]
+        },
+    }
     """
     d = {
         # "ARGA00461": { 
@@ -57,6 +87,45 @@ def associate_user_input_files(config: dict) -> dict:
         assert pattern_detected, f"Could not find expected file structure in {f}"
     return d
 
+
+def input_file_dict_from_yaml(yaml_input):
+    """
+    Transform input files in YAML format into
+    into expected dictionary doing some sanity checks.
+    # Input
+    sample_id:
+        reads:
+            - reads.fastq.gz
+        assembly:
+            - assembly.fasta
+    # Output
+    {
+        "sample_id": {
+            "reads": ["reads.fastq.gz"],
+            "assembly": ["assembly.fasta"]
+        }
+    }
+
+    """
+    # Read user input files in yaml format
+    with open(yaml_input, 'r') as f:
+        d = yaml.load(f, Loader=UniqueKeyLoader)
+
+    # Ensure the dict has the keys "reads" and "assembly" in each sample, each containning a list (can be empty)
+    for k,v in d.items():
+        # If main keys are not present initialize them with a list
+        for i in ["reads","assembly"]:
+            if not v.get(i):
+                v[i] = []
+            else:
+                v[i] = sorted(v[i])
+            if type(v.get(i))!=list:
+                raise Exception(f"Input value is not in list format ({v[i]=}): {d}")
+            v[i] = [os.path.abspath(file) for file in v[i]] # turn file paths into absolute paths
+
+    return d
+
+
 def check_input_file_dict_and_decide_pipeline(d):
     for k,v in d.items():
         reads = v["reads"]
@@ -64,23 +133,24 @@ def check_input_file_dict_and_decide_pipeline(d):
 
         assert type(reads)==list, "Reads are not in list format"
         assert type(assembly)==list, "Assembly is not in list format"
+        assert len(reads)<=2, "Only 0-2 reads files per sample is supported"
+        assert len(assembly)<=1, "Only 0-1 assembly file per sample is supported"
         check_reads_exists = [i for i in reads if not Path(i).exists()]
         check_assembly_exists = [i for i in assembly if not Path(i).exists()]
-
         # If reads are supplied
         if (len(reads) in [1,2]):
-            # assert len(check_reads_exists)==0, f"At least a file path does not exist: {check_reads_exists}"
+            assert len(check_reads_exists)==0, f"At least a file path does not exist: {check_reads_exists}"
             v["reads_type"] = "single_end" if len(reads)==1 else "paired_end"
 
             # If assembly is supplied
             if assembly:
-                # assert check_assembly_exists, f"At least a file path does not exist: {assembly}"
+                assert len(check_assembly_exists)==0, f"At least a file path does not exist: {assembly}"
                 v["pipeline"] = "full_pipeline"
             else:
                 v["pipeline"] = "only_reads"
         
         elif assembly:
-            # assert check_assembly_exists, f"At least a file path does not exist: {assembly}"
+            assert len(check_assembly_exists)==0, f"At least a file path does not exist: {assembly}"
             v["pipeline"] = "only_assembly"
             v["reads_type"] = None
         

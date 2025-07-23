@@ -11,7 +11,7 @@ import datetime
 from pprint import pprint
 import arvia
 
-from arvia.utils.process_user_input import associate_user_input_files, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
+from arvia.utils.process_user_input import associate_user_input_files, input_file_dict_from_yaml, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
@@ -55,12 +55,22 @@ if snakemake_console_log is not None:
         logger.set_stream_handler(handler)
     except Exception as e:
         # For new snakemake versions
-        logger.handlers = [handler] 
+        from arvia.utils.snakemake_logger import LogHandler
+
+        logger.handlers = [LogHandler(None,None)] 
 
 
 # ---- Input set-up ----
-INPUT_FILES = associate_user_input_files(config)
+# Generate dictionary INPUT_FILES depending if user gave a yaml (--input_yaml) or two list of files (--reads and --assemblies)
+if config.get("input_yaml"):
+    INPUT_FILES = input_file_dict_from_yaml(config.get("input_yaml"))
+else:
+    INPUT_FILES = associate_user_input_files(config)
+
+# Check input and decide pipelines
 INPUT_FILES = check_input_file_dict_and_decide_pipeline(INPUT_FILES)
+
+# Filter samples if --barcodes was used
 if config.get("barcodes"):
     INPUT_FILES = {k:v for k,v in INPUT_FILES.items() if k in config["barcodes"]}
 

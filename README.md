@@ -15,15 +15,103 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ## Usage
 
+If **your files follow ARVIA's naming convention**, you can just easily give them all like this and ARVIA will associate each file to their `sample_id`:
+
 ```sh
 # Full pipeline (reads+assemblies)
-arvia run --assemblies folder/*.fasta --reads folder/*.fastq.gz --output_folder arvia --threads 60
+arvia run --assemblies folder/*.fasta --reads folder/*.fastq.gz --output_folder arvia
 
 # Full pipeline using only assemblies (no depth inference in variant calling)
-arvia run --assemblies folder/*.fasta --output_folder arvia --threads 60
+arvia run --assemblies folder/*.fasta --output_folder arvia
 
 # Partial pipeline using only reads (truncation information in assembly from assembly is missing)
-arvia run --reads folder/*.fastq.gz --output_folder arvia --threads 60
+arvia run --reads folder/*.fastq.gz --output_folder arvia
+```
+
+You can see the **convention** with `--help`:
+
+```sh
+-r, --reads path [path ...]         Input reads files. Can be paired-end or single-end and must follow one of these
+                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
+                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz'
+-a, --assemblies path [path ...]    Input assembly files. Must follow one of these structures:
+                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+```
+
+If your **files do not follow the convention, you can generate a YAML file** with unique sample_ids for `--input_yaml` with the following structure:
+
+```yaml
+# -- Input template --
+# SAMPLE_10: # <- Will be used as ID
+#   reads:
+#     - path/to/blablabla_R1.fastq.gz
+#     - path/to/blablabla_R2.fastq.gz
+#   assembly:
+#     - path/to/blablabla.fasta
+
+# -- Your samples --
+# Complete example with paired reads and assembly
+ARGA00024:
+  reads:
+    - input/ARGA00024_R2.fastq.gz
+    - input/ARGA00024_R1.fastq.gz
+  assembly:
+    - input/ARGA00024.fasta
+
+# Example with only single-end long reads
+# you dont need to specify assembly key if you dont have it
+ARGA00461:
+  reads:
+    - input/ARGA00461.fastq.gz
+
+# Example with only assembly
+# you dont need to specify reads key if you dont have it
+ARGA00461-a:
+  assembly:
+    - input/ARGA00461.fasta
+```
+
+And run ARVIA with the following command:
+
+```sh
+# Run ARVIA
+arvia run --input_yaml input.yaml --output_folder arvia
+```
+
+You can also previsualize what the pipeline is going to do with `--previsualize`:
+```sh
+# Run ARVIA
+arvia run --input_yaml input.yaml --output_folder arvia --previsualize
+```
+
+Full command list available with `arvia --help`:
+
+```sh
+Usage:  run [-h] [-i path] [-r path [path ...]] [-a path [path ...]] -o path [-c int] [-p] [--use_conda] [--barcodes str [str ...]]
+            [--draw_wf str]
+
+ARVIA: Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa
+
+Optional Arguments:
+  -h, --help                                        show this help message and exit
+
+Input/Output:
+  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containning two lists of paths with
+                                                    keys 'reads' and 'assembly' (default: None)
+  -r, --reads path [path ...]                       Input reads files. Can be paired-end or single-end and must follow one of these
+                                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
+                                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz' (default:
+                                                    None)
+  -a, --assemblies path [path ...]                  Input assembly files. Must follow one of these structures:
+                                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+  -o, --output_folder path                          Output folder (default: None)
+
+Optional Parameters:
+  -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
+  -p, --previsualize                                Previsualize pipeline to see if everything is as expected (default: False)
+  --use_conda                                       If True, use conda environment specified by snakefile (default: False)
+  --barcodes str [str ...]                          Space separated list of sample IDs. Only these samples will be processed (default: None)
+  --draw_wf str                                     Draw pipeline to this path (PDF (default: None)
 ```
 
 ## Installation
@@ -78,6 +166,8 @@ Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced
                 - [] add original muts without filters
             - [] hideable snakemake progress bar
             - [] tests
+            - [] rgi
+            - [] mlst
             - [] add approximate depth if using reads
             - [] revisar parte de blast porque hay genes que no aparecen en tabla final
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)

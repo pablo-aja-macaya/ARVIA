@@ -34,8 +34,11 @@ def main():
 
         CONSOLE_STDOUT.log("Starting ARVIA...", style="info")
         if command == "run":
-            if not parameters["reads"] and not parameters["assemblies"]:
-                log_error_and_raise("Provide reads (--reads) and/or assemblies (--assemblies), please.")
+            if not parameters["input_yaml"] and (not parameters["reads"] and not parameters["assemblies"]):
+                log_error_and_raise("Provide files with --input_yaml or, if files follow specified format, use --reads and/or --assemblies, please.")
+            elif parameters["input_yaml"] and (parameters["reads"] or parameters["assemblies"]):
+                log_error_and_raise("You can only provide --input_yaml OR --reads and/or --assemblies")
+            
             # Run
             run_snakemake(
                 f"{ARVIA_DIR}/workflows/arvia.smk",
