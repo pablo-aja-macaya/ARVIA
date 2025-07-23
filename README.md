@@ -3,6 +3,7 @@
 </p>
 
 ## Summary
+
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Point mutations (SNVs, indels, frameshifts) in PAO1**.
 - **Variant calling of closest oprD reference**. 
@@ -10,7 +11,11 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - Detection of possible **truncated genes** due to big chromosomic rearrangements (only with assembly!).
 - Detection of **mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
 - Detection of possible **polymorphisms** that do not influence antibiotic resistance.
-- Creation of comparative tables.
+- Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
+
+> [!NOTE]
+> This application has been **designed for Linux systems** and tested in **Ubuntu**.
+
 
 ## Usage
 
@@ -34,13 +39,14 @@ arvia run --assemblies folder/*.fasta --output_folder arvia
 arvia run --reads folder/*.fastq.gz --output_folder arvia
 ```
 
-You can also previsualize what the pipeline is going to do with `--previsualize`:
-```sh
-# Run ARVIA
-arvia run --input_yaml input.yaml --output_folder arvia --previsualize
-```
+> [!TIP]
+> You can also previsualize what the pipeline is going to do with `--previsualize`:
+>```sh
+># Run ARVIA
+>arvia run --input_yaml input.yaml --output_folder arvia --previsualize
+>```
 
-Check out more options in the [Full command list](#full-command-list)
+Check out more options in the [Full command list](#full-command-list).
 
 ## Installation
 
@@ -79,11 +85,15 @@ python setup.py develop
 
 ## Input
 
-ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample.
+ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. Single-end reads will be considered long reads such as PacBio or Oxford Nanopore Technologies (ONT). It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample.
+
+> [!IMPORTANT]
+> Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, which requires an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
+
 
 ### Input YAML convention
 
-In order to use `--input_yaml` generate a YAML file with the following structure, where keys are unique sample_ids, containing one or two lists named `reads` and `assembly` with their corresponding files (path can be relative from where ARVIA is ran):
+In order to use `--input_yaml` generate a YAML file with the following structure, where keys are unique sample_ids, containing one or two lists named `reads` and `assembly` with their corresponding files (path can be relative from where ARVIA is executed):
 
 ```yaml
 # -- Input template --
