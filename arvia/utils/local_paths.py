@@ -1,9 +1,9 @@
-import arvia
 import json
 from pathlib import Path
 from arvia.utils.console_log import CONSOLE_STDERR, CONSOLE_STDOUT
-
-ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of arvia
+from arvia.arvia import ARVIA_DIR
+# import arvia
+# ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of arvia
 
 REPORT_LANGUAGE = "en"  # en|es # html reports language
 

@@ -9,8 +9,8 @@ from snakemake.logging import logger
 import warnings
 import datetime
 from pprint import pprint
-import arvia
 
+from arvia.arvia import ARVIA_DIR
 from arvia.utils.process_user_input import associate_user_input_files, input_file_dict_from_yaml, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
@@ -25,7 +25,7 @@ from arvia.utils.local_paths import CONDA_ENVS
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # remove warning from pandas
 warnings.simplefilter(action='ignore', category=UserWarning) # remove warning from deprecated package in setuptools
-ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of bactasys
+# ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of bactasys
 DATETIME_OF_CALL = datetime.datetime.now()
 
 
@@ -108,8 +108,8 @@ RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 # Save file manifest
 file_manifest_df = input_files_dict_to_df(INPUT_FILES)
 file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/file_manifest.tsv", sep="\t", index=None)
-# onstart:
-#     rich_display_dataframe(file_manifest_df, "File manifest")
+onstart:
+    rich_display_dataframe(file_manifest_df, "File manifest")
 
 
 ##########################################
