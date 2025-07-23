@@ -163,8 +163,9 @@ def expand_input_file_dict_into_multiple_cols(row):
     Takes column "temp" and expands it into columns reads_1, reads_2 and assembly
     depending on the number of files and their presence
     """
-    read_file_count: int = len(row[1]["reads"])
-    assembly_file_count: int = len(row[1]["assembly"])
+    read_file_count: int = len(row["temp"]["reads"])
+    assembly_file_count: int = len(row["temp"]["assembly"])
+    pipeline = row["temp"]["pipeline"]
 
     if read_file_count==2:
         row["reads_1"] = row["temp"]["reads"][0]
@@ -177,6 +178,9 @@ def expand_input_file_dict_into_multiple_cols(row):
     if assembly_file_count == 1:
         row["assembly"] = row["temp"]["assembly"][0]
 
+    if pipeline:
+        row["pipeline"] = pipeline
+
     return row
 
 def input_files_dict_to_df(d: dict) -> pd.DataFrame:
@@ -185,7 +189,7 @@ def input_files_dict_to_df(d: dict) -> pd.DataFrame:
     file_manifest_df = file_manifest_df.apply(expand_input_file_dict_into_multiple_cols, axis=1)
     file_manifest_df = file_manifest_df.drop(columns=["temp"])
     file_manifest_df = file_manifest_df.fillna("-")
-    file_manifest_df = file_manifest_df[["sample"]+ [i for i in file_manifest_df.columns if i!="sample"]]
+    file_manifest_df = file_manifest_df[["sample", "pipeline"]+ [i for i in file_manifest_df.columns if i not in ["sample", "pipeline"]]]
     return file_manifest_df
 
 # # Read config (user input)
