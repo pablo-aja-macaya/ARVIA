@@ -4,7 +4,7 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads** and/or **assemblies** to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Its main functions are:
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads** and/or **assemblies** to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Point mutations (SNVs, indels, frameshifts) in PAO1**.
 - **Variant calling of closest oprD reference**. 
 - Detection of possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
@@ -15,7 +15,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ## Usage
 
-You can run ARVIA easily generating an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) with the input files:
+You can run ARVIA easily with an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) containning the input files:
 
 ```sh
 # Run ARVIA
@@ -41,7 +41,11 @@ You can also previsualize what the pipeline is going to do with `--previsualize`
 arvia run --input_yaml input.yaml --output_folder arvia --previsualize
 ```
 
+Check out more options in the [Full command list](#full-command-list)
+
 ## Installation
+
+Installation through mamba is highly recommended:
 
 ```sh
 # Create environment
