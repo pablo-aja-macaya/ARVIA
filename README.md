@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="arvia/data/arvia_header.png" height="80" >
+  <img src="arvia/data/arvia_header.png" height="50" >
 </p>
 
 ## Summary
@@ -15,14 +15,14 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ## Usage
 
-You can run ARVIA easily with an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) containing the input files:
+You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
 
 ```sh
 # Run ARVIA
 arvia run --input_yaml input.yaml --output_folder arvia
 ```
 
-If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can just easily give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
+If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can also give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
 
 ```sh
 # Full pipeline (reads+assemblies)
@@ -52,7 +52,7 @@ Installation through mamba is highly recommended:
 mamba create -n arvia \
     snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter \
     seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.15 openssl==3.5.0 samtools=1.18 blast=2.16.0
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0
     
 conda activate arvia
 
@@ -61,6 +61,22 @@ cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 
 ```
+
+<!-- 
+# Testing package updates (this one works)
+mamba create -n arvia_test_env \
+    'snakemake==7.18.0' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
+    seqkit==2.1.0 'pigz>=2.4' \
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+
+mamba create -n arvia_test_env \
+    'snakemake==9.8.1' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
+    seqkit==2.1.0 'pigz>=2.4' \
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+
+conda activate arvia_test_env
+python setup.py develop
+-->
 
 ## Input
 
@@ -149,21 +165,7 @@ Optional Parameters:
 
 
 
-<!-- 
-# Testing package updates (this one works)
-mamba create -n arvia_test_env \
-    'snakemake==7.18.0' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
-    seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
 
-mamba create -n arvia_test_env \
-    'snakemake==9.8.1' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
-    seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
-
-conda activate arvia_test_env
-python setup.py develop
--->
 
 ## Citation
 
