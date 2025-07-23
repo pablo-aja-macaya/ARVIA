@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="arvia/data/arvia_icon.png" height="80" >
+</p>
+
 ## Summary
 
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads** and/or **assemblies** to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Its main functions are:
@@ -27,14 +31,33 @@ arvia run --reads folder/*.fastq.gz --output_folder arvia --threads 60
 ```sh
 # Create environment
 mamba create -n arvia \
-    snakemake==7.18.0 python==3.8.10 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' xlsxwriter \
+    snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter \
     seqkit==2.1.0 'pigz>=2.4' \
     perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.15 openssl==3.5.0 samtools=1.18 blast=2.16.0
+    
+conda activate arvia
 
 git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
 cd ARVIA
-python setup.py develop
+python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
+
 ```
+
+<!-- 
+# Testing package updates (this one works)
+mamba create -n arvia_test_env \
+    'snakemake==7.18.0' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
+    seqkit==2.1.0 'pigz>=2.4' \
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+
+mamba create -n arvia_test_env \
+    'snakemake==9.8.1' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
+    seqkit==2.1.0 'pigz>=2.4' \
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+
+conda activate arvia_test_env
+python setup.py develop
+-->
 
 ## Citation
 
