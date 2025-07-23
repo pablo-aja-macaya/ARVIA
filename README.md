@@ -4,7 +4,7 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads** and/or **assemblies** to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Point mutations (SNVs, indels, frameshifts) in PAO1**.
 - **Variant calling of closest oprD reference**. 
 - Detection of possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
@@ -15,7 +15,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ## Usage
 
-You can run ARVIA easily with an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) containning the input files:
+You can run ARVIA easily with an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) containing the input files:
 
 ```sh
 # Run ARVIA
@@ -62,9 +62,13 @@ python -m pip install -e . # "-e" allows for editable mode, else "python -m pip 
 
 ```
 
-## Input YAML convention
+## Input
 
-Generate a YAML file with unique sample_ids for `--input_yaml` with the following structure:
+ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample.
+
+### Input YAML convention
+
+In order to use `--input_yaml` generate a YAML file with the following structure, where keys are unique sample_ids, containing one or two lists named `reads` and `assembly` with their corresponding files (path can be relative from where ARVIA is ran):
 
 ```yaml
 # -- Input template --
@@ -98,7 +102,7 @@ ARGA00461-a:
 ```
 
 
-## File naming convention
+### File naming convention
 
 You can see the convention expected for `--reads` and `--assemblies` with `--help`:
 
@@ -125,7 +129,7 @@ Optional Arguments:
   -h, --help                                        show this help message and exit
 
 Input/Output:
-  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containning two lists of paths with
+  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containing two lists of paths with
                                                     keys 'reads' and 'assembly' (default: None)
   -r, --reads path [path ...]                       Input reads files. Can be paired-end or single-end and must follow one of these
                                                     structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
