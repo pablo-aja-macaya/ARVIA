@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="arvia/data/arvia_header.png" height="50" >
+  <img src="arvia/data/arvia_header.png" height="70" >
 </p>
 
 ## Summary
