@@ -58,7 +58,7 @@ parser_run_arvia__in_out.add_argument(
     metavar="path",
     type=os.path.abspath,
     nargs="+",
-    help=f"Input reads files. Can be paired-end or single-end and must follow one of these structures: '{{sample_id}}.fastq.gz' / '{{sample_id}}_R[1,2].fastq.gz' / '{{sample_id}}_[1,2].fastq.gz' / '{{sample_id}}_S\d+_L\d+_R[1,2]_\d+.fastq.gz'",
+    help=f"Input reads files. Can be paired-end or single-end and must follow one of these structures: '{{sample_id}}.fastq.gz' / '{{sample_id}}_R[1,2].fastq.gz' / '{{sample_id}}_[1,2].fastq.gz' / '{{sample_id}}_S\\d+_L\\d+_R[1,2]_\\d+.fastq.gz'",
     dest="reads",
 )
 parser_run_arvia__in_out.add_argument(
