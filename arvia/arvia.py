@@ -5,7 +5,7 @@ from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_an
 
 ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
-VERSION = "v0.1.0"
+VERSION = "v0.1.2"
 
 # ascii =f"""
 # {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}           _______      _______          {Style.RESET_ALL}

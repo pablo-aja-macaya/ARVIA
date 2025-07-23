@@ -3,7 +3,6 @@
 </p>
 
 ## Summary
-
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Point mutations (SNVs, indels, frameshifts) in PAO1**.
 - **Variant calling of closest oprD reference**. 
@@ -173,6 +172,25 @@ Please cite the database from which PAO1 genome and gene information were retrie
 
 Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced annotations and features for comparing thousands of Pseudomonas genomes in the Pseudomonas genome database. Nucleic Acids Res. (2016) doi: 10.1093/nar/gkv1227 (Database issue). Pubmed: 26578582
 
+## Development
+
+### Upload to TestPyPi
+
+```
+cd ARVIA/
+conda activate twine
+
+# Create build dist
+python -m build
+
+# Upload to TestPyPi with twine
+twine upload --repository testpypi dist/*
+
+# Now you can pip install
+pip install -i https://test.pypi.org/simple/ arvia
+
+```
+
 
 <!-- 
 - [] Herramienta variant calling p. aeruginosa    
@@ -183,13 +201,14 @@ Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced
             - [] automatic reference download
             - [] in results_per_sample
                 - [] format blast table (add header at least)
-                - [] add original muts without filters
+                - [X] add original muts without filters
             - [] hideable snakemake progress bar
             - [] tests
+            - [] informe html de igvvariant
             - [] rgi
             - [] mlst
             - [] add approximate depth if using reads
-            - [] revisar parte de blast porque hay genes que no aparecen en tabla final
+            - [] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
     - Dependencies:
         - python
