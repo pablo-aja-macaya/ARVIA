@@ -15,7 +15,14 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 ## Usage
 
-If **your files follow ARVIA's naming convention**, you can just easily give them all like this and ARVIA will associate each file to their `sample_id`:
+You can run ARVIA easily generating an `input.yaml` file (see [Input YAML convention](#input-yaml-convention)) with the input files:
+
+```sh
+# Run ARVIA
+arvia run --input_yaml input.yaml --output_folder arvia
+```
+
+If your files follow [**ARVIA's naming convention**](#naming-convention), you can just easily give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
 
 ```sh
 # Full pipeline (reads+assemblies)
@@ -28,17 +35,32 @@ arvia run --assemblies folder/*.fasta --output_folder arvia
 arvia run --reads folder/*.fastq.gz --output_folder arvia
 ```
 
-You can see the **convention** with `--help`:
-
+You can also previsualize what the pipeline is going to do with `--previsualize`:
 ```sh
--r, --reads path [path ...]         Input reads files. Can be paired-end or single-end and must follow one of these
-                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
-                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz'
--a, --assemblies path [path ...]    Input assembly files. Must follow one of these structures:
-                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+# Run ARVIA
+arvia run --input_yaml input.yaml --output_folder arvia --previsualize
 ```
 
-If your **files do not follow the convention, you can generate a YAML file** with unique sample_ids for `--input_yaml` with the following structure:
+## Installation
+
+```sh
+# Create environment
+mamba create -n arvia \
+    snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter \
+    seqkit==2.1.0 'pigz>=2.4' \
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.15 openssl==3.5.0 samtools=1.18 blast=2.16.0
+    
+conda activate arvia
+
+git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
+cd ARVIA
+python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
+
+```
+
+## Input YAML convention
+
+Generate a YAML file with unique sample_ids for `--input_yaml` with the following structure:
 
 ```yaml
 # -- Input template --
@@ -71,19 +93,22 @@ ARGA00461-a:
     - input/ARGA00461.fasta
 ```
 
-And run ARVIA with the following command:
+
+## File naming convention
+
+You can see the convention expected for `--reads` and `--assemblies` with `--help`:
 
 ```sh
-# Run ARVIA
-arvia run --input_yaml input.yaml --output_folder arvia
+-r, --reads path [path ...]         Input reads files. Can be paired-end or single-end and must follow one of these
+                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
+                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz'
+-a, --assemblies path [path ...]    Input assembly files. Must follow one of these structures:
+                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
 ```
 
-You can also previsualize what the pipeline is going to do with `--previsualize`:
-```sh
-# Run ARVIA
-arvia run --input_yaml input.yaml --output_folder arvia --previsualize
-```
 
+
+## Full command list 
 Full command list available with `arvia --help`:
 
 ```sh
@@ -114,22 +139,7 @@ Optional Parameters:
   --draw_wf str                                     Draw pipeline to this path (PDF (default: None)
 ```
 
-## Installation
 
-```sh
-# Create environment
-mamba create -n arvia \
-    snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter \
-    seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.15 openssl==3.5.0 samtools=1.18 blast=2.16.0
-    
-conda activate arvia
-
-git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
-cd ARVIA
-python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
-
-```
 
 <!-- 
 # Testing package updates (this one works)
@@ -192,3 +202,10 @@ Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced
         PAVCRA: Pseudomonas Aeruginosa Variant Calling Resistance Analysis
         PARVI: P. Aeruginosa Resistance Variant Inspector
 -->
+
+<!-- [home]: https://github.com/Pablo-Aja-Macaya/ARVIA
+[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
+[naming_convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#naming-convention -->
+
+
+
