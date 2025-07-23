@@ -22,7 +22,7 @@ You can run ARVIA easily with an `input.yaml` file (see [Input YAML convention](
 arvia run --input_yaml input.yaml --output_folder arvia
 ```
 
-If your files follow [**ARVIA's naming convention**](#naming-convention), you can just easily give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
+If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can just easily give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
 
 ```sh
 # Full pipeline (reads+assemblies)
@@ -213,7 +213,6 @@ Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced
 
 <!-- [home]: https://github.com/Pablo-Aja-Macaya/ARVIA
 [installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
-[naming_convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#naming-convention -->
 
 
 

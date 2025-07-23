@@ -57,7 +57,7 @@ parser_run_arvia__in_out.add_argument(
     required=False,
     metavar="path",
     type=os.path.abspath,
-    help=f"Input files from a YAML. Each key is a sample_id containning two lists of paths with keys 'reads' and 'assembly'",
+    help=f"Input files from a YAML. Each key is a sample_id containing two lists of paths with keys 'reads' and 'assembly'",
     dest="input_yaml",
 )
 parser_run_arvia__in_out.add_argument(
