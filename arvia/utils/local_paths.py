@@ -22,6 +22,8 @@ CONDA_ENVS = {
     # If they do not, they will be considered as names of already installed environments
     # --------------------------------
     "arvia": "arvia", # f"{ARVIA_DIR}/envs/arvia.yaml
+    "arvia_mlst": "arvia_mlst", # f"{ARVIA_DIR}/envs/arvia_mlst.yaml
+    "arvia_rgi": "arvia_rgi", # f"{ARVIA_DIR}/envs/arvia_rgi.yaml
 }
 
 
