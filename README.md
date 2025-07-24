@@ -18,7 +18,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - Detection of possible **polymorphisms** that do not influence antibiotic resistance.
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
-Index:
+## Index
 - [Usage](#usage)
 - [Installation](#installation)
 - [Input](#input)
