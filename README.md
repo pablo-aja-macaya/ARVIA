@@ -18,6 +18,17 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - Detection of possible **polymorphisms** that do not influence antibiotic resistance.
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
+Index:
+- [Usage](#usage)
+- [Installation](#installation)
+- [Input](#input)
+  - [Input YAML convention](#input-yaml-convention)
+  - [ARVIA's naming convention](#file-naming-convention)
+- [Full command list](#full-command-list)
+- [Citation](#citation) 
+
+
+
 ## Usage
 
 You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
