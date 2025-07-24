@@ -103,6 +103,7 @@ RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
 RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 
 # ---- Params ----
+CLEAN_SNIPPY_FOLDERS = False
 
 # --- Other ----
 # Save file manifest
@@ -143,6 +144,7 @@ rule snippy:
         min_depth=config.get("snippy", {}).get("min_depth", 5),
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
+        cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: 6
     conda:
         CONDA_ENVS["arvia"]
@@ -179,8 +181,10 @@ rule snippy:
         bash {params.arvia_dir}/scripts/snippy_add_missing_features.sh
 
         # ---- Clean up ----
-        rm {output.folder}/reference -r
-        rm {output.folder}/*.bam {output.folder}/*.bai {output.folder}/*.html {output.folder}/*.gff {output.folder}/snps.subs.vcf {output.folder}/ref.fa.fai {output.folder}/*.fa
+        if [[ {params.cleanup} == True ]]; then
+            rm {output.folder}/reference -r
+            rm {output.folder}/*.bam {output.folder}/*.bai {output.folder}/*.html {output.folder}/*.gff {output.folder}/snps.subs.vcf {output.folder}/ref.fa.fai {output.folder}/*.fa
+        fi
         ) &> {log}
         """
 
@@ -203,6 +207,7 @@ use rule snippy as paeruginosa_mutations with:
         min_depth=config.get("snippy", {}).get("min_depth", 5),
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
+        cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: 6
     log:
         Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "arvia.log")
@@ -375,6 +380,7 @@ use rule snippy as paeruginosa_oprd with:
         min_depth=config.get("snippy", {}).get("min_depth", 5),
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
+        cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: 12
     log:
         Path(SNIPPY_OPRD, "{barcode}", "arvia.log")
