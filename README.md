@@ -1,5 +1,10 @@
 <p align="left">
-  <img src="arvia/data/arvia_header.png" height="70" >
+  <!-- <img src="arvia/data/arvia_header.png" height="70" > -->
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="arvia/data/arvia_header_bb.png">
+    <source media="(prefers-color-scheme: light)" srcset="arvia/data/arvia_header_wb.png">
+    <img alt="ARVIA Logo" src="xxx" height="70">
+  </picture>
 </p>
 
 ## Summary

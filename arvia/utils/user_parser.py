@@ -124,7 +124,7 @@ parser_run_arvia__opt_params.add_argument(
     default=None,
     metavar="str",
     type=str,
-    help=f"Draw pipeline to this path (PDF",
+    help=f"Draw pipeline to this path (PDF)",
     dest="draw_wf",
 )
 
