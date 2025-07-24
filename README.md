@@ -13,10 +13,6 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - Detection of possible **polymorphisms** that do not influence antibiotic resistance.
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
-> [!NOTE]
-> This application has been **designed for Linux systems** and tested in **Ubuntu**.
-
-
 ## Usage
 
 You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
@@ -46,9 +42,12 @@ arvia run --reads folder/*.fastq.gz --output_folder arvia
 >arvia run --input_yaml input.yaml --output_folder arvia --previsualize
 >```
 
-Check out more options in the [Full command list](#full-command-list).
+Check out more options, like `--cores`, in the [Full command list](#full-command-list).
 
 ## Installation
+
+> [!NOTE]
+> This application has been **designed for Linux systems** and tested in **Ubuntu**.
 
 Installation through mamba is highly recommended:
 
@@ -229,7 +228,7 @@ pip install -i https://test.pypi.org/simple/ arvia
         - makeblastdb y blast (version in bakta)
         - minimap2 for long reads?
         - rgi?
-        - mlst?
+        - mlst-cge?
     - Paper: https://academic.oup.com/bioinformatics/pages/instructions_for_authors
         - [] paper
         - [] cover letter
