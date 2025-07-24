@@ -68,7 +68,7 @@ Check out more options, like `--cores`, in the [Full command list](#full-command
 Installation through mamba is highly recommended:
 
 ```sh
-# Create environment
+# Create main environment where ARVIA runs
 mamba create -n arvia \
     snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter \
     seqkit==2.1.0 'pigz>=2.4' \
@@ -79,6 +79,15 @@ conda activate arvia
 git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
 cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
+
+# Other environments that can't go into the previous one due to incompatibility
+mamba create -n arvia_mlst \
+    mlst-cge==2.0.9
+
+mamba create -n arvia_rgi \
+    rgi=5.2.0
+
+
 
 ```
 
