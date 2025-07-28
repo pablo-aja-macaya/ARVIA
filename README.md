@@ -203,8 +203,15 @@ Optional Parameters:
 ```
 
 
+## Test
 
+In order to test ARVIA's installation, execute the following command:
 
+```sh
+arvia test --output_folder test_arvia
+```
+
+This command downloads a set of reads and assemblies and tries to run the pipeline.
 
 ## Citation
 

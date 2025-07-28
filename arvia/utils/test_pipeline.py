@@ -43,6 +43,7 @@ def test_arvia_pipeline_input(main_output_folder: Path):
     # Test ARVIA help menus
     try:
         CONSOLE_STDOUT.log("Testing ARVIA's help menus...")
+        _ = run(f"arvia --version > {arvia_folder}/help.log", check=True, shell=True)
         _ = run(f"arvia --help > {arvia_folder}/help.log", check=True, shell=True)
         _ = run(f"arvia run --help > {arvia_folder}/help.log", check=True, shell=True)
         _ = run(f"arvia test --help > {arvia_folder}/help.log", check=True, shell=True)
@@ -70,6 +71,8 @@ def test_arvia_pipeline_input(main_output_folder: Path):
                 _ = run(f"mkdir -p {sra_wd_folder}", check=True, shell=True)
                 _ = run(f"{fasterq_dump} --quiet --split-3 --temp {main_output_folder} --outdir {sra_wd_folder} {sra_id} > {sra_wd_folder}/sra.log", check=True, shell=True)
                 _ = run(f"pigz {sra_wd_folder}/*.fastq", check=True, shell=True)
+                CONSOLE_STDOUT.log(f"Finished download {sra_id} from {biosample_id}")
+                
                 fs = glob.glob(f"{sra_wd_folder}/*.fastq.gz")
                 if len(fs) not in [1,2]:
                     raise Exception(f"Unexpected. Number of files downloaded from {sra_id} ({biosample_id}) were not 1 or 2: {fs}")
@@ -78,6 +81,8 @@ def test_arvia_pipeline_input(main_output_folder: Path):
                     d[biosample_id]["single-end"] = fs
                 if len(fs) == 2:
                     d[biosample_id]["paired-end"] = fs
+
+                
     except Exception as e:
         log_error_and_raise(f"{traceback.format_exc()}\nError downloading SRA file: {e}")
 
@@ -118,7 +123,7 @@ def test_arvia_pipeline_input(main_output_folder: Path):
         CONSOLE_STDOUT.log("Test finished succesfully!", style="success")
 
     except Exception as e:
-        log_error_and_raise(f"{traceback.format_exc()}\nFailed running ARVIA pipeline: {e}")
+        log_error_and_raise(f"{traceback.format_exc()}\nFailed running ARVIA pipeline: {e}\nCheck log in {arvia_folder}/arvia.log")
 
     return True
 
