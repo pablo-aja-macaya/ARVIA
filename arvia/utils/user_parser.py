@@ -10,6 +10,18 @@ from rich_argparse import RichHelpFormatter, ArgumentDefaultsRichHelpFormatter
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR
 
 
+ASCII =f"""
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}           _______      _______          {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
+{Style.BRIGHT}{Fore.LIGHTYELLOW_EX}                                         {Style.RESET_ALL}
+"""
+
+
+
 RichHelpFormatter.styles["argparse.groups"] = "white bold"
 RichHelpFormatter.styles["argparse.default"] = ""
 # RichHelpFormatter._max_help_position = 52
@@ -26,16 +38,18 @@ class CustomFormatter(
 
 # Top-level parser
 parser = argparse.ArgumentParser(
-    description=f"{Fore.YELLOW}{Style.BRIGHT}ARVIA:{Style.RESET_ALL} Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa",
+    description=f"{Fore.YELLOW}{Style.BRIGHT}ARVIA:{Style.RESET_ALL} {Style.BRIGHT}A{Style.RESET_ALL}ntibiotic {Style.BRIGHT}R{Style.RESET_ALL}esistance {Style.BRIGHT}V{Style.RESET_ALL}ariant {Style.BRIGHT}I{Style.RESET_ALL}dentifier for Pseudomonas {Style.BRIGHT}a{Style.RESET_ALL}eruginosa",
     allow_abbrev=False,
     formatter_class=RichHelpFormatter,
-    usage=argparse.SUPPRESS
+    # usage=argparse.SUPPRESS,
+    # add_help=False
 )
 parser.add_argument(
     "-v", "--version",
     action="version",
     version=f"ARVIA {VERSION}",
 )
+parser.set_defaults(func=lambda x: parser.print_usage())
 
 subparsers = parser.add_subparsers(help="command", required=True, dest="command")
 
@@ -45,12 +59,13 @@ subparsers = parser.add_subparsers(help="command", required=True, dest="command"
 parser_run_arvia = subparsers.add_parser(
     "run",
     help=f"Run ARVIA",
-    description=f"{Fore.YELLOW}{Style.BRIGHT}ARVIA:{Style.RESET_ALL} Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa",
-    formatter_class=lambda prog: CustomFormatter(prog, max_help_position=60, width=140),
+    description=f"{Fore.YELLOW}{Style.BRIGHT}ARVIA:{Style.RESET_ALL} {Style.BRIGHT}A{Style.RESET_ALL}ntibiotic {Style.BRIGHT}R{Style.RESET_ALL}esistance {Style.BRIGHT}V{Style.RESET_ALL}ariant {Style.BRIGHT}I{Style.RESET_ALL}dentifier for Pseudomonas {Style.BRIGHT}a{Style.RESET_ALL}eruginosa",
+    formatter_class=lambda prog: CustomFormatter(prog, max_help_position=60, width=140), 
+    add_help=False
 )
 parser_run_arvia__in_out = parser_run_arvia.add_argument_group("Input/Output")
-parser_run_arvia__req_params = parser_run_arvia.add_argument_group("Required parameters")
-parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Optional parameters")
+parser_run_arvia__req_params = parser_run_arvia.add_argument_group("Required arguments")
+parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Optional arguments")
 
 parser_run_arvia__in_out.add_argument(
     "-i", "--input_yaml", 
@@ -127,6 +142,7 @@ parser_run_arvia__opt_params.add_argument(
     help=f"Draw pipeline to this path (PDF)",
     dest="draw_wf",
 )
+parser_run_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
 
 ########################
 # ---- Test ARVIA ---- #
@@ -134,8 +150,9 @@ parser_run_arvia__opt_params.add_argument(
 parser_test_arvia = subparsers.add_parser(
     "test",
     help=f"Test tool with a set of test files to ensure it is working properly.",
-    description=f"Test {Fore.YELLOW}{Style.BRIGHT}ARVIA{Style.RESET_ALL} with a set of test files to ensure it is working properly",
+    description=f"Test ARVIA with a set of test files to ensure it is working properly",
     formatter_class=lambda prog: CustomFormatter(prog, max_help_position=60, width=140),
+    add_help=False
 )
 
 parser_test_arvia__in_out = parser_test_arvia.add_argument_group("Input/Output")
@@ -191,6 +208,8 @@ parser_test_arvia__opt_params.add_argument(
     help=f"Draw pipeline to this path (PDF",
     dest="draw_wf",
 )
+parser_test_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
 
 def get_parser(parser=parser, subparsers=subparsers):
+    print(ASCII)
     return parser

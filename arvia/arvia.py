@@ -7,28 +7,26 @@ ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
 VERSION = "v0.1.2"
 
-# ascii =f"""
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}           _______      _______          {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}     /\   |  __ \ \    / /_   _|   /\    {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}    /  \  | |__) \ \  / /  | |    /  \   {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}   / /\ \ |  _  / \ \/ /   | |   / /\ \  {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}  / ____ \| | \ \  \  /   _| |_ / ____ \ {Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX} /_/    \_\_|  \_\  \/   |_____/_/    \_\{Style.RESET_ALL}
-# {Style.BRIGHT}{Fore.LIGHTYELLOW_EX}                                         {Style.RESET_ALL}
-# """
-
-# print(ascii)
-
-
 from arvia.utils.user_parser import get_parser
 from arvia.utils.snakemake_common import run_snakemake
-
+from arvia.utils.test_pipeline import test_arvia_pipeline_input
 
 def main():
     if __name__ == "arvia.arvia":
-        parser = get_parser()
-        args = parser.parse_args(args=None if sys.argv[1:] else ['--help']) # if no arguments print help
+        def print_help_if_empty_arguments():
+            # If there are arguments
+            if len(sys.argv)>1:
+                # And the first argument is one of these commands (subparsers) and has additional arguments
+                if sys.argv[1] in ["run", "test"] and len(sys.argv)>2:
+                    # keep going
+                    return None
+            # Elseif no real arguments are given then print help
+            # This way calling the tool with no arguments will automatically do --help
+            return ['--help']
 
+        parser = get_parser()
+        # args = parser.parse_args() 
+        args = parser.parse_args(args=print_help_if_empty_arguments()) # if no arguments print help
         command = vars(args)["command"]
         parameters = vars(args)
 
@@ -45,6 +43,9 @@ def main():
                 parameters,
                 "ARVIA",
             )
+        
+        elif command == "test":
+            _ = test_arvia_pipeline_input(main_output_folder=parameters["output_folder"])
 
         # elif command == "db_install":
         #     run_snakemake(
