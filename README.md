@@ -19,7 +19,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
 
-<p align="left">
+<p align="center">
   <img src="arvia/data/arvia_sp_v0.1.1.png" height="600" >
 </p>
 
