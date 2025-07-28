@@ -249,7 +249,7 @@ pip install -i https://test.pypi.org/simple/ arvia
             - [] in results_per_sample
                 - [] format blast table (add header at least)
                 - [X] add original muts without filters
-            - [] hideable snakemake progress bar
+            - [] hideable snakemake progress bar?
             - [] tests
             - [] informe html de igvvariant
             - [] rgi
@@ -257,6 +257,7 @@ pip install -i https://test.pypi.org/simple/ arvia
             - [] add approximate depth if using reads
             - [] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
+            - [] quitar lo de func en la tabla de parámetros no sé qué es
     - Dependencies:
         - python
         - snakemake
