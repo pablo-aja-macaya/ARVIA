@@ -261,7 +261,7 @@ rule update_mlst:
         folder=directory(UPDATE_MLST_OUTPUT),
     params:
         skip_these_mlst_schemas_csv = ",".join(skip_these_mlst_schemas)
-    threads: 4
+    threads: 1 # HAS TO BE "1" OR NGINX WILL PUSH BACK AND SEND HTMLs instead of FASTAs
     conda:
         CONDA_ENVS["arvia"]
     log:
@@ -291,7 +291,7 @@ rule update_mlst:
         
         # Run the downloader script (you need 'wget' installed)
         ./mlst-download_pub_mlst -d ${{updated_db_path}} -x {params.skip_these_mlst_schemas_csv} -j {threads} | bash 
-        
+
         # Save the old database folder
         mv ${{org_db_path}} ${{org_db_path}}.old.${{timestamp}}
         mv ${{updated_db_path}} ${{org_db_path}}
@@ -300,10 +300,21 @@ rule update_mlst:
         ./mlst-make_blast_db
         
         # Check schemes are installed
-        mlst --list
+        mlst --longlist
 
         ) &> {log}
         """
+
+        ### I dont know why this does not work
+        # # Check that files are actually fastas or whatever and not a nginx error message
+        # errors="$("Too Many Requests" $updated_db_path/*/* | wc -l)"
+        # echo $errors
+        # if [ $errors -gt 0 ]; then
+        #     echo "FATAL ERROR: 'too many requests error' found at least ${{errors}} time(s) on downloaded files in ${{updated_db_path}}."
+        #     echo "This means at least one file is corrupted. Try again wih less threads."
+        #     exit 1 
+        # fi
+
 
 rule all:
     input:
