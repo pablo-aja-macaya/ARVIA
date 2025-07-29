@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from arvia.utils.console_log import CONSOLE_STDERR, CONSOLE_STDOUT
-from arvia.arvia import ARVIA_DIR
+from arvia.arvia import ARVIA_DIR, VERSION
 # import arvia
 # ARVIA_DIR = arvia.__file__.replace("/__init__.py", "")  # get install directory of arvia
 
@@ -78,6 +78,9 @@ BASE_YAML_CONFIG = {
         "draw_wf": None,
         "snakemake_console_log": None,
     },
+    "other": {
+        "arvia_version": VERSION
+    }
 }
 DB_INSTALL_YAML_CONFIG = {
     "input": {
@@ -93,4 +96,7 @@ DB_INSTALL_YAML_CONFIG = {
         "draw_wf": None,
         "snakemake_console_log": None,
     },
+    "other": {
+        "arvia_version": VERSION
+    }
 }

@@ -29,8 +29,9 @@ def main():
         args = parser.parse_args(args=print_help_if_empty_arguments()) # if no arguments print help
         command = vars(args)["command"]
         parameters = vars(args)
+        del parameters['func']
 
-        CONSOLE_STDOUT.log("Starting ARVIA...", style="info")
+        CONSOLE_STDOUT.log(f"Starting ARVIA {VERSION}...", style="info", highlight=False)
         if command == "run":
             if not parameters["input_yaml"] and (not parameters["reads"] and not parameters["assemblies"]):
                 log_error_and_raise("Provide files with --input_yaml or, if files follow specified format, use --reads and/or --assemblies, please.")
@@ -41,7 +42,7 @@ def main():
             run_snakemake(
                 f"{ARVIA_DIR}/workflows/arvia.smk",
                 parameters,
-                "ARVIA",
+                f"ARVIA",
             )
         
         elif command == "test":

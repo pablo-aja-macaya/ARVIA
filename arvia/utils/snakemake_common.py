@@ -111,10 +111,10 @@ def run_snakemake(snakefile: str, parameters: dict, ppln_name: str):
     CONSOLE_STDOUT.print()
 
     # Create folder and params file
-    user_yaml_config_file = f"{parameters['output_folder']}/config.yaml"
-    snakemake_console_log = f"{parameters['output_folder']}/snakemake.log"
+    user_yaml_config_file = f"{parameters['output_folder']}/logs/config.yaml"
+    snakemake_console_log = f"{parameters['output_folder']}/logs/snakemake.log"
     parameters["snakemake_console_log"] = snakemake_console_log
-    _ = run(f"mkdir -p {parameters['output_folder']}", check=True, shell=True)
+    _ = run(f"mkdir -p {parameters['output_folder']}/logs", check=True, shell=True)
     _ = params_to_yaml(parameters, user_yaml_config_file)
     # CONSOLE_STDOUT.print(Syntax.from_path(user_yaml_config_file, background_color="default"), end="")
     # config_df.to_csv(user_yaml_config_file, sep="\t", index=None)

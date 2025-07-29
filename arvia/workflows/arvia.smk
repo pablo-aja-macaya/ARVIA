@@ -113,7 +113,8 @@ CLEAN_SNIPPY_FOLDERS = False
 # --- Other ----
 # Save file manifest
 file_manifest_df = input_files_dict_to_df(INPUT_FILES)
-file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/file_manifest.tsv", sep="\t", index=None)
+shell(f"mkdir -p {PIPELINE_OUTPUT}/logs")
+file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/logs/file_manifest.tsv", sep="\t", index=None)
 onstart:
     rich_display_dataframe(file_manifest_df, "File manifest")
 
@@ -397,6 +398,8 @@ rule mlst:
     output:
         folder=directory(Path(MLST_OUTPUT, "{barcode}")),
         res=Path(MLST_OUTPUT, "{barcode}", "{barcode}.tsv"),
+    params:
+        mlst_scheme = "" #"paeruginosa"
     threads: 6
     conda:
         CONDA_ENVS["arvia"]
@@ -406,7 +409,7 @@ rule mlst:
         """
         mkdir -p {output.folder}
         (
-        mlst --quiet --threads {threads} --nopath {input.assembly} > {output.res}
+        mlst --threads {threads} --nopath {input.assembly} --scheme '{params.mlst_scheme}' > {output.res}
         ) &> {log}
         """
 
@@ -578,6 +581,6 @@ rule all:
 
 onsuccess:
     combined_advanced_result = rules.merge_results.output.advanced_result
-    shell(f"cp {combined_advanced_result} {PIPELINE_OUTPUT}/arvia_result.xlsx")
+    shell(f"cp {combined_advanced_result} {PIPELINE_OUTPUT}/ARVIA.xlsx")
 
 
