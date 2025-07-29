@@ -2,6 +2,7 @@ import os
 import sys
 from colorama import Fore, Style
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise
+from pathlib import Path
 
 ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
@@ -32,6 +33,9 @@ def main():
         del parameters['func']
 
         CONSOLE_STDOUT.log(f"Starting ARVIA {VERSION}...", style="info", highlight=False)
+        # if Path(parameters["output_folder"]).exists() and parameters.get("force") is not True:
+        #     log_error_and_raise(f"Output folder already exists and --force is not used. Rerun with --force or choose another directory")
+
         if command == "run":
             if not parameters["input_yaml"] and (not parameters["reads"] and not parameters["assemblies"]):
                 log_error_and_raise("Provide files with --input_yaml or, if files follow specified format, use --reads and/or --assemblies, please.")

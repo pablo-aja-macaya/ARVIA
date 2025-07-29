@@ -95,8 +95,9 @@ parser_run_arvia__in_out.add_argument(
 )
 parser_run_arvia__in_out.add_argument(
     "-o", "--output_folder", 
-    required=True,
+    required=False,
     metavar="path",
+    default="./arvia",
     type=os.path.abspath,
     help=f"Output folder",
     dest="output_folder",
@@ -161,8 +162,9 @@ parser_test_arvia__opt_params = parser_test_arvia.add_argument_group("Optional p
 
 parser_test_arvia__in_out.add_argument(
     "-o", "--output_folder", 
-    required=True,
+    required=False,
     metavar="path",
+    default="./arvia_test",
     type=os.path.abspath,
     help=f"Output folder",
     dest="output_folder",

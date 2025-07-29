@@ -118,6 +118,7 @@ file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/logs/file_manifest.tsv", sep="\t", i
 onstart:
     rich_display_dataframe(file_manifest_df, "File manifest")
 
+# shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
 ##########################################
 # --------------- Rules ---------------- #
