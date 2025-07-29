@@ -149,8 +149,8 @@ parser_run_arvia__opt_params.add_argument("-h", "--help", action="help", help="s
 ########################
 parser_test_arvia = subparsers.add_parser(
     "test",
-    help=f"Test tool with a set of test files to ensure it is working properly.",
-    description=f"Test ARVIA with a set of test files to ensure it is working properly",
+    help=f"Test ARVIA with a set of test files from SRA to ensure it is working properly (needs internet).",
+    description=f"Test ARVIA with a set of test files from SRA to ensure it is working properly (needs internet).",
     formatter_class=lambda prog: CustomFormatter(prog, max_help_position=60, width=140),
     add_help=False
 )
@@ -167,7 +167,35 @@ parser_test_arvia__in_out.add_argument(
     help=f"Output folder",
     dest="output_folder",
 )
-parser_test_arvia__opt_params.add_argument(
+
+parser_test_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
+
+
+########################
+# ---- Install DB ---- #
+########################
+parser_installdb_arvia = subparsers.add_parser(
+    "dbs",
+    help=f"Install/update databases like amrfinderplus and mlst in current environment (needs internet).",
+    description=f"Install/update databases like amrfinderplus and mlst in current environment (needs internet).",
+    formatter_class=lambda prog: CustomFormatter(prog, max_help_position=60, width=140),
+    add_help=False
+)
+
+parser_installdb_arvia__in_out = parser_installdb_arvia.add_argument_group("Input/Output")
+parser_installdb_arvia__req_params = parser_installdb_arvia.add_argument_group("Required parameters")
+parser_installdb_arvia__opt_params = parser_installdb_arvia.add_argument_group("Optional parameters")
+
+parser_installdb_arvia__in_out.add_argument(
+    "-o", "--output_folder", 
+    required=False,
+    metavar="path",
+    default="./.arvia_dbs",
+    type=os.path.abspath,
+    help=f"Output folder",
+    dest="output_folder",
+)
+parser_installdb_arvia__opt_params.add_argument(
     "-c", "--cores", 
     required=False,
     metavar="int",
@@ -176,21 +204,21 @@ parser_test_arvia__opt_params.add_argument(
     help=f"Number of cores (default is available cores - 1)",
     dest="cores",
 )
-parser_test_arvia__opt_params.add_argument(
+parser_installdb_arvia__opt_params.add_argument(
     "-p", "--previsualize", 
     required=False,
     action="store_true",
     help=f"Previsualize pipeline to see if everything is as expected",
     dest="previsualize",
 )
-parser_test_arvia__opt_params.add_argument(
+parser_installdb_arvia__opt_params.add_argument(
     "--use_conda",
     required=False,
     action="store_true",
     help=f"If True, use conda environment specified by snakefile",
     dest="use_conda",
 )
-parser_test_arvia__opt_params.add_argument(
+parser_installdb_arvia__opt_params.add_argument(
     "--barcodes",
     required=False,
     metavar="str",
@@ -199,7 +227,7 @@ parser_test_arvia__opt_params.add_argument(
     help=f"Space separated list of sample IDs. Only these samples will be processed",
     dest="barcodes",
 )
-parser_test_arvia__opt_params.add_argument(
+parser_installdb_arvia__opt_params.add_argument(
     "--draw_wf",
     required=False,
     default=None,
@@ -208,7 +236,9 @@ parser_test_arvia__opt_params.add_argument(
     help=f"Draw pipeline to this path (PDF",
     dest="draw_wf",
 )
-parser_test_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
+parser_installdb_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
+
+
 
 def get_parser(parser=parser, subparsers=subparsers):
     print(ASCII)

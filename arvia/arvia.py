@@ -17,7 +17,7 @@ def main():
             # If there are arguments
             if len(sys.argv)>1:
                 # And the first argument is one of these commands (subparsers) and has additional arguments
-                if sys.argv[1] in ["run", "test"] and len(sys.argv)>2:
+                if (sys.argv[1] in ["run", "test"] and len(sys.argv)>2) or sys.argv[1] in ["dbs"]: # ATTENTION: possible commands have to be stated here
                     # keep going
                     return None
             # Elseif no real arguments are given then print help
@@ -46,6 +46,16 @@ def main():
         
         elif command == "test":
             _ = test_arvia_pipeline_input(main_output_folder=parameters["output_folder"])
+
+        elif command == "dbs":
+            # Run
+            run_snakemake(
+                f"{ARVIA_DIR}/workflows/dbs.smk",
+                parameters,
+                "ARVIA",
+            )
+            CONSOLE_STDOUT.log(f"If you want to install/update the databases again, please delete the selected --output_folder, which indicates snakemake which steps to run (does not contain the DBs itself): {parameters['output_folder']}", style="info")
+
 
         # elif command == "db_install":
         #     run_snakemake(

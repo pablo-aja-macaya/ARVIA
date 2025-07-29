@@ -21,9 +21,9 @@ CONDA_ENVS = {
     # If these strings finish in .yml/.yaml snakemake will install the environment
     # If they do not, they will be considered as names of already installed environments
     # --------------------------------
-    "arvia": "arvia", # f"{ARVIA_DIR}/envs/arvia.yaml
-    "arvia_mlst": "arvia_mlst", # f"{ARVIA_DIR}/envs/arvia_mlst.yaml
-    "arvia_rgi": "arvia_rgi", # f"{ARVIA_DIR}/envs/arvia_rgi.yaml
+    "arvia": None, # f"{ARVIA_DIR}/envs/arvia.yaml
+    # "arvia_mlst": "arvia_mlst", # f"{ARVIA_DIR}/envs/arvia_mlst.yaml
+    # "arvia_rgi": "arvia_rgi", # f"{ARVIA_DIR}/envs/arvia_rgi.yaml
 }
 
 
@@ -79,19 +79,18 @@ BASE_YAML_CONFIG = {
         "snakemake_console_log": None,
     },
 }
-# DB_INSTALL_YAML_CONFIG = {
-#     "input": {
-#         "command": "db_install",
-#     },
-#     "output": {
-#         "output_folder": None,
-#     },
-#     "general_params": {
-#         "selected_db_packages": [],
-#         "previsualize": None,
-#         "cores": 60,
-#         "use_conda": True,
-#         "draw_wf": None,
-#         "snakemake_console_log": None,
-#     },
-# }
+DB_INSTALL_YAML_CONFIG = {
+    "input": {
+        "command": "dbs",
+    },
+    "output": {
+        "output_folder": None,
+    },
+    "general_params": {
+        "previsualize": None,
+        "cores": 60,
+        "use_conda": True,
+        "draw_wf": None,
+        "snakemake_console_log": None,
+    },
+}

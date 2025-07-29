@@ -99,6 +99,11 @@ EXTRACT_PAERUGINOSA_REF_GENES_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/01_extract_r
 MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/02_blastdb"
 BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/03_blast"
 
+# Other
+MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst"
+AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder"
+
+# Results
 RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
 RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 
@@ -385,6 +390,45 @@ use rule snippy as paeruginosa_oprd with:
     log:
         Path(SNIPPY_OPRD, "{barcode}", "arvia.log")
 
+# ---- MLST ----
+rule mlst:
+    input:
+        assembly=lambda wc: get_input_assembly(wc),
+    output:
+        folder=directory(Path(MLST_OUTPUT, "{barcode}")),
+        res=Path(MLST_OUTPUT, "{barcode}", "{barcode}.tsv"),
+    threads: 6
+    conda:
+        CONDA_ENVS["arvia"]
+    log:
+        Path(MLST_OUTPUT, "{barcode}", "arvia.log")
+    shell:
+        """
+        mkdir -p {output.folder}
+        (
+        mlst --quiet --threads {threads} --nopath {input.assembly} > {output.res}
+        ) &> {log}
+        """
+
+# ---- AMRFinder ----
+rule amrfinderplus:
+    input:
+        assembly=lambda wc: get_input_assembly(wc),
+    output:
+        folder=directory(Path(AMRFINDER_OUTPUT, "{barcode}")),
+        res=Path(AMRFINDER_OUTPUT, "{barcode}", "{barcode}.tsv"),
+    threads: 6
+    conda:
+        CONDA_ENVS["arvia"]
+    log:
+        Path(AMRFINDER_OUTPUT, "{barcode}", "arvia.log")
+    shell:
+        """
+        mkdir -p {output.folder}
+        (
+        amrfinder -n {input.assembly} --threads {threads} -o {output.res}
+        ) &> {log}
+        """
 
 
 # # ---- Get input stats ----
@@ -421,6 +465,8 @@ def decide_steps(wc):
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
+            "amrfinderplus": rules.amrfinderplus.output.res,
+            "mlst": rules.mlst.output.res,
         }
     elif pipeline == "only_reads":
         steps = {
@@ -451,6 +497,8 @@ rule get_results_per_sample:
         paeruginosa_oprd = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_muts.tsv"),
         paeruginosa_oprd_refs = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_ref.txt"),
         paeruginosa_assembly_blast = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_assembly_blast.tsv"),
+        amrfinderplus = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_amrfinderplus.tsv"),
+        mlst = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_mlst.tsv"),
     # log: Path(RESULTS_MERGED_OUTPUT, "arvia.log"),
     run:
         # Create folder
@@ -464,6 +512,8 @@ rule get_results_per_sample:
         paeruginosa_oprd = input.__dict__.get("paeruginosa_oprd")
         paeruginosa_oprd_refs = input.__dict__.get("paeruginosa_oprd_refs")
         paeruginosa_assembly_blast = input.__dict__.get("paeruginosa_assembly_blast")
+        amrfinderplus = input.__dict__.get("amrfinderplus")
+        mlst = input.__dict__.get("mlst")
 
         # Assert the minimum input required
         assert paeruginosa_mutations and paeruginosa_processed_mutations and paeruginosa_gene_coverage and paeruginosa_oprd, f"One of these did not exist: {paeruginosa_mutations=}; {paeruginosa_processed_mutations=}; {paeruginosa_gene_coverage=}; {paeruginosa_oprd=}"
@@ -477,6 +527,9 @@ rule get_results_per_sample:
 
         if paeruginosa_assembly_blast:
             shell(f"cp {paeruginosa_assembly_blast} {expand(params.paeruginosa_assembly_blast, barcode=[wildcards.barcode])[0]}") # FIXME: format this table for user
+            shell(f"cp {amrfinderplus} {expand(params.amrfinderplus, barcode=[wildcards.barcode])[0]}") 
+            shell(f"cp {mlst} {expand(params.mlst, barcode=[wildcards.barcode])[0]}") 
+            
 
 rule merge_results:
     input:

@@ -17,7 +17,7 @@ from arvia.utils.console_log import (
 from multiprocessing import Process
 from rich.syntax import Syntax
 import yaml
-from arvia.utils.local_paths import BASE_YAML_CONFIG#, DB_INSTALL_YAML_CONFIG
+from arvia.utils.local_paths import BASE_YAML_CONFIG, DB_INSTALL_YAML_CONFIG
 from collections import OrderedDict, Counter
 
 
@@ -59,6 +59,8 @@ def params_to_yaml(params: dict, output_yaml_file: str) -> str:
     # Choose yaml based on command
     if params["command"] == "run":
         yaml_d = OrderedDict(BASE_YAML_CONFIG.copy())
+    elif params["command"] == "dbs":
+        yaml_d = OrderedDict(DB_INSTALL_YAML_CONFIG.copy())
     else:
         raise Exception("Not ready")
 
@@ -179,7 +181,7 @@ def run_snakemake(snakefile: str, parameters: dict, ppln_name: str):
     except Exception as e:
         log_error_and_raise(f"ERROR: {e}\nCheck log.\n")
 
-    CONSOLE_STDOUT.log(f"Used command: {cmd}\n", style="warning")
+    CONSOLE_STDOUT.log(f"Used command: {cmd}", style="warning")
 
 
 def discern_reads(reads: str, read_type: str, input_is_subfolders: bool = True) -> dict:
