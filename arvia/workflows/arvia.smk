@@ -16,6 +16,7 @@ from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
 from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res
+from arvia.utils.aeruginosa_truncations import check_truncations
 from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
 from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG #, KPNEUMONIAE_SELECTED_GENES
 from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK
@@ -98,6 +99,7 @@ PAERUGINOSA_TRUNC_OUTPUT = f"{PIPELINE_WD_OUTPUT}/truncations"
 EXTRACT_PAERUGINOSA_REF_GENES_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/01_extract_ref_genes"
 MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/02_blastdb"
 BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/03_blast"
+PROCESS_BLAST_TRUNCATIONS= f"{PAERUGINOSA_TRUNC_OUTPUT}/04_process"
 
 # Other
 MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst"
@@ -296,6 +298,19 @@ rule blast_paeruginosa_genes_to_assembly:
         ) &> {log}
         """
 
+rule process_blast_truncations:
+    input:
+        res = rules.blast_paeruginosa_genes_to_assembly.output.res,
+    output:
+        folder=directory(Path(PROCESS_BLAST_TRUNCATIONS,"{barcode}")),
+        res=Path(PROCESS_BLAST_TRUNCATIONS,"{barcode}","{barcode}.tsv"),
+    run:
+        df = check_truncations(input.res)
+        df["bc"] = wildcards.barcode
+        df = df[["bc", "locus_tag", "gene", "comment"]].drop_duplicates()
+        df.to_csv(output.res, sep="\t", index=None)
+
+
 # ---- Pseudomonas aeruginosa Snippy Closest oprD ----
 rule align_oprd:
     input:
@@ -468,6 +483,7 @@ def decide_steps(wc):
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
+            "paeruginosa_assembly_truncations": rules.process_blast_truncations.output.res,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
             "amrfinderplus": rules.amrfinderplus.output.res,
             "mlst": rules.mlst.output.res,
@@ -496,11 +512,11 @@ rule get_results_per_sample:
         # Cant define all output files in output section as one file can be missing
         # but we place the expected paths here
         paeruginosa_mutations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_muts.tsv"),
-        paeruginosa_processed_mutations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_filtered_muts.tsv"),
+        paeruginosa_processed_mutations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_muts_filtered.tsv"),
         paeruginosa_gene_coverage = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_gene_coverage.tsv"),
         paeruginosa_oprd = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_muts.tsv"),
         paeruginosa_oprd_refs = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_ref.txt"),
-        paeruginosa_assembly_blast = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_assembly_blast.tsv"),
+        paeruginosa_assembly_truncations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_assembly_truncations.tsv"),
         amrfinderplus = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_amrfinderplus.tsv"),
         mlst = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_mlst.tsv"),
     # log: Path(RESULTS_MERGED_OUTPUT, "arvia.log"),
@@ -515,7 +531,7 @@ rule get_results_per_sample:
         paeruginosa_gene_coverage = input.__dict__.get("paeruginosa_gene_coverage")
         paeruginosa_oprd = input.__dict__.get("paeruginosa_oprd")
         paeruginosa_oprd_refs = input.__dict__.get("paeruginosa_oprd_refs")
-        paeruginosa_assembly_blast = input.__dict__.get("paeruginosa_assembly_blast")
+        paeruginosa_assembly_truncations = input.__dict__.get("paeruginosa_assembly_truncations")
         amrfinderplus = input.__dict__.get("amrfinderplus")
         mlst = input.__dict__.get("mlst")
 
@@ -529,8 +545,8 @@ rule get_results_per_sample:
         shell(f"cp {paeruginosa_oprd} {expand(params.paeruginosa_oprd, barcode=[wildcards.barcode])[0]}")
         shell(f"cp {paeruginosa_oprd_refs} {expand(params.paeruginosa_oprd_refs, barcode=[wildcards.barcode])[0]}")
 
-        if paeruginosa_assembly_blast:
-            shell(f"cp {paeruginosa_assembly_blast} {expand(params.paeruginosa_assembly_blast, barcode=[wildcards.barcode])[0]}") # FIXME: format this table for user
+        if paeruginosa_assembly_truncations:
+            shell(f"cp {paeruginosa_assembly_truncations} {expand(params.paeruginosa_assembly_truncations, barcode=[wildcards.barcode])[0]}") # FIXME: format this table for user
             shell(f"cp {amrfinderplus} {expand(params.amrfinderplus, barcode=[wildcards.barcode])[0]}") 
             shell(f"cp {mlst} {expand(params.mlst, barcode=[wildcards.barcode])[0]}") 
             
@@ -565,7 +581,7 @@ rule merge_results:
             oprd_fs=expand(rules.get_results_per_sample.params.paeruginosa_oprd, barcode=params.barcodes),
             oprd_refs_fs=expand(rules.get_results_per_sample.params.paeruginosa_oprd_refs, barcode=params.barcodes),
             gene_coverage_fs=expand(rules.get_results_per_sample.params.paeruginosa_gene_coverage, barcode=params.barcodes),
-            truncation_fs=expand(rules.get_results_per_sample.params.paeruginosa_assembly_blast, barcode=bcs_with_assembly), # not all samples will have this file (it happens if no assembly was given)
+            truncation_fs=expand(rules.get_results_per_sample.params.paeruginosa_assembly_truncations, barcode=bcs_with_assembly), # not all samples will have this file (it happens if no assembly was given)
             bcs=params.barcodes,
             output_file=output.advanced_result,
             bcs_without_assembly=bcs_without_assembly,

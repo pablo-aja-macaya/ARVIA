@@ -288,15 +288,7 @@ def paeruginosa_combine_all_mutational_res(
     )
 
     # -- Truncations based on assembly --
-    l = []
-    for i in truncation_fs:
-        bc = Path(i).parent.name
-        temp = check_truncations(i)
-        temp["bc"] = bc
-        l.append(temp)
-
-    truncations_df = pd.concat(l)
-    truncations_df = truncations_df[["bc", "locus_tag", "gene", "comment"]].drop_duplicates()
+    truncations_df = concat_files(truncation_fs)
     truncations_df["locus_gene"] = (
         truncations_df["locus_tag"].astype(str)
         + " \n"
@@ -362,6 +354,26 @@ def paeruginosa_combine_all_mutational_res(
 
     yyy = pd.melt(xxx, id_vars=index_cols, var_name="section")
     yyy["locus_tag"] = yyy["section"].str.split(" \n", expand=True)[0]
+
+    # Check if all genes appear in all sections of the table
+    # (For example, if snippy didnt find a mutation its column will not appear)
+    for ref_locus, ref_gene_name in AERUGINOSA_GENES.items():
+        for section in ["Snippy"]: # "Assembly BLAST", "Gene coverage", 
+            for bc in set(yyy["bc"].to_list()):
+                long_section = f"{ref_locus} \n{ref_gene_name} \n({section})"
+                conditions = (
+                    (yyy["bc"]==bc)
+                    & (yyy["section"]==long_section)
+                    & (yyy["locus_tag"]==ref_locus)
+                )
+                if len(yyy[conditions])==0:
+                    yyy = pd.concat(
+                        [
+                            yyy,
+                            pd.DataFrame({"bc": [bc], "section": [long_section], "value": ["-"], "locus_tag": [ref_locus]})
+                        ]
+                    )
+    yyy = yyy.reset_index(drop=True).sort_values(["bc", "locus_tag", "section"], ascending=True)
 
     # Fill values of samples without blast result with something that indicates the sample did not have an assembly
     if bcs_without_assembly:
