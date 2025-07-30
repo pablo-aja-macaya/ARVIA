@@ -9,6 +9,7 @@ import pandas as pd
 import glob
 from pathlib import Path
 import numpy as np
+import openpyxl
 
 
 def concat_files(file_list, selected_bcs=[], header="infer"):
@@ -75,24 +76,30 @@ def color_cells_v2(value):
     background_color = ""
     s = {"*", "fs", "del", "dup", "ins", "?", "trunc", "possible_missing_feature"}
     search = [True for i in s if i in value]
+    common = "; vertical-align: middle"
     if len(search) >= 1:
         background_color = "#ffd17a"
-        return f"background-color : {background_color}; color: black" + "; text-align: left"
+        return f"background-color : {background_color}; color: black" + "; text-align: left" + common
     elif value.startswith("NZC"):
         d = {i.split("=")[0]: float(i.split("=")[1][:-1]) for i in value.split(" ")}
         if d["NZC"] < 100:
             background_color = "#ffd17a"
-            return f"background-color : {background_color}; color: black" + "; text-align: left"
+            return f"background-color : {background_color}; color: black" + "; text-align: left" + common
         elif d["NZC"] >= 100 and d["Depth"] < 10:
             background_color = " #ffea69"
-            return f"background-color : {background_color}; color: black" + "; text-align: left"
+            return f"background-color : {background_color}; color: black" + "; text-align: left" + common
+    elif value == "No assembly given":
+        background_color = " #B8B8B8"
+        return f"background-color : {background_color}; color: black" + "; text-align: left" + common
+    elif value == "-":
+        return f"color: black" + "; text-align: center" + common
     else:
-        return "text-align: left"
+        return "text-align: left" + common
 
 
 def highlight_header(s):
     return [
-        "background-color: #2a6099; color: white; font-weight: bold; text-align: center; vertical-align: center; border: 1.2px solid black;"
+        "background-color: #2a6099; color: white; font-weight: bold; text-align: center; vertical-align: middle; border: 1.2px solid black;"
         for v in s
     ]
 
@@ -105,9 +112,9 @@ def prepare_mutations_for_wide_pivot(data: pd.DataFrame):
 
         # Create gene id
         data["gene_id"] = data.apply(
-            lambda row: f"{row['LOCUS_TAG']} \n{row['GENE']}"
+            lambda row: f"{row['LOCUS_TAG']}__{row['GENE']}"
             if row["GENE"]
-            else f"{row['LOCUS_TAG']} \n{row['PRODUCT']}",
+            else f"{row['LOCUS_TAG']}__{row['PRODUCT']}",
             axis=1,
         )
 
@@ -250,7 +257,7 @@ def paeruginosa_combine_all_mutational_res(
     oprd_df = oprd_df[["bc", "CHROM", "gene_id", "mutation_prot"]]
 
     # -- Pivot all muts --
-    temp["gene_id"] = temp["gene_id"] + " \n(Snippy)"
+    temp["gene_id"] = temp["gene_id"] + "__(Snippy)"
     temp_pivot = (
         temp.drop_duplicates()
         .groupby(["bc", "gene_id"], sort=False, dropna=False)["mutation_prot"]
@@ -280,8 +287,8 @@ def paeruginosa_combine_all_mutational_res(
         pd.merge(oprd_refs[["bc", "CHROM"]], temp_oprd, on="bc", how="left")
         .rename(
             columns={
-                "CHROM": "PA0958-alt \noprD \nclosest reference used",
-                "muts": "PA0958-alt \noprD \nclosest reference",
+                "CHROM": "PA0958-alt__oprD__closest reference used",
+                "muts": "PA0958-alt__oprD__closest reference",
             }
         )
         .fillna("-")
@@ -291,9 +298,9 @@ def paeruginosa_combine_all_mutational_res(
     truncations_df = concat_files(truncation_fs)
     truncations_df["locus_gene"] = (
         truncations_df["locus_tag"].astype(str)
-        + " \n"
+        + "__"
         + truncations_df["gene"].astype(str)
-        + " \n"
+        + "__"
         + "(Assembly BLAST)"
     )
     temp_truncation = truncations_df.pivot(index="bc", columns="locus_gene", values="comment")
@@ -309,7 +316,7 @@ def paeruginosa_combine_all_mutational_res(
         pd.DataFrame(AERUGINOSA_GENES.items(), columns=["locus_tag", "gene"]), gene_coverage, on="locus_tag"
     )
     gene_coverage["locus_gene"] = (
-        gene_coverage["locus_tag"].astype(str) + " \n" + gene_coverage["gene"].astype(str) + " \n" + "(Gene coverage)"
+        gene_coverage["locus_tag"].astype(str) + "__" + gene_coverage["gene"].astype(str) + "__" + "(Gene coverage)"
     )
     temp_gene_cov = gene_coverage.pivot(index="bc", columns="locus_gene", values="comment")
 
@@ -353,14 +360,14 @@ def paeruginosa_combine_all_mutational_res(
     # ).to_excel("/home/usuario/Proyectos/Results/test7.xlsx")
 
     yyy = pd.melt(xxx, id_vars=index_cols, var_name="section")
-    yyy["locus_tag"] = yyy["section"].str.split(" \n", expand=True)[0]
+    yyy["locus_tag"] = yyy["section"].str.split("__", expand=True)[0]
 
     # Check if all genes appear in all sections of the table
     # (For example, if snippy didnt find a mutation its column will not appear)
     for ref_locus, ref_gene_name in AERUGINOSA_GENES.items():
         for section in ["Snippy"]: # "Assembly BLAST", "Gene coverage", 
             for bc in set(yyy["bc"].to_list()):
-                long_section = f"{ref_locus} \n{ref_gene_name} \n({section})"
+                long_section = f"{ref_locus}__{ref_gene_name}__({section})"
                 conditions = (
                     (yyy["bc"]==bc)
                     & (yyy["section"]==long_section)
@@ -384,16 +391,207 @@ def paeruginosa_combine_all_mutational_res(
             "value"
         ] = "No assembly given"
     
-    # Save this table, which is the long version of the final table and contains everthing, with no " \n"
+    # Save this table, which is the long version of the final table and contains everthing
     zzz = yyy.copy()
-    zzz["section"] = zzz["section"].str.replace(" \n", "__").str.replace("(","").str.replace(")","")
-    zzz[["bc","locus_tag","section","value"]].to_csv(Path(Path(output_file).parent, "full_long.tsv"), sep="\t", index=None)
+    zzz["section"] = zzz["section"].str.replace("(","").str.replace(")","")
+    zzz[["_","gene","section"]] = zzz["section"].str.split("__", expand=True) # the string in this field at this point is like "PA0424__mexR__Gene coverage"
+    zzz = zzz.drop(columns = ["_"])
+    zzz = zzz[["bc","locus_tag", "gene","section","value"]]
+    zzz.to_csv(output_file, sep="\t", index=None)
 
+    return zzz
+
+
+def create_merged_xlsx_result(
+    combined_long_f: Path,
+    output_file: Path,
+    input_files_dict: dict,
+    amrfinderplus_fs: list = [],
+    mlst_fs: list = [],
+    ):
+
+    """
+    output_file = "/home/usuario/Proyectos/Results/tests/arvia/ARVIA.xlsx"
+
+    combined_long_df = pd.read_csv("/home/usuario/Proyectos/Results/tests/arvia/arvia/temp/results_merged/full_long.tsv", sep="\t")
+    amrfinderplus_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_amrfinderplus.tsv")
+    mlst_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_mlst.tsv")
+
+    input_files_dict = {
+        "ARGA000190": {
+            "pipeline": "x4",
+        },
+        "ARGA00024": {
+            "pipeline": "x3",
+        },
+        "ARGA00025": {
+            "pipeline": "x2",
+        },
+        "ARGA00461": {
+            "pipeline": "x1",
+        },
+    }
+    """
+    assembly_analysis_section_name = "General assembly analysis"
+
+    def generate_expected_empty_dataframe(bcs, s1: str, s2: str, value: str = np.nan):
+        return pd.DataFrame(
+            {
+                "bc": bcs,
+                "S1": [s1 for i in range(0, len(bcs))],
+                "S2": [s2 for i in range(0, len(bcs))],
+                "value": [value for i in range(0, len(bcs))]
+            }
+        )
+
+    def get_formatted_amrfinder_genes(data: pd.DataFrame):
+        """
+        For each gene in a amrfinder result, depending on identity and coverage of the reference gene,
+        add a suffix to the end of the string
+        """
+
+        def assign_suffix(row):
+            # Perfect
+            if row["pct_coverage_of_reference"] >= 100 and row["pct_identity_to_reference"] >= 100:
+                return row["element_symbol"]
+            # Mutated
+            elif (
+                (row["pct_identity_to_reference"] >= 90)
+                & (row["pct_identity_to_reference"] < 100)
+                & (row["pct_coverage_of_reference"] >= 70)
+            ):
+                return row["element_symbol"] + "*"
+            # Unprobable or cut
+            elif (row["pct_identity_to_reference"] >= 80) & (row["pct_coverage_of_reference"] < 70):
+                return row["element_symbol"] + "?"
+            # Other
+            elif row["pct_coverage_of_reference"] > 90:
+                return row["element_symbol"] + "?"
+            else:
+                return row["element_symbol"] + "?"
+                # raise Exception("Unexpected, gene did not fit in any suffix category.")
+
+        if len(data) >= 1:  # apply fails if dataframe is empty
+            data["element_symbol"] = data.apply(assign_suffix, axis=1)
+            genes = "; ".join(sorted(data["element_symbol"].to_list()))
+        else:
+            genes = ""
+
+        return data, genes
+
+
+
+    # ---- Pipelines ----
+    pipelines_df = pd.DataFrame(
+        [
+            {"bc": k, "pipeline": v["pipeline"]} for k,v in input_files_dict.items()
+        ]
+    )
+    pipelines_df.columns = ["bc","value"]
+    pipelines_df["S1"] = ""
+    pipelines_df["S2"] = "Pipeline"
+
+    # ---- Pipelines ----
+    reads_type_df = pd.DataFrame(
+        [
+            {"bc": k, "reads_type": v["reads_type"]} for k,v in input_files_dict.items()
+        ]
+    )
+    reads_type_df.columns = ["bc","value"]
+    reads_type_df["S1"] = ""
+    reads_type_df["S2"] = "Reads type"
+    reads_type_df["value"] = reads_type_df["value"].fillna("-")
+
+
+    # ---- Mutations ----
+    combined_long_df = pd.read_csv(combined_long_f, sep="\t")    
+    combined_long_df["S1"] = combined_long_df["locus_tag"]
+    combined_long_df["S2"] = combined_long_df.apply(lambda r: f"{r['locus_tag']} \n{r['gene']} \n({r['section']})", axis=1)
+
+    # ---- Amrfinder ----
+    # Read and process
+    if amrfinderplus_fs:
+        amrfinder_df = concat_files(amrfinderplus_fs)
+        amrfinder_df.columns = [i.lower().replace(" ", "_").replace("%", "pct") for i in amrfinder_df.columns]
+        amrfinder_df = amrfinder_df[["bc", "contig_id", "element_symbol", "element_name", "scope", "type", "subtype", "pct_coverage_of_reference", "pct_identity_to_reference", "start", "stop"]]
+        amrfinder_df, _ = get_formatted_amrfinder_genes(amrfinder_df)
+
+        # - Separate pdc from the rest of genes -
+        # type: AMR, STRESS, or VIRULENCE.
+        # subtype: ANTIGEN, BIOCIDE, HEAT, METAL, PORIN, STX_TYPE
+        # class: antibiotic class
+        element_is_pdc = amrfinder_df["element_symbol"].str.contains("blaPDC")
+        element_is_amr = amrfinder_df["type"]=="AMR"
+        element_is_stress = amrfinder_df["type"]=="STRESS"
+        element_is_vir = amrfinder_df["type"]=="VIRULENCE"
+        amr_genes = amrfinder_df[~element_is_pdc & (element_is_amr | element_is_stress)].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        amr_pdc = amrfinder_df[element_is_pdc & element_is_amr].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        # vir_genes = amrfinder_df[element_is_vir].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        # stress_genes = amrfinder_df[element_is_stress].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+
+        # Prepare for merge
+        amr_genes["S1"] = assembly_analysis_section_name
+        amr_genes["S2"] = "Other AMR Genes"
+        amr_pdc["S1"] = assembly_analysis_section_name
+        amr_pdc["S2"] = "PDC"
+        # vir_genes["S1"] = assembly_analysis_section_name
+        # vir_genes["S2"] = "Virulence genes"
+        # stress_genes["S1"] = assembly_analysis_section_name
+        # stress_genes["S2"] = "Stress genes"
+
+    else:
+        amr_genes = generate_expected_empty_dataframe(
+            bcs=list(combined_long_df["bc"].unique()), 
+            s1=assembly_analysis_section_name,
+            s2="Other AMR Genes",
+        )
+        amr_pdc = generate_expected_empty_dataframe(
+            bcs=list(combined_long_df["bc"].unique()), 
+            s1=assembly_analysis_section_name,
+            s2="PDC",
+        )
+
+    # ---- MLST ----
+    if mlst_fs:
+        mlst_df = concat_files(mlst_fs, header=None)
+        mlst_df = mlst_df.rename(columns={0: "file", 1: "mlst_model", 2: "value"})
+        mlst_df["value"] = "ST" + mlst_df["value"].astype(str)
+        mlst_df = mlst_df[["bc", "mlst_model", "value"]]
+
+        # Prepare for merge
+        mlst_df["S1"] = assembly_analysis_section_name
+        mlst_df["S2"] = "MLST"
+    else:
+        mlst_df = generate_expected_empty_dataframe(
+            bcs=list(combined_long_df["bc"].unique()), 
+            s1=assembly_analysis_section_name,
+            s2="MLST",
+        )
+
+    # Merge
+    df = pd.concat(
+        [
+            pipelines_df,
+            reads_type_df,
+            mlst_df,
+            amr_pdc,
+            amr_genes,
+            # vir_genes,
+            # stress_genes,
+            combined_long_df,
+        ]
+    )
+
+    # ---- Final XLSX ----
     # Pivot and apply style
+    index_cols = ["bc"]
+    idx = pd.IndexSlice
+    temp_pivot = df.pivot(index=index_cols, columns=["S1", "S2"], values="value")
+    temp_pivot.loc[:,idx[:,["MLST","PDC","Other AMR Genes"]]] = temp_pivot.loc[:,idx[:,["MLST","PDC","Other AMR Genes"]]].fillna("No assembly given")
     temp = (
-        yyy.pivot(index=index_cols, columns=["locus_tag", "section"], values="value").rename_axis(None)
+        temp_pivot
         .style.applymap(
-            color_cells_v2,
+            color_cells_v2, #subset=[i for i in temp_pivot.columns if i[1] not in ["MLST","PDC","Other AMR Genes"] ]
         )
         .apply_index(highlight_header, axis="columns", level=[0, 1])
         .apply_index(highlight_header, axis="index")
@@ -401,21 +599,32 @@ def paeruginosa_combine_all_mutational_res(
 
     # Writer object
     writer = pd.ExcelWriter(output_file, engine="xlsxwriter")
+    sheet_name = "ARVIA"
 
     # Convert the styled dataframe to an XlsxWriter Excel object in specific sheet
-    temp.to_excel(writer, sheet_name="Sheet1")
+    temp.to_excel(writer, sheet_name=sheet_name)
 
     # Select sheet and apply formatting
     workbook = writer.book
-    worksheet = writer.sheets["Sheet1"]
+    worksheet = writer.sheets[sheet_name]
     worksheet.autofit()  # autofit row widths
     worksheet.set_row(1, 45)  # height of row
-    worksheet.set_row(2, 2, [], {"hidden": True})  # row is hidden # FIXME
+    max_width=180
+    worksheet.set_column_pixels(first_col=5, last_col=len(temp.columns)+1, width=max_width)
     worksheet.set_column(0, 0, 15)  # width of first column
     worksheet.freeze_panes(2, 1)  # freeze first 2 rows and first column
 
     # Save
     workbook.close()
 
-    return yyy
+    # Load again and delete multiindex row (bc), should be third line
+    # If it is not deleted it could be hidden, but when the user orders the excel
+    # other row will be hidden. Thus, we just try to remove it
+    wb = openpyxl.load_workbook(output_file)
+    sheet = wb[sheet_name]
+    assert sheet.cell(row=3, column=1).value == "bc", f"Unexpected: Row 3, column 1 was not 'bc'. Stopping just in case, check {output_file=}"
+    sheet.delete_rows(3, 1)
+    wb.save(output_file)
+
+    return True
 

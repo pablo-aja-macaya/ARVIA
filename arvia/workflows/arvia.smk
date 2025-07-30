@@ -15,7 +15,7 @@ from arvia.utils.process_user_input import associate_user_input_files, input_fil
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
-from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res
+from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res, create_merged_xlsx_result
 from arvia.utils.aeruginosa_truncations import check_truncations
 from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
 from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG #, KPNEUMONIAE_SELECTED_GENES
@@ -108,6 +108,7 @@ AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder"
 # Results
 RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
 RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
+XLSX_WIDE_TABLE = f"{PIPELINE_OUTPUT}/ARVIA.xlsx"
 
 # ---- Params ----
 CLEAN_SNIPPY_FOLDERS = False
@@ -117,8 +118,14 @@ CLEAN_SNIPPY_FOLDERS = False
 file_manifest_df = input_files_dict_to_df(INPUT_FILES)
 shell(f"mkdir -p {PIPELINE_OUTPUT}/logs")
 file_manifest_df.to_csv(f"{PIPELINE_OUTPUT}/logs/file_manifest.tsv", sep="\t", index=None)
+
 onstart:
+    # Print to screen file manifest
     rich_display_dataframe(file_manifest_df, "File manifest")
+    
+    # Delete previous result if it exists
+    if Path(XLSX_WIDE_TABLE).exists():
+        shell(f"rm {XLSX_WIDE_TABLE}")
 
 # shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
@@ -583,21 +590,29 @@ rule merge_results:
             gene_coverage_fs=expand(rules.get_results_per_sample.params.paeruginosa_gene_coverage, barcode=params.barcodes),
             truncation_fs=expand(rules.get_results_per_sample.params.paeruginosa_assembly_truncations, barcode=bcs_with_assembly), # not all samples will have this file (it happens if no assembly was given)
             bcs=params.barcodes,
-            output_file=output.advanced_result,
+            output_file=output.combined_long,
             bcs_without_assembly=bcs_without_assembly,
             filter_poly=False,
         )
-
+        
+        _ = create_merged_xlsx_result(
+            combined_long_f=output.combined_long,
+            output_file=output.advanced_result,
+            input_files_dict=INPUT_FILES,
+            amrfinderplus_fs=expand(rules.get_results_per_sample.params.amrfinderplus, barcode=bcs_with_assembly),
+            mlst_fs=expand(rules.get_results_per_sample.params.mlst, barcode=bcs_with_assembly),
+        )
         
 rule all:
     input:
         results_per_sample_folders = expand(rules.get_results_per_sample.output.folder, zip, barcode=list(INPUT_FILES.keys())),
+        combined_long = rules.merge_results.output.combined_long,
         merged_advanced_result = rules.merge_results.output.advanced_result,
     default_target: True
 
 
 onsuccess:
     combined_advanced_result = rules.merge_results.output.advanced_result
-    shell(f"cp {combined_advanced_result} {PIPELINE_OUTPUT}/ARVIA.xlsx")
+    shell(f"cp {combined_advanced_result} {XLSX_WIDE_TABLE}")
 
 
