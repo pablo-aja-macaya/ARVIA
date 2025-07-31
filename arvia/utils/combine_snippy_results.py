@@ -410,28 +410,27 @@ def create_merged_xlsx_result(
     mlst_fs: list = [],
     ):
 
-    """
-    output_file = "/home/usuario/Proyectos/Results/tests/arvia/ARVIA.xlsx"
+    # output_file = "/home/usuario/Proyectos/Results/tests/arvia/ARVIA.xlsx"
+    # combined_long_f = "/home/usuario/Proyectos/Results/tests/arvia/arvia/temp/results_merged/full_long.tsv"
+    # amrfinderplus_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_amrfinderplus.tsv")
+    # mlst_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_mlst.tsv")
 
-    combined_long_df = pd.read_csv("/home/usuario/Proyectos/Results/tests/arvia/arvia/temp/results_merged/full_long.tsv", sep="\t")
-    amrfinderplus_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_amrfinderplus.tsv")
-    mlst_fs = glob.glob("/home/usuario/Proyectos/Results/tests/arvia/arvia/results_per_sample/*/*_mlst.tsv")
+    # # input_files_dict = {
+    # #     "ARGA000190": {
+    # #         "pipeline": "x4",
+    # #     },
+    # #     "ARGA00024": {
+    # #         "pipeline": "x3",
+    # #     },
+    # #     "ARGA00025": {
+    # #         "pipeline": "x2",
+    # #     },
+    # #     "ARGA00461": {
+    # #         "pipeline": "x1",
+    # #     },
+    # # }
+    # input_files_dict = {'ARGA00080': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00080/ARGA00080_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00080/ARGA00080_R2.fastq.gz'], 'assembly': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly/ARGA00080/ARGA00080_assembly.fasta'], 'reads_type': 'paired_end', 'pipeline': 'full_pipeline'}, 'ARGA00043': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00043/ARGA00043_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00043/ARGA00043_R2.fastq.gz'], 'assembly': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly/ARGA00043/ARGA00043_assembly.fasta'], 'reads_type': 'paired_end', 'pipeline': 'full_pipeline'}, 'ARGA00043_sr': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00043/ARGA00043_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00043/ARGA00043_R2.fastq.gz'], 'assembly': [], 'reads_type': 'paired_end', 'pipeline': 'only_reads'}, 'ARGA00086': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00086/ARGA00086_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00086/ARGA00086_R2.fastq.gz'], 'assembly': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly/ARGA00086/ARGA00086_assembly.fasta'], 'reads_type': 'paired_end', 'pipeline': 'full_pipeline'}, 'ARGA00050': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00050/ARGA00050_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00050/ARGA00050_R2.fastq.gz'], 'assembly': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly/ARGA00050/ARGA00050_assembly.fasta'], 'reads_type': 'paired_end', 'pipeline': 'full_pipeline'}, 'ARGA00034': {'reads': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00034/ARGA00034_R1.fastq.gz', '/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/short_reads_qc/06_clean_reads/ARGA00034/ARGA00034_R2.fastq.gz'], 'assembly': ['/home/usuario/Proyectos/Results/ARGA/ARGA_ALL_v2/assembly/05_final_assembly/ARGA00034/ARGA00034_assembly.fasta'], 'reads_type': 'paired_end', 'pipeline': 'full_pipeline'}}
 
-    input_files_dict = {
-        "ARGA000190": {
-            "pipeline": "x4",
-        },
-        "ARGA00024": {
-            "pipeline": "x3",
-        },
-        "ARGA00025": {
-            "pipeline": "x2",
-        },
-        "ARGA00461": {
-            "pipeline": "x1",
-        },
-    }
-    """
     assembly_analysis_section_name = "General assembly analysis"
 
     def generate_expected_empty_dataframe(bcs, s1: str, s2: str, value: str = np.nan):
@@ -559,6 +558,10 @@ def create_merged_xlsx_result(
         mlst_df = mlst_df[["bc", "mlst_model", "value"]]
 
         # Prepare for merge
+        mlst_model_df = mlst_df[["bc","mlst_model"]].rename(columns={"mlst_model":"value"})
+        mlst_df = mlst_df[["bc","value"]]
+        mlst_model_df["S1"] = assembly_analysis_section_name
+        mlst_model_df["S2"] = "MLST Model"
         mlst_df["S1"] = assembly_analysis_section_name
         mlst_df["S2"] = "MLST"
     else:
@@ -568,11 +571,17 @@ def create_merged_xlsx_result(
             s2="MLST",
         )
 
-    # Merge
+    # ---- Merge ----
+    # This df has to habe columns
+    # S1: main section
+    # S2: subsection
+    # bc: sample id
+    # value: value for analysis in subsection
     df = pd.concat(
         [
             pipelines_df,
             reads_type_df,
+            mlst_model_df,
             mlst_df,
             amr_pdc,
             amr_genes,
@@ -583,15 +592,33 @@ def create_merged_xlsx_result(
     )
 
     # ---- Final XLSX ----
-    # Pivot and apply style
+    # Pivot
     index_cols = ["bc"]
     idx = pd.IndexSlice
+    no_assembly_given_cols = ["MLST","MLST Model","PDC","Other AMR Genes"]
     temp_pivot = df.pivot(index=index_cols, columns=["S1", "S2"], values="value")
-    temp_pivot.loc[:,idx[:,["MLST","PDC","Other AMR Genes"]]] = temp_pivot.loc[:,idx[:,["MLST","PDC","Other AMR Genes"]]].fillna("No assembly given")
+
+    # On those bcs that did not have an assembly, they will have np.nan in mlst, pdc etc
+    # we want to fill those with "No assembly given"
+    # It can also happen that an assembly was given but the analysis returned a np.nan
+    # in that case we fillna with "-"
+    only_reads_bc_pos = temp_pivot[("", "Pipeline")]=="only_reads"
+    temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("No assembly given")
+    temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("-")
+
+    # temp_pivot.loc[:,idx[:,no_assembly_given_cols]] = temp_pivot.loc[:,idx[:,no_assembly_given_cols]].fillna("-")
+    # cond1 = temp_pivot[("", "Pipeline")]=="only_reads"
+    # temp_pivot.loc[
+    #     cond1,
+    #     idx[:, no_assembly_given_cols]
+    # ] = temp_pivot.loc[
+    #     cond1,
+    #     idx[:, no_assembly_given_cols]
+    # ].replace("-", "No assembly given")
     temp = (
         temp_pivot
         .style.applymap(
-            color_cells_v2, #subset=[i for i in temp_pivot.columns if i[1] not in ["MLST","PDC","Other AMR Genes"] ]
+            color_cells_v2, #subset=[i for i in temp_pivot.columns if i[1] not in no_assembly_given_cols ]
         )
         .apply_index(highlight_header, axis="columns", level=[0, 1])
         .apply_index(highlight_header, axis="index")
@@ -609,8 +636,7 @@ def create_merged_xlsx_result(
     worksheet = writer.sheets[sheet_name]
     worksheet.autofit()  # autofit row widths
     worksheet.set_row(1, 45)  # height of row
-    max_width=180
-    worksheet.set_column_pixels(first_col=5, last_col=len(temp.columns)+1, width=max_width)
+    worksheet.set_column_pixels(first_col=6, last_col=len(temp.columns)+1, width=180) # set max width from column N to last
     worksheet.set_column(0, 0, 15)  # width of first column
     worksheet.freeze_panes(2, 1)  # freeze first 2 rows and first column
 

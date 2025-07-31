@@ -9,13 +9,16 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
-- **Point mutations (SNVs, indels, frameshifts) in PAO1**.
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract adquired resistance genes and MLST from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
+- **Variant calling in PAO1**:
+  - **Point mutations** (SNVs, indels, frameshifts) 
+  - Possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
+  - Possible **truncated genes** due to big chromosomic rearrangements (only with assembly!).
+  - **Mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
+  - Possible **polymorphisms** that do not influence antibiotic resistance.
 - **Variant calling of closest oprD reference**. 
-- Detection of possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
-- Detection of possible **truncated genes** due to big chromosomic rearrangements (only with assembly!).
-- Detection of **mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
-- Detection of possible **polymorphisms** that do not influence antibiotic resistance.
+- **Adquired resistance genes** (only with assembly!).
+- **MLST identification** (only with assembly!).
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
 
@@ -82,19 +85,10 @@ mamba create -n arvia \
     
 conda activate arvia
 
+# Install ARVIA
 git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
 cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
-
-# Other environments that can't go into the previous one due to incompatibility
-mamba create -n arvia_mlst \
-    mlst-cge==2.0.9
-
-mamba create -n arvia_rgi \
-    rgi=5.2.0
-
-
-
 ```
 
 <!-- 
@@ -156,6 +150,42 @@ ARGA00461-a:
     - input/ARGA00461.fasta
 ```
 
+You could also **create the YAML programatically**. Lets say you have a table `metadata.tsv`, your sample ids are in the column `sample_id` and your input files follow paths you know, the following is an example with Python:
+
+```python
+import pandas as pd
+import glob
+import yaml
+
+# A tab separated table with
+metadata_file = "metadata.tsv"
+
+# The file where the YAML will be saved
+input_yaml_file = "input.yaml"
+
+# Read metadata and extract a list with your sample ids
+df = pd.read_csv(metadata_file, sep="\t")
+sample_ids = list(df["sample_id"].unique())
+
+# Create a dictionary following the yaml format
+d = {
+    i: {
+        "reads": sorted(glob.glob(f"path/to/reads/{i}/{i}_R*.fastq.gz")), # make sure both elements are lists
+        "assembly": glob.glob(f"path/to/assemblies/{i}/{i}_assembly.fasta"), # make sure both elements are lists
+    } for i in sample_ids
+}
+
+# Save the dictionary to YAML
+with open(input_yaml_file, "w") as out_handle:
+    for biosample_id, values in d.items():
+        out_handle.write(f"# ---- {biosample_id} ----\n")  # section title
+        yaml.dump(
+            {f"{biosample_id}": values}, 
+            out_handle, default_flow_style=False, sort_keys=False
+        )
+        out_handle.write(f"\n")
+```
+
 
 ### File naming convention
 
@@ -171,36 +201,12 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 
 
 
+<!-- 
 ## Full command list 
 Full command list available with `arvia --help`:
 
-```sh
-Usage:  run [-h] [-i path] [-r path [path ...]] [-a path [path ...]] -o path [-c int] [-p] [--use_conda] [--barcodes str [str ...]]
-            [--draw_wf str]
-
-ARVIA: Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa
-
-Optional Arguments:
-  -h, --help                                        show this help message and exit
-
-Input/Output:
-  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containing two lists of paths with
-                                                    keys 'reads' and 'assembly' (default: None)
-  -r, --reads path [path ...]                       Input reads files. Can be paired-end or single-end and must follow one of these
-                                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
-                                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz' (default:
-                                                    None)
-  -a, --assemblies path [path ...]                  Input assembly files. Must follow one of these structures:
-                                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
-  -o, --output_folder path                          Output folder (default: None)
-
-Optional Parameters:
-  -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
-  -p, --previsualize                                Previsualize pipeline to see if everything is as expected (default: False)
-  --use_conda                                       If True, use conda environment specified by snakefile (default: False)
-  --barcodes str [str ...]                          Space separated list of sample IDs. Only these samples will be processed (default: None)
-  --draw_wf str                                     Draw pipeline to this path (PDF (default: None)
-```
+[ ] TO-DO 
+-->
 
 
 ## Test
@@ -212,6 +218,11 @@ arvia test --output_folder test_arvia
 ```
 
 This command downloads a set of reads and assemblies and tries to run the pipeline.
+
+## Performance
+
+A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads and assemblies takes around 42:57 minutes (~3 minutes per sample) in a computer with 64 threads and 128 Gb of RAM.
+
 
 ## Citation
 
@@ -246,28 +257,44 @@ pip install -i https://test.pypi.org/simple/ arvia
         - [] Output: tabla comparativa a lo ancho (.xlsx y .tsv), tabla comparativa a lo largo (.xlsx y .tsv), informe html de igvvariant, parameter log
         - [] To-do    
             - [] automatic reference download
-            - [] in results_per_sample
-                - [] format blast table (add header at least)
+            - [X] in results_per_sample
+                - [X] format blast table (add header at least)
                 - [X] add original muts without filters
             - [] hideable snakemake progress bar?
-            - [] tests
+            - [X] tests
             - [] informe html de igvvariant
-            - [] rgi
-            - [] mlst
+            - [X] amrfinder
+            - [X] mlst
             - [] add approximate depth if using reads
-            - [] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
+            - [X] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
-            - [] quitar lo de func en la tabla de parámetros no sé qué es
+            - [X] quitar lo de func en la tabla de parámetros no sé qué es
+            - [] añadir funcion para incrementar cores por rule si hay menos muestras
+            - [] en tabla resumen si se da assembly pero no detecta la PDC lo pone como si no se le hubiese dado ensamblaje, arreglar
+            - [X] añadir modelo de mlst
+            - [] 
+            - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
+              - [] ARGA00097 PA0929 pirR
+              - [] ARGA00457 PA0427 oprM
+              - [] ARGA00032 PA0424 mexR
+              - [] ARGA00581 PA0929 pirR
+              - [] ARGA00534 PA0929 pirR
+              - [] ARGA00086 PA0424 mexR
+              - [] ARGA00396 PA2057 sppR
+              - [] ARGA00104 PA3721 nalC
+              - [] ARGA00104 PA4522 ampD
+              - [] ARGA00395 PA4109 ampR
+            - [] actualizar imagen pipeline
     - Dependencies:
         - python
         - snakemake
         - snippy
         - bwa
         - samtools
-        - makeblastdb y blast (version in bakta)
+        - makeblastdb y blast
         - minimap2 for long reads?
-        - rgi?
-        - mlst-cge?
+        - amrfinder
+        - mlst
     - Paper: https://academic.oup.com/bioinformatics/pages/instructions_for_authors
         - [] paper
         - [] cover letter
