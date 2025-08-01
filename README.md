@@ -9,7 +9,7 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive variant calling of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract adquired resistance genes and MLST from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Variant calling in PAO1**:
   - **Point mutations** (SNVs, indels, frameshifts) 
   - Possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
@@ -17,7 +17,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
   - **Mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
   - Possible **polymorphisms** that do not influence antibiotic resistance.
 - **Variant calling of closest oprD reference**. 
-- **Adquired resistance genes** (only with assembly!).
+- **Acquired resistance genes** (only with assembly!).
 - **MLST identification** (only with assembly!).
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 
@@ -221,7 +221,7 @@ This command downloads a set of reads and assemblies and tries to run the pipeli
 
 ## Performance
 
-A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads and assemblies takes around 42:57 minutes (~3 minutes per sample) in a computer with 64 threads and 128 Gb of RAM.
+A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads and assemblies takes around 42:57 minutes (<1 minute per sample) in a computer with 64 threads and 128 Gb of RAM.
 
 
 ## Citation
@@ -257,22 +257,6 @@ pip install -i https://test.pypi.org/simple/ arvia
         - [] Output: tabla comparativa a lo ancho (.xlsx y .tsv), tabla comparativa a lo largo (.xlsx y .tsv), informe html de igvvariant, parameter log
         - [] To-do    
             - [] automatic reference download
-            - [X] in results_per_sample
-                - [X] format blast table (add header at least)
-                - [X] add original muts without filters
-            - [] hideable snakemake progress bar?
-            - [X] tests
-            - [] informe html de igvvariant
-            - [X] amrfinder
-            - [X] mlst
-            - [] add approximate depth if using reads
-            - [X] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
-            - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
-            - [X] quitar lo de func en la tabla de parámetros no sé qué es
-            - [] añadir funcion para incrementar cores por rule si hay menos muestras
-            - [] en tabla resumen si se da assembly pero no detecta la PDC lo pone como si no se le hubiese dado ensamblaje, arreglar
-            - [X] añadir modelo de mlst
-            - [] 
             - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [] ARGA00097 PA0929 pirR
               - [] ARGA00457 PA0427 oprM
@@ -285,6 +269,25 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00104 PA4522 ampD
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
+            - [] hideable snakemake progress bar?
+            - [] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
+              - Ej: blaPDC* -> blaPDC-30*; blaPDC? -> blaPDC-30?
+            - [] conseguir mlst más cercano si no tiene uno definido y poner el !
+            - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
+            - [] añadir funcion para incrementar cores por rule si hay menos muestras
+            - [] informe html de igvvariant
+            - [] add approximate depth if using reads
+            - [X] tests
+            - [X] amrfinder
+            - [X] mlst
+            - [X] en tabla final si no ha habido ningún cambio en un gen este no aparece, arreglar y meterlo sí o sí aunque esté vacío
+            - [X] quitar lo de func en la tabla de parámetros no sé qué es
+            - [X] en tabla resumen si se da assembly pero no detecta la PDC lo pone como si no se le hubiese dado ensamblaje, arreglar
+            - [X] añadir modelo de mlst
+            - [X] in results_per_sample
+                - [X] format blast table (add header at least)
+                - [X] add original muts without filters
+
     - Dependencies:
         - python
         - snakemake
