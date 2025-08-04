@@ -443,43 +443,6 @@ def create_merged_xlsx_result(
             }
         )
 
-    def get_formatted_amrfinder_genes(data: pd.DataFrame):
-        """
-        For each gene in a amrfinder result, depending on identity and coverage of the reference gene,
-        add a suffix to the end of the string
-        """
-
-        def assign_suffix(row):
-            # Perfect
-            if row["pct_coverage_of_reference"] >= 100 and row["pct_identity_to_reference"] >= 100:
-                return row["element_symbol"]
-            # Mutated
-            elif (
-                (row["pct_identity_to_reference"] >= 90)
-                & (row["pct_identity_to_reference"] < 100)
-                & (row["pct_coverage_of_reference"] >= 70)
-            ):
-                return row["element_symbol"] + "*"
-            # Unprobable or cut
-            elif (row["pct_identity_to_reference"] >= 80) & (row["pct_coverage_of_reference"] < 70):
-                return row["element_symbol"] + "?"
-            # Other
-            elif row["pct_coverage_of_reference"] > 90:
-                return row["element_symbol"] + "?"
-            else:
-                return row["element_symbol"] + "?"
-                # raise Exception("Unexpected, gene did not fit in any suffix category.")
-
-        if len(data) >= 1:  # apply fails if dataframe is empty
-            data["element_symbol"] = data.apply(assign_suffix, axis=1)
-            genes = "; ".join(sorted(data["element_symbol"].to_list()))
-        else:
-            genes = ""
-
-        return data, genes
-
-
-
     # ---- Pipelines ----
     pipelines_df = pd.DataFrame(
         [
@@ -511,22 +474,19 @@ def create_merged_xlsx_result(
     # Read and process
     if amrfinderplus_fs:
         amrfinder_df = concat_files(amrfinderplus_fs)
-        amrfinder_df.columns = [i.lower().replace(" ", "_").replace("%", "pct") for i in amrfinder_df.columns]
-        amrfinder_df = amrfinder_df[["bc", "contig_id", "element_symbol", "element_name", "scope", "type", "subtype", "pct_coverage_of_reference", "pct_identity_to_reference", "start", "stop"]]
-        amrfinder_df, _ = get_formatted_amrfinder_genes(amrfinder_df)
 
         # - Separate pdc from the rest of genes -
         # type: AMR, STRESS, or VIRULENCE.
         # subtype: ANTIGEN, BIOCIDE, HEAT, METAL, PORIN, STX_TYPE
         # class: antibiotic class
-        element_is_pdc = amrfinder_df["element_symbol"].str.contains("blaPDC")
+        element_is_pdc = amrfinder_df["mod_element_symbol"].str.contains("blaPDC")
         element_is_amr = amrfinder_df["type"]=="AMR"
         element_is_stress = amrfinder_df["type"]=="STRESS"
         element_is_vir = amrfinder_df["type"]=="VIRULENCE"
-        amr_genes = amrfinder_df[~element_is_pdc & (element_is_amr | element_is_stress)].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
-        amr_pdc = amrfinder_df[element_is_pdc & element_is_amr].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
-        # vir_genes = amrfinder_df[element_is_vir].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
-        # stress_genes = amrfinder_df[element_is_stress].groupby("bc", group_keys=True)["element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        amr_genes = amrfinder_df[~element_is_pdc & (element_is_amr | element_is_stress)].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        amr_pdc = amrfinder_df[element_is_pdc & element_is_amr].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        # vir_genes = amrfinder_df[element_is_vir].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        # stress_genes = amrfinder_df[element_is_stress].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
 
         # Prepare for merge
         amr_genes["S1"] = assembly_analysis_section_name
@@ -605,15 +565,7 @@ def create_merged_xlsx_result(
     temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("No assembly given")
     temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("-")
 
-    # temp_pivot.loc[:,idx[:,no_assembly_given_cols]] = temp_pivot.loc[:,idx[:,no_assembly_given_cols]].fillna("-")
-    # cond1 = temp_pivot[("", "Pipeline")]=="only_reads"
-    # temp_pivot.loc[
-    #     cond1,
-    #     idx[:, no_assembly_given_cols]
-    # ] = temp_pivot.loc[
-    #     cond1,
-    #     idx[:, no_assembly_given_cols]
-    # ].replace("-", "No assembly given")
+    # Format pivot with colors
     temp = (
         temp_pivot
         .style.applymap(
@@ -636,6 +588,7 @@ def create_merged_xlsx_result(
     worksheet.autofit()  # autofit row widths
     worksheet.set_row(1, 45)  # height of row
     worksheet.set_column_pixels(first_col=6, last_col=len(temp.columns)+1, width=180) # set max width from column N to last
+    worksheet.set_column_pixels(first_col=3, last_col=4, width=85) # set max width for mlst and mlst_model
     worksheet.set_column(0, 0, 15)  # width of first column
     worksheet.freeze_panes(2, 1)  # freeze first 2 rows and first column
 
@@ -650,6 +603,12 @@ def create_merged_xlsx_result(
     assert sheet.cell(row=3, column=1).value == "bc", f"Unexpected: Row 3, column 1 was not 'bc'. Stopping just in case, check {output_file=}"
     sheet.delete_rows(3, 1)
     wb.save(output_file)
+
+    # ---- Save to .tsv also ----
+    # Drop first row in multilevel column index
+    temp_pivot.columns = temp_pivot.columns.droplevel(0)
+    temp_pivot.columns = [i.replace("\n", "") for i in temp_pivot.columns]
+    temp_pivot.to_csv(f"{Path(output_file).parent}/{Path(output_file).stem}.tsv", sep="\t")
 
     return True
 

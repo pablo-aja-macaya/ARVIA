@@ -14,6 +14,7 @@ from arvia.arvia import ARVIA_DIR
 from arvia.utils.process_user_input import associate_user_input_files, input_file_dict_from_yaml, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
 from arvia.utils.process_mlst import process_mlst_result
+from arvia.utils.process_amrfinder import process_amrfinder_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
 from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res, create_merged_xlsx_result
@@ -105,7 +106,8 @@ PROCESS_BLAST_TRUNCATIONS= f"{PAERUGINOSA_TRUNC_OUTPUT}/04_process"
 # Other
 MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/run"
 MLST_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/process"
-AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder"
+AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder/run"
+AMRFINDER_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder/process"
 
 # Results
 RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
@@ -438,7 +440,7 @@ rule mlst:
         ) &> {log}
         """
 
-rule mlst_process:
+rule process_mlst:
     input:
         res=rules.mlst.output.res,
     output:
@@ -447,13 +449,13 @@ rule mlst_process:
     threads: 1
     run:
         # Get where mlst is installed
-        mlst_tool_folder = None
+        mlst_tool = None
         for line in shell("which mlst", iterable=True):
-            mlst_tool_folder = line
+            mlst_tool = line
 
         # Database folder relative to mlst binary 
         # should be ../../db/pubmlst
-        mlst_dbs_folder = Path(Path(mlst_tool_folder).parent.parent, "db", "pubmlst")
+        mlst_dbs_folder = Path(Path(mlst_tool).parent.parent, "db", "pubmlst")
         assert mlst_dbs_folder.exists(), f"MLST database folder does not exist {mlst_dbs_folder=}"
 
         # Process mlst result
@@ -484,6 +486,31 @@ rule amrfinderplus:
         amrfinder -n {input.assembly} --threads {threads} -o {output.res}
         ) &> {log}
         """
+
+rule process_amrfinderplus:
+    input:
+        res=rules.amrfinderplus.output.res,
+    output:
+        folder=directory(Path(AMRFINDER_PROCESS_OUTPUT, "{barcode}")),
+        res=Path(AMRFINDER_PROCESS_OUTPUT, "{barcode}", "{barcode}.tsv"),
+    threads: 1
+    run:
+        # Get where amrfinder_tool is installed
+        amrfinder_tool = None
+        for line in shell("which amrfinder", iterable=True):
+            amrfinder_tool = line
+
+        # Reference catalog relative to amrfinder binary 
+        # should be in ../../share/amrfinderplus/data/latest/ReferenceGeneCatalog.txt
+        amrfinder_catalog_file = Path(Path(amrfinder_tool).parent.parent, "share", "amrfinderplus", "data", "latest", "ReferenceGeneCatalog.txt")
+        assert amrfinder_catalog_file.exists(), f"ReferenceGeneCatalog does not exist {amrfinder_catalog_file=}"
+
+        # Process mlst result
+        _ = process_amrfinder_result(
+            input_file=input.res,
+            amrfinder_catalog_file=amrfinder_catalog_file,
+            output_file=output.res
+        )
 
 
 # # ---- Get input stats ----
@@ -521,8 +548,8 @@ def decide_steps(wc):
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
             "paeruginosa_assembly_truncations": rules.process_blast_truncations.output.res,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
-            "amrfinderplus": rules.amrfinderplus.output.res,
-            "mlst": rules.mlst_process.output.res,
+            "amrfinderplus": rules.process_amrfinderplus.output.res,
+            "mlst": rules.process_mlst.output.res,
         }
     elif pipeline == "only_reads":
         steps = {
@@ -594,6 +621,7 @@ rule merge_results:
         folder = directory(Path(RESULTS_MERGED_OUTPUT)),
         default_result = Path(RESULTS_MERGED_OUTPUT, "pao1_snippy_comparison.xlsx"),
         advanced_result = Path(RESULTS_MERGED_OUTPUT, "full_wide.xlsx"),
+        advanced_result_tsv = Path(RESULTS_MERGED_OUTPUT, "full_wide.tsv"),
         combined_long = Path(RESULTS_MERGED_OUTPUT, "full_long.tsv"),
     params:
         barcodes = list(INPUT_FILES.keys()),
@@ -642,6 +670,8 @@ rule all:
 
 onsuccess:
     combined_advanced_result = rules.merge_results.output.advanced_result
+    combined_advanced_result_tsv = rules.merge_results.output.advanced_result_tsv
     shell(f"cp {combined_advanced_result} {XLSX_WIDE_TABLE}")
+    shell(f"cp {combined_advanced_result_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}.tsv")
 
 

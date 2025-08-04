@@ -1,15 +1,8 @@
 
 
-import glob
 import pandas as pd
-from arvia.utils.combine_snippy_results import concat_files
 from pathlib import Path
 import re
-import numpy as np
-
-mlst_dbs_folder = "/home/usuario/Proyectos/environments/miniconda3/envs/arvia/db/pubmlst" # "/*/*.txt"
-
-
 
 def process_mlst_result(input_file: Path, mlst_dbs_folder: Path, output_file: Path = None):
     # Extract sample name from parent folder 

@@ -269,14 +269,14 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00104 PA4522 ampD
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
-            - [] hideable snakemake progress bar?
-            - [] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
-              - Ej: blaPDC* -> blaPDC-30*; blaPDC? -> blaPDC-30?
-            - [] conseguir mlst más cercano si no tiene uno definido y poner el !
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] añadir funcion para incrementar cores por rule si hay menos muestras
             - [] informe html de igvvariant
             - [] add approximate depth if using reads
+            - [] hideable snakemake progress bar?
+            - [X] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
+              - Ej: blaPDC* -> blaPDC-30*; blaPDC? -> blaPDC-30?
+            - [X] conseguir mlst más cercano si no tiene uno definido y poner el !
             - [X] tests
             - [X] amrfinder
             - [X] mlst
@@ -284,6 +284,7 @@ pip install -i https://test.pypi.org/simple/ arvia
             - [X] quitar lo de func en la tabla de parámetros no sé qué es
             - [X] en tabla resumen si se da assembly pero no detecta la PDC lo pone como si no se le hubiese dado ensamblaje, arreglar
             - [X] añadir modelo de mlst
+            - [X] añadir mlst más cercano
             - [X] in results_per_sample
                 - [X] format blast table (add header at least)
                 - [X] add original muts without filters

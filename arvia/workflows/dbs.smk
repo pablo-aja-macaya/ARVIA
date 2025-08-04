@@ -253,6 +253,11 @@ rule update_amrfinder:
         """
         (
         amrfinder -u
+        downloaded_db_dir="$(grep 'Database directory: ' {log} | awk '{{ print $3 }}')"
+        db_dir="$(dirname "$downloaded_db_dir")"
+
+        cd ${{db_dir}}/latest
+        wget https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ReferenceGeneCatalog.txt
         ) &> {log}
         """
 
