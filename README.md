@@ -253,7 +253,7 @@ pip install -i https://test.pypi.org/simple/ arvia
 <!-- 
 - [] Herramienta variant calling p. aeruginosa    
     - Funciones:
-        - [] Input: paired reads, long reads or assembly
+        - [X] Input: paired reads, long reads or assembly
         - [] Output: tabla comparativa a lo ancho (.xlsx y .tsv), tabla comparativa a lo largo (.xlsx y .tsv), informe html de igvvariant, parameter log
         - [] To-do    
             - [] automatic reference download
@@ -270,10 +270,10 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
-            - [] añadir funcion para incrementar cores por rule si hay menos muestras
             - [] informe html de igvvariant
-            - [] add approximate depth if using reads
-            - [] hideable snakemake progress bar?
+            - [nah] add approximate depth if using reads
+            - [nah] hideable snakemake progress bar?
+            - [X] añadir funcion para incrementar cores por rule si hay menos muestras
             - [X] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
               - Ej: blaPDC* -> blaPDC-30*; blaPDC? -> blaPDC-30?
             - [X] conseguir mlst más cercano si no tiene uno definido y poner el !

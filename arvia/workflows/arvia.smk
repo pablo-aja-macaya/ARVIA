@@ -20,11 +20,10 @@ from arvia.utils.annotation_extraction import get_proteins_from_gbk
 from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res, create_merged_xlsx_result
 from arvia.utils.aeruginosa_truncations import check_truncations
 from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
-from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG #, KPNEUMONIAE_SELECTED_GENES
+from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG
 from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK
 from arvia.utils.local_paths import CONDA_ENVS
-# from bactasys.utils.config.local_paths import MLST_DB, MLST_CONFIG
-# from bactasys.utils.config.local_paths import CARD_JSON
+from arvia.utils.snakemake_common import get_snakemake_threads
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # remove warning from pandas
 warnings.simplefilter(action='ignore', category=UserWarning) # remove warning from deprecated package in setuptools
@@ -130,6 +129,7 @@ onstart:
     # Delete previous result if it exists
     if Path(XLSX_WIDE_TABLE).exists():
         shell(f"rm {XLSX_WIDE_TABLE}")
+        shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}.tsv")
 
 # shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
@@ -228,7 +228,7 @@ use rule snippy as paeruginosa_mutations with:
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: 6
+    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "arvia.log")
 
@@ -273,7 +273,7 @@ rule makeblastdb_from_assembly:
         dbtype="nucl",  # nucl | prot
     conda:
         CONDA_ENVS["arvia"] # uses this but it just needs blast
-    threads: 20
+    threads: get_snakemake_threads(recommended=10, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT, "{barcode}", "arvia.log")
     shell:
@@ -292,7 +292,7 @@ rule blast_paeruginosa_genes_to_assembly:
     output:
         folder=directory(Path(BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT,"{barcode}")),
         res=Path(BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT,"{barcode}","{barcode}.tsv"),
-    threads: 20
+    threads: get_snakemake_threads(recommended=10, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     params:
@@ -334,7 +334,7 @@ rule align_oprd:
         coverage = Path(ALIGN_OPRD, "{barcode}", "coverage.tsv"),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
-    threads: 12
+    threads: get_snakemake_threads(recommended=12, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
@@ -414,7 +414,7 @@ use rule snippy as paeruginosa_oprd with:
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: 12
+    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(SNIPPY_OPRD, "{barcode}", "arvia.log")
 
@@ -427,7 +427,7 @@ rule mlst:
         res=Path(MLST_OUTPUT, "{barcode}", "{barcode}.tsv"),
     params:
         mlst_scheme = "" #"paeruginosa"
-    threads: 6
+    threads: get_snakemake_threads(recommended=1, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
@@ -474,7 +474,7 @@ rule amrfinderplus:
     output:
         folder=directory(Path(AMRFINDER_OUTPUT, "{barcode}")),
         res=Path(AMRFINDER_OUTPUT, "{barcode}", "{barcode}.tsv"),
-    threads: 6
+    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
