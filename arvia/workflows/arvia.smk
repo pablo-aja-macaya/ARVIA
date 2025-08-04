@@ -13,6 +13,7 @@ from pprint import pprint
 from arvia.arvia import ARVIA_DIR
 from arvia.utils.process_user_input import associate_user_input_files, input_file_dict_from_yaml, check_input_file_dict_and_decide_pipeline, input_files_dict_to_df
 from arvia.utils.aeruginosa_snippy import filter_snippy_result
+from arvia.utils.process_mlst import process_mlst_result
 from arvia.utils.console_log import CONSOLE_STDOUT, CONSOLE_STDERR, log_error_and_raise, rich_display_dataframe
 from arvia.utils.annotation_extraction import get_proteins_from_gbk
 from arvia.utils.combine_snippy_results import get_default_snippy_combination, paeruginosa_combine_all_mutational_res, create_merged_xlsx_result
@@ -102,7 +103,8 @@ BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/03_bla
 PROCESS_BLAST_TRUNCATIONS= f"{PAERUGINOSA_TRUNC_OUTPUT}/04_process"
 
 # Other
-MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst"
+MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/run"
+MLST_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/process"
 AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder"
 
 # Results
@@ -436,6 +438,33 @@ rule mlst:
         ) &> {log}
         """
 
+rule mlst_process:
+    input:
+        res=rules.mlst.output.res,
+    output:
+        folder=directory(Path(MLST_PROCESS_OUTPUT, "{barcode}")),
+        res=Path(MLST_PROCESS_OUTPUT, "{barcode}", "{barcode}.tsv"),
+    threads: 1
+    run:
+        # Get where mlst is installed
+        mlst_tool_folder = None
+        for line in shell("which mlst", iterable=True):
+            mlst_tool_folder = line
+
+        # Database folder relative to mlst binary 
+        # should be ../../db/pubmlst
+        mlst_dbs_folder = Path(Path(mlst_tool_folder).parent.parent, "db", "pubmlst")
+        assert mlst_dbs_folder.exists(), f"MLST database folder does not exist {mlst_dbs_folder=}"
+
+        # Process mlst result
+        _ = process_mlst_result(
+            input_file=input.res,
+            mlst_dbs_folder=mlst_dbs_folder,
+            output_file=output.res
+        )
+
+
+
 # ---- AMRFinder ----
 rule amrfinderplus:
     input:
@@ -493,7 +522,7 @@ def decide_steps(wc):
             "paeruginosa_assembly_truncations": rules.process_blast_truncations.output.res,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
             "amrfinderplus": rules.amrfinderplus.output.res,
-            "mlst": rules.mlst.output.res,
+            "mlst": rules.mlst_process.output.res,
         }
     elif pipeline == "only_reads":
         steps = {

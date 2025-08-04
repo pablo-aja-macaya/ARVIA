@@ -552,9 +552,8 @@ def create_merged_xlsx_result(
 
     # ---- MLST ----
     if mlst_fs:
-        mlst_df = concat_files(mlst_fs, header=None)
-        mlst_df = mlst_df.rename(columns={0: "file", 1: "mlst_model", 2: "value"})
-        mlst_df["value"] = "ST" + mlst_df["value"].astype(str)
+        mlst_df = concat_files(mlst_fs)
+        mlst_df = mlst_df.rename(columns={"final_mlst": "value"})
         mlst_df = mlst_df[["bc", "mlst_model", "value"]]
 
         # Prepare for merge
