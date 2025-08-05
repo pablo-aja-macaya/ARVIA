@@ -35,7 +35,7 @@ dependencies:
   - bwa=0.7.18=he4a0461_1
   - bzip2=1.0.8=h4bc722e_7
   - c-ares=1.34.5=hb9d3cd8_0
-  - ca-certificates=2025.7.14=hbd8a1cb_0
+  - ca-certificates=2025.8.3=hbd8a1cb_0
   - cachetools=5.5.0=pyhd8ed1ab_0
   - cairo=1.16.0=he5ede1b_6
   - certifi=2024.8.30=pyhd8ed1ab_0
@@ -48,14 +48,14 @@ dependencies:
   - coin-or-clp=1.17.8=h1ee7a9c_0
   - coin-or-osi=0.108.10=haf5fa05_0
   - coin-or-utils=2.11.11=hee58242_0
-  - coincbc=2.10.12=2_metapackage
+  - coincbc=2.10.12=4_metapackage
   - colorama=0.4.4=pyh9f0ad1d_0
   - comm=0.2.2=pyhd8ed1ab_0
   - configargparse=1.7=pyhd8ed1ab_0
   - connection_pool=0.0.3=pyhd3deb0d_0
   - consan=1.2=h7b50bb2_7
   - cryptography=43.0.0=py38hf793753_0
-  - curl=8.14.1=hcaaf1f2_0
+  - curl=8.14.1=h14366f7_1
   - datrie=0.8.2=py38h01eb140_7
   - debugpy=1.8.5=py38h6d02427_0
   - decorator=5.1.1=pyhd8ed1ab_0
@@ -100,7 +100,7 @@ dependencies:
   - google-crc32c=1.1.2=py38hf9d55a7_5
   - google-resumable-media=2.7.2=pyhd8ed1ab_1
   - googleapis-common-protos=1.65.0=pyhd8ed1ab_0
-  - graphite2=1.3.14=h5888daf_0
+  - graphite2=1.3.14=hecca717_1
   - grpcio=1.62.2=py38h94a1851_0
   - gsl=2.7=he838d99_0
   - harfbuzz=10.2.0=hf296adc_0
@@ -109,9 +109,11 @@ dependencies:
   - httplib2=0.22.0=pyhd8ed1ab_0
   - icu=73.2=h59595ed_0
   - idna=3.10=pyhd8ed1ab_0
+  - igv-reports=1.15.1=pyh7e72e81_0
   - importlib-metadata=8.5.0=pyha770c72_0
   - importlib_resources=6.4.5=pyhd8ed1ab_0
   - iniconfig=2.0.0=pyhd8ed1ab_0
+  - intervaltree=3.1.0=pyhd8ed1ab_1
   - ipykernel=6.29.5=pyh3099207_0
   - ipython=8.12.2=pyh41d4057_0
   - jedi=0.19.1=pyhd8ed1ab_0
@@ -135,21 +137,21 @@ dependencies:
   - libcblas=3.9.0=32_he106b2a_openblas
   - libcrc32c=1.1.2=h9c3ff4c_0
   - libcups=2.3.3=h4637d8d_4
-  - libcurl=8.14.1=h31d0fb7_0
+  - libcurl=8.14.1=hc1efc7f_1
   - libdb=6.2.32=h9c3ff4c_0
   - libdeflate=1.20=hd590300_0
   - libedit=3.1.20250104=pl5321h7949ede_0
   - libev=4.33=hd590300_2
   - libexpat=2.7.1=hecca717_0
   - libffi=3.4.6=h2dba641_1
-  - libgcc=15.1.0=h767d61c_3
-  - libgcc-ng=15.1.0=h69a702a_3
+  - libgcc=15.1.0=h767d61c_4
+  - libgcc-ng=15.1.0=h69a702a_4
   - libgettextpo=0.25.1=h3f43e3d_1
-  - libgfortran=15.1.0=h69a702a_3
-  - libgfortran-ng=15.1.0=h69a702a_3
-  - libgfortran5=15.1.0=hcea5267_3
+  - libgfortran=15.1.0=h69a702a_4
+  - libgfortran-ng=15.1.0=h69a702a_4
+  - libgfortran5=15.1.0=hcea5267_4
   - libglib=2.80.2=hf974151_0
-  - libgomp=15.1.0=h767d61c_3
+  - libgomp=15.1.0=h767d61c_4
   - libgrpc=1.62.2=h15f2491_0
   - libiconv=1.18=h4ce23a2_1
   - libidn2=2.3.8=ha4ef2c3_0
@@ -167,8 +169,8 @@ dependencies:
   - libsodium=1.0.18=h36c2ea0_1
   - libsqlite=3.46.0=hde9e2c9_0
   - libssh2=1.11.1=h251f7ec_0
-  - libstdcxx=15.1.0=h8f9b012_3
-  - libstdcxx-ng=15.1.0=h4852527_3
+  - libstdcxx=15.1.0=h8f9b012_4
+  - libstdcxx-ng=15.1.0=h4852527_4
   - libtasn1=4.20.0=hb9d3cd8_0
   - libtiff=4.6.0=h1dd3fc0_3
   - libunistring=0.9.10=h7f98852_0
@@ -201,10 +203,10 @@ dependencies:
   - odfpy=1.4.1=py_0
   - openjdk=22.0.1=hb622114_0
   - openmpi=4.1.6=hc5af2df_101
-  - openssl=3.5.1=h7b32b05_0
+  - openssl=3.5.0=h7b32b05_1
   - p11-kit=0.24.1=hc5aa10d_0
   - packaging=25.0=pyh29332c3_1
-  - paml=4.10.7=h7b50bb2_2
+  - paml=4.10.9=h7b50bb2_0
   - pandas=1.5.0=py38h8f669ce_0
   - parallel=20250622=ha770c72_0
   - paramiko=3.5.0=pyhd8ed1ab_0
@@ -291,7 +293,7 @@ dependencies:
   - perl-parent=0.243=pl5321hd8ed1ab_0
   - perl-pathtools=3.75=pl5321hb9d3cd8_2
   - perl-role-tiny=2.002004=pl5321ha770c72_0
-  - perl-scalar-list-utils=1.69=pl5321hb9d3cd8_0
+  - perl-scalar-list-utils=1.70=pl5321hb03c661_0
   - perl-socket=2.027=pl5321h5c03b87_6
   - perl-storable=3.15=pl5321hb9d3cd8_2
   - perl-sub-quote=2.006006=pl5321ha770c72_0
@@ -352,6 +354,7 @@ dependencies:
   - pynacl=1.5.0=py38h01eb140_3
   - pyopenssl=24.2.1=pyhd8ed1ab_2
   - pyparsing=3.1.4=pyhd8ed1ab_0
+  - pysam=0.22.1=py38h2d19e03_2
   - pysftp=0.2.9=py_1
   - pysocks=1.7.1=pyha2e5f31_6
   - pytest=8.3.4=pyhd8ed1ab_0
@@ -360,6 +363,7 @@ dependencies:
   - python-fastjsonschema=2.20.0=pyhd8ed1ab_0
   - python-irodsclient=2.1.0=pyhd8ed1ab_0
   - python_abi=3.8=8_cp38
+  - pytwobit=0.3.1=pyhdfd78af_0
   - pytz=2024.2=pyhd8ed1ab_0
   - pyu2f=0.1.5=pyhd8ed1ab_0
   - pyyaml=6.0.2=py38h2019614_0
@@ -393,6 +397,7 @@ dependencies:
   - snippy=4.6.0=hdfd78af_6
   - snp-sites=2.5.1=he4a0461_5
   - snpeff=4.3.1t=hdfd78af_5
+  - sortedcontainers=2.4.0=pyhd8ed1ab_0
   - stack_data=0.6.2=pyhd8ed1ab_0
   - stone=3.3.2=pyhd8ed1ab_0
   - stopit=1.1.2=py_0

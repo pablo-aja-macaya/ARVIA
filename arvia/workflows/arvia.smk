@@ -21,9 +21,10 @@ from arvia.utils.combine_snippy_results import get_default_snippy_combination, p
 from arvia.utils.aeruginosa_truncations import check_truncations
 from arvia.utils.aeruginosa_truncations import BLAST_OUTFMT
 from arvia.utils.local_paths import OPRD_NUCL, OPRD_CONFIG
-from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK
+from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK#, PAERUGINOSA_GENOME_GFF, PAERUGINOSA_GENOME_FNA
 from arvia.utils.local_paths import CONDA_ENVS
 from arvia.utils.snakemake_common import get_snakemake_threads
+from arvia.utils.prepare_files_for_igvreport import process_gff_and_muts
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # remove warning from pandas
 warnings.simplefilter(action='ignore', category=UserWarning) # remove warning from deprecated package in setuptools
@@ -107,6 +108,7 @@ MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/run"
 MLST_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/process"
 AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder/run"
 AMRFINDER_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder/process"
+IGV_REPORTS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/igvreports"
 
 # Results
 RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
@@ -159,6 +161,9 @@ rule snippy:
         res=Path(".tab"),
         res_with_het=Path("snps.nofilt.tab"),
         gene_coverage=Path(".tsv"),
+        bam=temp(Path(".bam")),
+        ref_gff=temp(Path("reference/ref.gff")),
+        ref_fna=temp(Path("reference/ref.fa")),
     params:
         selected_input=None, # "paired_end" | "single_end" | "assembly",
         min_depth=config.get("snippy", {}).get("min_depth", 5),
@@ -222,6 +227,9 @@ use rule snippy as paeruginosa_mutations with:
         res=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "snps.tab"),
         res_with_het=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "snps.nofilt.tab"),
         gene_coverage=Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "gene_coverage.tsv"),
+        bam=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "snps.bam")),
+        ref_gff=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "reference", "ref.gff")),
+        ref_fna=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "reference", "ref.fa")),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
         min_depth=config.get("snippy", {}).get("min_depth", 5),
@@ -248,6 +256,75 @@ rule process_paeruginosa_mutations:
     threads: 1
     run:
         df = filter_snippy_result(input.res, output.res)
+
+
+
+# ---- igv-reports ----
+rule igv_report:
+    input:
+        snippy_res = rules.process_paeruginosa_mutations.output.res,
+        ref_gff = rules.paeruginosa_mutations.output.ref_gff,
+        ref_fna = rules.paeruginosa_mutations.output.ref_fna,
+        bams = rules.paeruginosa_mutations.output.bam,
+    output:
+        folder = directory(Path(IGV_REPORTS_OUTPUT, "{barcode}")),
+        report = Path(IGV_REPORTS_OUTPUT, "{barcode}", "{barcode}.html"),
+        regions_bed = temp(Path(IGV_REPORTS_OUTPUT, "{barcode}", "regions.bed")),
+        mutations_bed=temp(Path(IGV_REPORTS_OUTPUT, "{barcode}", "mutations.bed")),
+        json=temp(Path(IGV_REPORTS_OUTPUT, "{barcode}", "igvreports.json")),
+    params:
+        flanking = 500,
+    threads: 1
+    run:
+        shell(f"mkdir -p {output.folder}")
+
+        # Get bed format
+        merged_bed, mutations_bed  = process_gff_and_muts(input.snippy_res, input.ref_gff)
+        merged_bed.to_csv(output.regions_bed, sep="\t", index=None, header=None)
+        mutations_bed.to_csv(output.mutations_bed, sep="\t", index=None, header=None)
+
+        # Generate JSON for igv-reports
+        igv_config = [
+            {
+                "name": "Mutations (NS)",
+                "url": output.mutations_bed
+            },
+        ]
+        bams = [input.bams] if type(input.bams)==str else input.bams
+        igv_config += [
+            {
+                "name": f"Alignment {idx+1}",
+                "url": f,
+                "displayMode": "SQUISHED",
+                "samplingDepth": 500,
+                "height": 200,
+            } for idx, f in enumerate(bams)
+        ]
+        igv_config += [
+            {
+                "name": "Reference GFF",
+                "url": input.ref_gff
+            },
+        ]
+
+        with open(output.json, "w") as fp:
+            json.dump(igv_config, fp, indent=4)
+
+
+        cmd = [
+            f"create_report {output.regions_bed}",
+            f"--fasta {input.ref_fna}",
+            f"--flanking {params.flanking}",
+            f"--track-config {output.json}",
+            # f"--translate-sequence-track",
+            f"--standalone --output {output.report}",
+        ]
+        cmd = ' '.join(cmd)
+        shell(f"{cmd} &> {output.folder}/igvreport.log")
+
+
+
+
 
 
 # ---- Pseudomonas aeruginosa blast reference genes ----
@@ -408,6 +485,9 @@ use rule snippy as paeruginosa_oprd with:
         res = Path(SNIPPY_OPRD, "{barcode}", "snps.tab"),
         res_with_het=Path(SNIPPY_OPRD, "{barcode}", "snps.nofilt.tab"),
         gene_coverage=Path(SNIPPY_OPRD, "{barcode}", "gene_coverage.tsv"),
+        bam=temp(Path(SNIPPY_OPRD, "{barcode}", "snps.bam")),
+        ref_gff=temp(Path(SNIPPY_OPRD, "{barcode}", "reference", "ref.gff")),
+        ref_fna=temp(Path(SNIPPY_OPRD, "{barcode}", "reference", "ref.fa")),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
         min_depth=config.get("snippy", {}).get("min_depth", 5),
@@ -546,6 +626,7 @@ def decide_steps(wc):
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
+            "paeruginosa_igv_report": rules.igv_report.output.report,
             "paeruginosa_assembly_truncations": rules.process_blast_truncations.output.res,
             "paeruginosa_assembly_blast": rules.blast_paeruginosa_genes_to_assembly.output.res,
             "amrfinderplus": rules.process_amrfinderplus.output.res,
@@ -558,6 +639,7 @@ def decide_steps(wc):
             "paeruginosa_gene_coverage": rules.paeruginosa_mutations.output.gene_coverage,
             "paeruginosa_oprd": rules.paeruginosa_oprd.output.res_with_het,
             "paeruginosa_oprd_refs": rules.decide_best_oprd_ref.output.selected_ref_txt,
+            "paeruginosa_igv_report": rules.igv_report.output.report,
             # "paeruginosa_assembly_blast": NULL,
         }
     else:
@@ -579,6 +661,7 @@ rule get_results_per_sample:
         paeruginosa_gene_coverage = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_gene_coverage.tsv"),
         paeruginosa_oprd = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_muts.tsv"),
         paeruginosa_oprd_refs = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_selected_oprd_ref.txt"),
+        paeruginosa_igv_report = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_muts_filtered.html"),
         paeruginosa_assembly_truncations = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_paeruginosa_assembly_truncations.tsv"),
         amrfinderplus = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_amrfinderplus.tsv"),
         mlst = Path(RESULTS_PER_SAMPLE_OUTPUT, "{barcode}", "{barcode}_mlst.tsv"),
@@ -594,12 +677,13 @@ rule get_results_per_sample:
         paeruginosa_gene_coverage = input.__dict__.get("paeruginosa_gene_coverage")
         paeruginosa_oprd = input.__dict__.get("paeruginosa_oprd")
         paeruginosa_oprd_refs = input.__dict__.get("paeruginosa_oprd_refs")
+        paeruginosa_igv_report = input.__dict__.get("paeruginosa_igv_report")
         paeruginosa_assembly_truncations = input.__dict__.get("paeruginosa_assembly_truncations")
         amrfinderplus = input.__dict__.get("amrfinderplus")
         mlst = input.__dict__.get("mlst")
 
         # Assert the minimum input required
-        assert paeruginosa_mutations and paeruginosa_processed_mutations and paeruginosa_gene_coverage and paeruginosa_oprd, f"One of these did not exist: {paeruginosa_mutations=}; {paeruginosa_processed_mutations=}; {paeruginosa_gene_coverage=}; {paeruginosa_oprd=}"
+        assert paeruginosa_mutations and paeruginosa_processed_mutations and paeruginosa_gene_coverage and paeruginosa_oprd and paeruginosa_igv_report, f"One of these did not exist: {paeruginosa_mutations=}; {paeruginosa_processed_mutations=}; {paeruginosa_gene_coverage=}; {paeruginosa_oprd=}"
 
         # Modify names and save
         shell(f"cp {paeruginosa_mutations} {expand(params.paeruginosa_mutations, barcode=[wildcards.barcode])[0]}")
@@ -607,6 +691,7 @@ rule get_results_per_sample:
         shell(f"cp {paeruginosa_gene_coverage} {expand(params.paeruginosa_gene_coverage, barcode=[wildcards.barcode])[0]}")
         shell(f"cp {paeruginosa_oprd} {expand(params.paeruginosa_oprd, barcode=[wildcards.barcode])[0]}")
         shell(f"cp {paeruginosa_oprd_refs} {expand(params.paeruginosa_oprd_refs, barcode=[wildcards.barcode])[0]}")
+        shell(f"cp {paeruginosa_igv_report} {expand(params.paeruginosa_igv_report, barcode=[wildcards.barcode])[0]}")
 
         if paeruginosa_assembly_truncations:
             shell(f"cp {paeruginosa_assembly_truncations} {expand(params.paeruginosa_assembly_truncations, barcode=[wildcards.barcode])[0]}") # FIXME: format this table for user

@@ -32,6 +32,8 @@ CONDA_ENVS = {
 ###############################################
 # ---- Main reference ----
 PAERUGINOSA_GENOME_GBK = f"{ARVIA_DIR}/data/genomes/Pseudomonas_aeruginosa_PAO1_107.gbk"
+# PAERUGINOSA_GENOME_GFF = f"{ARVIA_DIR}/data/genomes/Pseudomonas_aeruginosa_PAO1_107.gff"
+# PAERUGINOSA_GENOME_FNA = f"{ARVIA_DIR}/data/genomes/Pseudomonas_aeruginosa_PAO1_107.fna"
 
 # ---- oprD P. aeruginosa ----
 OPRD_FOLDER = f"{ARVIA_DIR}/data/genes/paeruginosa_oprd"
