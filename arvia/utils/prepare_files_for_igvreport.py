@@ -52,7 +52,7 @@ def process_gff_and_muts(snippy_muts_f: Path, ref_gff_f: Path):
         lambda row: row["POS"] + len(row["REF"]) if row["EFFECT"]!="possible_missing_feature" else gff_df[gff_df["locus_tag"]==row["LOCUS_TAG"]]["end"].values[0] - gene_side_space, axis=1
     ) 
 
-    mutations_df["value"] = "-->" + mutations_df["LOCUS_TAG"] + " " + mutations_df["EFFECT"]
+    mutations_df["value"] = "-->" + mutations_df["LOCUS_TAG"] + " " + mutations_df["EFFECT"] + " (" + mutations_df["EVIDENCE"] + ")"
     mutations_df["value"] = mutations_df["value"].str.replace(" ", "_")
     mutation_count = (
         mutations_df.value_counts("LOCUS_TAG").reset_index(name="mutation_count").rename(columns={"LOCUS_TAG": "locus_tag"})
