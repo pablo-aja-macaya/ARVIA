@@ -210,22 +210,71 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 
 ## Output
 
-### Summary
 ARVIA's output in `--output_folder` is the following:
-- `ARVIA.xlsx`: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible polymorphisms** appear as `(POLY)`.
-- `ARVIA.tsv`: Same as `ARVIA.xlsx` but more easily processable with other tools.
-- `results_per_sample/{sample_id}/`: Folder with results from each sample
-  - `{sample_id}_amrfinderplus.tsv`: Acquired resistance genes detected by amrfinderplus (only with assembly!).
-  - `{sample_id}_mlst.tsv`: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
-  - `{sample_id}_paeruginosa_assembly_truncations.tsv`: Variant calling using BLAST and the assembly. Detects mutations, indels and big reordenations, including if the gene is split in multiple contigs. This helps in cases where large phages are inserted into the chromosome and genes break apart, where snippy would not be able to detect the change.
-  - `{sample_id}_paeruginosa_gene_coverage.tsv`: Coverage of each gene.
-  - `{sample_id}_paeruginosa_muts.tsv`: All mutations reported by snippy without any filters.
-  - `{sample_id}_paeruginosa_muts_filtered.tsv`: All non-synonymous mutations reported by snippy in relevant genes related to antibiotic resistance.
-  - `{sample_id}_paeruginosa_muts_filtered.html`: IGV-report of filtered mutations reported by snippy.
-  - `{sample_id}_selected_oprd_ref.txt`: Closest oprD reference selected.
-  - `{sample_id}_selected_oprd_muts.tsv`: Mutations detected in closest oprD reference. 
+- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible polymorphisms** appear as `(POLY)`.
+- **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable for other tools.
+- **`results_per_sample/{ID}/`**: Folder with results from each sample
+  - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
+  - **`{ID}_mlst.tsv`**: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
+  - **`{ID}_paeruginosa_assembly_truncations.tsv`**: Variant calling using BLAST and the assembly. Detects mutations, indels and big reordenations, including if the gene is split in multiple contigs. This helps in cases where large phages are inserted into the chromosome and genes break apart, where snippy would not be able to detect the change.
+  - **`{ID}_paeruginosa_gene_coverage.tsv`**: Coverage of each gene.
+  - **`{ID}_paeruginosa_muts.tsv`**: All mutations reported by snippy without any filters.
+  - **`{ID}_paeruginosa_muts_filtered.tsv`**: All non-synonymous mutations reported by snippy in relevant genes related to antibiotic resistance.
+  - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy.
+  - **`{ID}_selected_oprd_ref.txt`**: Closest oprD reference selected.
+  - **`{ID}_selected_oprd_muts.tsv`**: Mutations detected in closest oprD reference. 
 - `temp/`: Folder with intermidiate steps
 
+## Rationale behind additional steps in variant calling
+
+Normal variant calling with snippy works well enough for most cases, but there are certain instances where it might not be enough. Thats why the extra steps were implemented in ARVIA, with the rationally behind each of them in this section.
+
+### Mixed positions
+
+Mixed/heterogenous mutations (e.g. where 50% of reads indicate C and 50% indicate T) can occur due to various reasons: 1) more than one clone was sequenced in same sample; 2) Gene has multiple copies; 3) Low quality reads. Thus, it is important to detect them, as we could be missing antibiotic resistance determinants. However, these kind of variants are only seen if reads are used. 
+
+In the following image we can see an example of mixed position, where the mutation occurs in 66% of reads:
+
+<p align="center">
+  <img src="arvia/data/examples/example_mixed_position.png" height="400" >
+</p>
+
+
+### Low coverage genes and possible missing features
+
+Some genes influence antibiotic resistance when they are inactivated. One method is the loss of these genes due to chromosomic rearrengments (others include frameshifts, indels and SNVs). Thus, ARVIA detects which genes have low coverage and indicates them as `possible_missing_features`. An example can be seen below:
+
+<p align="center">
+  <img src="arvia/data/examples/example_missing_feature.png" height="400" >
+</p>
+
+### Chromosomic rearrengments
+
+In some cases, large chromosomic rearrengments, such as the insertion of phages, can also inactivate genes that influence antibiotic resistance while keeping full apparent coverage of the gene, as the genes are split but their parts are mantained in the genome. Snippy does not detect these type of variants. 
+
+For example, in the following sample we can see nalC with no apparent structural mutation:
+
+<p align="center">
+  <img src="arvia/data/examples/example_big_insertion.png" height="400" >
+</p>
+
+However, if we focus on the position marked by the red arrow and activate soft clipped sections (parts of reads that do not align to the selected region) we can see that these reads align somewhere else:
+
+<p align="center">
+  <img src="arvia/data/examples/example_big_insertion_with_soft_clips.png" height="400" >
+</p>
+
+Following the path of those reads results in finding a large phage (~40kbp) inserted inside nalC, breaking the gene and causing increased antibiotic resistance. Thus, ARVIA's BLAST variant calling method can be used to detect these kind of variants through the use of assemblies.
+
+
+### Using closest oprD
+
+
+xx
+
+### Possible polymorphisms
+
+xxx
 
 
 ## Test
@@ -305,7 +354,6 @@ pip install -i https://test.pypi.org/simple/ arvia
         - [X] Input: paired reads, long reads or assembly
         - [] Output: tabla comparativa a lo ancho (.xlsx y .tsv), tabla comparativa a lo largo (.xlsx y .tsv), informe html de igvvariant, parameter log
         - [] To-do    
-            - [] automatic reference download
             - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [] ARGA00097 PA0929 pirR
               - [] ARGA00457 PA0427 oprM
@@ -319,8 +367,10 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
-            - [] informe html de igvvariant
+            - [] igvreport add info on mutations (fails qc, poly, etc)
+            - [] automatic reference download
             - [nah] add approximate depth if using reads
+            - [X] informe html de igvvariant
             - [nah] hideable snakemake progress bar?
             - [X] añadir funcion para incrementar cores por rule si hay menos muestras
             - [X] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
