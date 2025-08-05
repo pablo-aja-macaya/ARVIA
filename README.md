@@ -35,6 +35,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
   - [Input YAML convention](#input-yaml-convention)
   - [ARVIA's naming convention](#file-naming-convention)
 - [Output](#output)
+- [Rationale behind additional steps in variant calling](#rationale-behind-additional-steps-in-variant-calling)
 - [Full command list](#full-command-list)
 - [Test](#test)
 - [Citation](#citation) 
@@ -216,7 +217,7 @@ ARVIA's output in `--output_folder` is the following:
   -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
   - **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)`
   - **Possible SNV polymorphisms** appear as `(POLY)`.
-  - Variant calling using closest oprD** is available in section `PA0958-alt`.
+  - Variant calling using **closest oprD** is available in section `PA0958-alt`.
 - **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable by other tools.
 - **`results_per_sample/{ID}/`**: Folder with results from each sample
   - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
