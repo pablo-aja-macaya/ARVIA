@@ -211,7 +211,7 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 ## Output
 
 ARVIA's main output in `--output_folder` is the following:
-- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
+- **`ARVIA.xlsx`**: Formatted excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
   - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
   -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
@@ -292,7 +292,7 @@ The porin oprD is highly variable and very implicated in antibiotic resistance. 
 
 ### Possible polymorphisms
 
-Sometimes mutations don't have any effect on antibiotic resistance and are just normal part of *P. aeruginosa* lineages. An article by [Cortes-Lara et. al (2021)](https://doi.org/10.1016/j.cmi.2021.05.011) defined possible polymorphisms in multiple genes, out of which ARVIA extracts SNV substitutions and indicates them with suffix `(POLY)`. This allows researchers to look out for the actual relevant mutations without checking each one.
+Sometimes mutations don't have any effect on antibiotic resistance and are just normal part of *P. aeruginosa* lineages. An article by [Cortes-Lara et al. (2021)](https://doi.org/10.1016/j.cmi.2021.05.011) defined possible polymorphisms in multiple genes, out of which ARVIA extracts SNV substitutions and indicates them with suffix `(POLY)`. This allows researchers to look out for the actual relevant mutations without checking each one.
 
 
 ## Test
@@ -367,7 +367,7 @@ Database from which PAO1 genome and oprD gene information are retrieved, **[Pseu
 Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced annotations and features for comparing thousands of Pseudomonas genomes in the Pseudomonas genome database. Nucleic Acids Res. (2016) doi: 10.1093/nar/gkv1227 (Database issue). Pubmed: 26578582
 ```
 
-*P. aeruginosa* polymorphisms not related to antibiotic resistance by [Cortes-Lara et. al (2021)](https://doi.org/10.1016/j.cmi.2021.05.011):
+*P. aeruginosa* polymorphisms not related to antibiotic resistance by [Cortes-Lara et al. (2021)](https://doi.org/10.1016/j.cmi.2021.05.011):
 
 ```
 Cortes-Lara, S., del Barrio-Tofiño, E., López-Causapé, C., Oliver, A., Martínez-Martínez, L., Bou, G., ... & Oteo, J. (2021). Predicting Pseudomonas aeruginosa susceptibility phenotypes from whole genome sequence resistome analysis. *Clinical Microbiology and Infection*, 27(11), 1631-1637.
@@ -397,7 +397,6 @@ pip install -i https://test.pypi.org/simple/ arvia
 - [] Herramienta variant calling p. aeruginosa    
     - Funciones:
         - [X] Input: paired reads, long reads or assembly
-        - [] Output: tabla comparativa a lo ancho (.xlsx y .tsv), tabla comparativa a lo largo (.xlsx y .tsv), informe html de igvvariant, parameter log
         - [] To-do    
             - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [] ARGA00097 PA0929 pirR
@@ -413,6 +412,8 @@ pip install -i https://test.pypi.org/simple/ arvia
             - [] actualizar imagen pipeline
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
+            - [] tabla comparativa a lo largo
+            - [] use links in readme that work on pypi (relative links dont work)
             - [X] automatic reference download (included)
             - [nah] add approximate depth if using reads
             - [nah] hideable snakemake progress bar?
