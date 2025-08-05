@@ -11,11 +11,11 @@
 
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
 - **Variant calling in PAO1**:
-  - **Point mutations** (SNVs, indels, frameshifts) 
+  - **Point mutations** (Single Nucleotide Variants or SNV, indels, frameshifts) 
   - Possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
   - Possible **truncated genes** due to big chromosomic rearrangements (only with assembly!).
   - **Mixed positions** (e.g. 50% of reads indicate C and the other 50% T).
-  - Possible **polymorphisms** that do not influence antibiotic resistance.
+  - Possible **SNV polymorphisms** that do not influence antibiotic resistance.
 - **Variant calling of closest oprD reference**. 
 - **Acquired resistance genes** (only with assembly!).
 - **MLST identification** (only with assembly!).
@@ -211,7 +211,7 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 ## Output
 
 ARVIA's output in `--output_folder` is the following:
-- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible polymorphisms** appear as `(POLY)`.
+- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible SNV polymorphisms** appear as `(POLY)`.
 - **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable for other tools.
 - **`results_per_sample/{ID}/`**: Folder with results from each sample
   - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
@@ -269,12 +269,13 @@ Following the path of those reads results in finding a large phage (~40kbp) inse
 
 ### Using closest oprD
 
+The porin oprD is highly variable and very implicated in antibiotic resistance. The high variablity can cause snippy to miss important mutations (frameshifts, indels) if the reference used (by default PAO1) is phylogenetically distant. That's why ARVIA performs additional variant calling with the closest reference among the following: F23197_6110 (PGD60817628), FRD1_2621 (PGD23123403), LESB58_125 (PGD252821), MTB-1_210 (PGD11780772) and PAO1 (PA0958). This result will appear in `ARVIA.xlsx` in section `PA0958-alt`.
 
-xx
+<!-- UCBPP-PA14_109 -->
 
 ### Possible polymorphisms
 
-xxx
+Sometimes mutations don't have any effect on antibiotic resistance and are just normal part of *P. aeruginosa* lineages. An article by [Cortes-Lara et. al (2021)](https://doi.org/10.1016/j.cmi.2021.05.011) defined possible polymorphisms in multiple genes, out of which ARVIA extracts SNV substitutions and indicates them with suffix `(POLY)`. This allows researchers to look out for the actual relevant mutations without checking each one.
 
 
 ## Test
@@ -324,9 +325,17 @@ A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads
 
 ## Citation
 
-Please cite the database from which PAO1 genome and gene information were retrieved, **[Pseudomonas.com](https://www.pseudomonas.com)**:
+Database from which PAO1 genome and oprD gene information are retrieved, **[Pseudomonas.com](https://www.pseudomonas.com)**:
 
+```
 Winsor GL, Griffiths EJ, Lo R, Dhillon BK, Shay JA, Brinkman FS (2016). Enhanced annotations and features for comparing thousands of Pseudomonas genomes in the Pseudomonas genome database. Nucleic Acids Res. (2016) doi: 10.1093/nar/gkv1227 (Database issue). Pubmed: 26578582
+```
+
+*P. aeruginosa* polymorphisms not related to antibiotic resistance by [Cortes-Lara et. al (2021)](https://doi.org/10.1016/j.cmi.2021.05.011):
+
+```
+Cortes-Lara, S., del Barrio-Tofiño, E., López-Causapé, C., Oliver, A., Martínez-Martínez, L., Bou, G., ... & Oteo, J. (2021). Predicting Pseudomonas aeruginosa susceptibility phenotypes from whole genome sequence resistome analysis. *Clinical Microbiology and Infection*, 27(11), 1631-1637.
+```
 
 ## Development
 
@@ -366,6 +375,7 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00104 PA4522 ampD
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
+            - [] orden de columnas en xlsx que sea assembly, snippy, coverage
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
             - [] automatic reference download
