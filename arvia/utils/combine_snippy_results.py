@@ -397,6 +397,15 @@ def paeruginosa_combine_all_mutational_res(
     zzz[["_","gene","section"]] = zzz["section"].str.split("__", expand=True) # the string in this field at this point is like "PA0424__mexR__Gene coverage"
     zzz = zzz.drop(columns = ["_"])
     zzz = zzz[["bc","locus_tag", "gene","section","value"]]
+
+    # Sort with specific order
+    expected_categories = ['Snippy', 'Assembly BLAST', 'Gene coverage', 'closest reference', 'closest reference used']
+    temp = [i for i in zzz.section.unique() if i not in expected_categories]
+    assert len(temp)==0, f"At least a value from was not in expected_categories: {temp}"
+    zzz["section"] = pd.Categorical(zzz["section"], categories=expected_categories)
+    zzz = zzz.sort_values(["bc", "locus_tag", "section"], ascending=True)
+
+    # Save
     zzz.to_csv(output_file, sep="\t", index=None)
 
     return zzz
