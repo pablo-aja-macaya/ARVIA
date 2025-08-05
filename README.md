@@ -345,18 +345,20 @@ A button named **"Cite this repository" is available in a citation widget on the
 You can also cite ARVIA with the following:
 
 ```
-Aja-Macaya, P. (2025). ARVIA [Computer software]
+Aja-Macaya, P. (2025). ARVIA [Computer software]. https://github.com/pablo-aja-macaya/ARVIA
 ```
 
 Or:
 
 ```
+
 @software{
   Aja-Macaya_ARVIA_2025,
   author = {Aja-Macaya, Pablo},
   month = aug,
   title = {{ARVIA}},
-  year = {2025}
+  year = {2025},
+  url = {https://github.com/pablo-aja-macaya/ARVIA}
 }
 ```
 
