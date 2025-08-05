@@ -20,6 +20,7 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - **Acquired resistance genes** (only with assembly!).
 - **MLST identification** (only with assembly!).
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
+- **Interactive HTML IGV reports** to visualize point mutations in important genes.
 
 
 <p align="center">
@@ -33,7 +34,10 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - [Input](#input)
   - [Input YAML convention](#input-yaml-convention)
   - [ARVIA's naming convention](#file-naming-convention)
+- [Output](#output)
 - [Full command list](#full-command-list)
+- [Test](#test)
+- [Performance](#performance)
 - [Citation](#citation) 
 
 
@@ -65,6 +69,11 @@ arvia run --reads folder/*.fastq.gz --output_folder arvia
 >```sh
 ># Run ARVIA
 >arvia run --input_yaml input.yaml --output_folder arvia --previsualize
+>```
+> And subset to specific samples with `--barcodes`:
+>```sh
+># Run ARVIA
+>arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
 >```
 
 Check out more options, like `--cores`, in the [Full command list](#full-command-list).
@@ -199,14 +208,24 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
                                     '{sample_id}.{fasta,fna,fa,fas}' (default: None)
 ```
 
+## Output
 
+### Summary
+ARVIA's output in `--output_folder` is the following:
+- `ARVIA.xlsx`: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible polymorphisms** appear as `(POLY)`.
+- `ARVIA.tsv`: Same as `ARVIA.xlsx` but more easily processable with other tools.
+- `results_per_sample/{sample_id}/`: Folder with results from each sample
+  - `{sample_id}_amrfinderplus.tsv`: Acquired resistance genes detected by amrfinderplus (only with assembly!).
+  - `{sample_id}_mlst.tsv`: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
+  - `{sample_id}_paeruginosa_assembly_truncations.tsv`: Variant calling using BLAST and the assembly. Detects mutations, indels and big reordenations, including if the gene is split in multiple contigs. This helps in cases where large phages are inserted into the chromosome and genes break apart, where snippy would not be able to detect the change.
+  - `{sample_id}_paeruginosa_gene_coverage.tsv`: Coverage of each gene.
+  - `{sample_id}_paeruginosa_muts.tsv`: All mutations reported by snippy without any filters.
+  - `{sample_id}_paeruginosa_muts_filtered.tsv`: All non-synonymous mutations reported by snippy in relevant genes related to antibiotic resistance.
+  - `{sample_id}_paeruginosa_muts_filtered.html`: IGV-report of filtered mutations reported by snippy.
+  - `{sample_id}_selected_oprd_ref.txt`: Closest oprD reference selected.
+  - `{sample_id}_selected_oprd_muts.tsv`: Mutations detected in closest oprD reference. 
+- `temp/`: Folder with intermidiate steps
 
-<!-- 
-## Full command list 
-Full command list available with `arvia --help`:
-
-[ ] TO-DO 
--->
 
 
 ## Test
@@ -217,7 +236,37 @@ In order to test ARVIA's installation, execute the following command:
 arvia test --output_folder test_arvia
 ```
 
-This command downloads a set of reads and assemblies and tries to run the pipeline.
+This command downloads a set of reads and assemblies from NCBI and tries to run the pipeline.
+
+## Full command list 
+Full command list available with `arvia --help`. Here is `arvia run -h`:
+
+```sh
+Usage: arvia run [-i path] [-r path [path ...]] [-a path [path ...]] [-o path] [-c int] [-p] [--use_conda] [--barcodes str [str ...]]
+                 [--draw_wf str] [-h]
+
+ARVIA: Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa
+
+Input/Output:
+  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containing two lists of paths with keys
+                                                    'reads' and 'assembly' (default: None)
+  -r, --reads path [path ...]                       Input reads files. Can be paired-end or single-end and must follow one of these
+                                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
+                                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz' (default:
+                                                    None)
+  -a, --assemblies path [path ...]                  Input assembly files. Must follow one of these structures:
+                                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+  -o, --output_folder path                          Output folder (default: ./arvia)
+
+Optional Arguments:
+  -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
+  -p, --previsualize                                Previsualize pipeline to see if everything is as expected (default: False)
+  --use_conda                                       If True, use conda environment specified by snakefile (default: False)
+  --barcodes str [str ...]                          Space separated list of sample IDs. Only these samples will be processed (default: None)
+  --draw_wf str                                     Draw pipeline to this path (PDF) (default: None)
+  -h, --help                                        show this help message and exit
+```
+
 
 ## Performance
 
