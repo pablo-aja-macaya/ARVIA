@@ -325,6 +325,29 @@ A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads
 
 ## Citation
 
+
+### Tool
+A button named **"Cite this repository" is available in a citation widget on the sidebar**.
+
+You can also cite ARVIA with the following:
+
+```
+Aja-Macaya, P. (2025). ARVIA [Computer software]
+```
+
+Or:
+
+```
+@software{
+  Aja-Macaya_ARVIA_2025,
+  author = {Aja-Macaya, Pablo},
+  month = aug,
+  title = {{ARVIA}},
+  year = {2025}
+}
+```
+
+### Other
 Database from which PAO1 genome and oprD gene information are retrieved, **[Pseudomonas.com](https://www.pseudomonas.com)**:
 
 ```
