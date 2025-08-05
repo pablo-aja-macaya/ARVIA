@@ -222,11 +222,11 @@ ARVIA's output in `--output_folder` is the following:
 - **`results_per_sample/{ID}/`**: Folder with results from each sample
   - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
   - **`{ID}_mlst.tsv`**: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
-  - **`{ID}_paeruginosa_assembly_truncations.tsv`**: Variant calling using BLAST and the assembly. Detects mutations, indels and big reordenations, including if the gene is split in multiple contigs. This helps in cases where large phages are inserted into the chromosome and genes break apart, where snippy would not be able to detect the change.
+  - **`{ID}_paeruginosa_assembly_truncations.tsv`**: Variant calling using BLAST and the assembly. Detects mutations at nucleotide level, indels and big reordenations, including if the gene is split in multiple contigs. This helps in cases where large phages are inserted into the chromosome and genes break apart, where snippy would not be able to detect the change.
   - **`{ID}_paeruginosa_gene_coverage.tsv`**: Coverage of each gene.
   - **`{ID}_paeruginosa_muts.tsv`**: All mutations reported by snippy without any filters.
   - **`{ID}_paeruginosa_muts_filtered.tsv`**: All non-synonymous mutations reported by snippy in relevant genes related to antibiotic resistance.
-  - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy.
+  - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy in relevant genes. Click on table entries to go to their position. Two types of entries are avilable, the locus itself with the number of mutations detected by snippy (e.g. `PA0931 - pirA - ferric enterobactin receptor PirA (1 non-synonymous reported mutations)`) and the mutations themselves starting with `-->` (e.g. `-->PA0931_missense_variant_c.1108G>A_p.Ala370Thr_(A:29_G:0)`)
   - **`{ID}_selected_oprd_ref.txt`**: Closest oprD reference selected.
   - **`{ID}_selected_oprd_muts.tsv`**: Mutations detected in closest oprD reference. 
 - `temp/`: Folder with intermediate steps
@@ -235,7 +235,7 @@ A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads
 
 ## Rationale behind additional steps in variant calling
 
-Normal variant calling with snippy works well enough for most cases, but there are certain instances where it might not be enough. Thats why the extra steps were implemented in ARVIA, with the rationally behind each of them in this section.
+Normal variant calling with snippy works well enough for most cases, but there are certain instances where it might not be enough. Thats why the extra steps were implemented in ARVIA, with the rationale behind each of them in this section.
 
 ### Mixed positions
 
@@ -402,13 +402,13 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00104 PA4522 ampD
               - [] ARGA00395 PA4109 ampR
             - [] actualizar imagen pipeline
-            - [] orden de columnas en xlsx que sea assembly, snippy, coverage
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
-            - [] automatic reference download
+            - [X] automatic reference download (included)
             - [nah] add approximate depth if using reads
-            - [X] informe html de igvvariant
             - [nah] hideable snakemake progress bar?
+            - [X] orden de columnas en xlsx que sea assembly, snippy, coverage
+            - [X] informe html de igvvariant
             - [X] añadir funcion para incrementar cores por rule si hay menos muestras
             - [X] cuando los genes no encajen a la perfeción (tipo blaPDC* o blaPDC?) poner el alelo más cercano
               - Ej: blaPDC* -> blaPDC-30*; blaPDC? -> blaPDC-30?

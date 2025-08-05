@@ -286,7 +286,7 @@ rule igv_report:
         # Generate JSON for igv-reports
         igv_config = [
             {
-                "name": "Mutations (NS)",
+                "name": "Snippy (NS)",
                 "url": output.mutations_bed
             },
         ]
