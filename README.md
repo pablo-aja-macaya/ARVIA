@@ -37,7 +37,6 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - [Output](#output)
 - [Full command list](#full-command-list)
 - [Test](#test)
-- [Performance](#performance)
 - [Citation](#citation) 
 
 
@@ -210,9 +209,17 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 
 ## Output
 
+"*": Identidad y cobertura alta pero no es identidad 100% (mutación)
+"?": Hit de poca cobertura pero mucha identidad. Puede indicar un falso hit o una proteína cortada, ya sea por mutación o por contigs separados
+
 ARVIA's output in `--output_folder` is the following:
-- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)` and **possible SNV polymorphisms** appear as `(POLY)`.
-- **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable for other tools.
+- **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
+  - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
+  - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
+  - **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)`
+  - **Possible SNV polymorphisms** appear as `(POLY)`.
+  - Variant calling using closest oprD** is available in section `PA0958-alt`.
+- **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable by other tools.
 - **`results_per_sample/{ID}/`**: Folder with results from each sample
   - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
   - **`{ID}_mlst.tsv`**: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
@@ -223,7 +230,9 @@ ARVIA's output in `--output_folder` is the following:
   - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy.
   - **`{ID}_selected_oprd_ref.txt`**: Closest oprD reference selected.
   - **`{ID}_selected_oprd_muts.tsv`**: Mutations detected in closest oprD reference. 
-- `temp/`: Folder with intermidiate steps
+- `temp/`: Folder with intermediate steps
+
+A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads and assemblies takes around 42:57 minutes (<1 minute per sample) in a computer with 64 threads and 128 Gb of RAM.
 
 ## Rationale behind additional steps in variant calling
 
@@ -317,10 +326,6 @@ Optional Arguments:
   -h, --help                                        show this help message and exit
 ```
 
-
-## Performance
-
-A full pipeline test of 125 P. aeruginosa samples with paired-end Illumina reads and assemblies takes around 42:57 minutes (<1 minute per sample) in a computer with 64 threads and 128 Gb of RAM.
 
 
 ## Citation
