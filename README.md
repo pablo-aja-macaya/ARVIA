@@ -209,9 +209,6 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 
 ## Output
 
-"*": Identidad y cobertura alta pero no es identidad 100% (mutación)
-"?": Hit de poca cobertura pero mucha identidad. Puede indicar un falso hit o una proteína cortada, ya sea por mutación o por contigs separados
-
 ARVIA's output in `--output_folder` is the following:
 - **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
