@@ -213,6 +213,7 @@ ARVIA's output in `--output_folder` is the following:
 - **`ARVIA.xlsx`**: Formated excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
   - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
+  -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
   - **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)`
   - **Possible SNV polymorphisms** appear as `(POLY)`.
   - Variant calling using closest oprD** is available in section `PA0958-alt`.
