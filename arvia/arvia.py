@@ -6,7 +6,7 @@ from pathlib import Path
 
 ARVIA_DIR = os.path.abspath(os.path.dirname(__file__))
 WORKING_DIR = os.getcwd()
-VERSION = "v0.2.1"
+VERSION = "v0.2.2"
 
 from arvia.utils.user_parser import get_parser
 from arvia.utils.snakemake_common import run_snakemake

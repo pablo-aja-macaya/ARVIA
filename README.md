@@ -401,8 +401,7 @@ pip install -i https://test.pypi.org/simple/ arvia
 
 <!-- [hola][home] -->
 <!-- 
-[home]: https://github.com/pablo-aja-macaya/ARVIA
-
+# using this reference links slows down the page dont know why
 [home]: https://github.com/pablo-aja-macaya/ARVIA
 [usage]: https://github.com/Pablo-Aja-Macaya/ARVIA#usage
 [installation]: https://github.com/Pablo-Aja-Macaya/ARVIA#installation
