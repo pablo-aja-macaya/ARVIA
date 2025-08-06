@@ -1,15 +1,15 @@
 <p align="left">
-  <!-- <img src="arvia/data/arvia_header.png" height="70" > -->
+  <!-- <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header.png" height="70" > -->
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="arvia/data/arvia_header_bb.png">
-    <source media="(prefers-color-scheme: light)" srcset="arvia/data/arvia_header_wb.png">
-    <img alt="ARVIA Logo" src="xxx" height="70">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
+    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA" height="70">
   </picture>
 </p>
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. See [Usage][usage] and [Installation][installation] sections. Its main functions are:
 - **Variant calling in PAO1**:
   - **Point mutations** (Single Nucleotide Variants or SNV, indels, frameshifts) 
   - Possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
@@ -24,34 +24,34 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 
 
 <p align="center">
-  <img src="arvia/data/arvia_sp_v0.1.1.png" height="600" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_sp_v0.1.1.png" height="600" >
 </p>
 
 
 ## Index
-- [Usage](#usage)
-- [Installation](#installation)
-- [Input](#input)
-  - [Input YAML convention](#input-yaml-convention)
-  - [ARVIA's naming convention](#file-naming-convention)
-- [Output](#output)
-- [Rationale behind additional steps in variant calling](#rationale-behind-additional-steps-in-variant-calling)
-- [Full command list](#full-command-list)
-- [Test](#test)
-- [Citation](#citation) 
+- [Usage][usage]
+- [Installation][installation]
+- [Input][input]
+  - [Input YAML convention][input-yaml-convention]
+  - [ARVIA's naming convention][file-naming-convention]
+- [Output][output]
+- [Rationale behind additional steps in variant calling][rationale-behind-additional-steps-in-variant-calling]
+- [Full command list][full-command-list]
+- [Test][test]
+- [Citation][citation] 
 
 
 
 ## Usage
 
-You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
+You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**][input-yaml-convention]) containing the input files:
 
 ```sh
 # Run ARVIA
 arvia run --input_yaml input.yaml --output_folder arvia
 ```
 
-If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can also give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
+If your files follow [**ARVIA's naming convention**][file-naming-convention], you can also give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
 
 ```sh
 # Full pipeline (reads+assemblies)
@@ -76,7 +76,7 @@ arvia run --reads folder/*.fastq.gz --output_folder arvia
 >arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
 >```
 
-Check out more options, like `--cores`, in the [Full command list](#full-command-list).
+Check out more options, like `--cores`, in the [Full command list][full-command-list].
 
 ## Installation
 
@@ -402,6 +402,17 @@ pip install -i https://test.pypi.org/simple/ arvia
 <!-- [hola][home] -->
 
 [home]: https://github.com/pablo-aja-macaya/ARVIA
+[usage]: https://github.com/Pablo-Aja-Macaya/ARVIA/#usage
+[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
+[input]: https://github.com/Pablo-Aja-Macaya/ARVIA/#input
+[input-yaml-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#input-yaml-convention
+[file-naming-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#file-naming-convention
+[output]: https://github.com/Pablo-Aja-Macaya/ARVIA/#output
+[rationale-behind-additional-steps-in-variant-calling]: https://github.com/Pablo-Aja-Macaya/ARVIA/#rationale-behind-additional-steps-in-variant-calling
+[full-command-list]: https://github.com/Pablo-Aja-Macaya/ARVIA/#full-command-list
+[test]: https://github.com/Pablo-Aja-Macaya/ARVIA/#test
+[citation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#citation
+
 
 
 <!-- 
