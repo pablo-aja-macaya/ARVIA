@@ -282,8 +282,12 @@ For example, in the following sample we can see nalC with no apparent structural
 However, if we focus on the position marked by the red arrow and activate soft clipped sections (parts of reads that do not align to the selected region) we can see that these reads align somewhere else:
 
 <p align="center">
-  <img src="arvia/data/examples/example_big_insertion_with_soft_clips.png" height="400" >
+  <img src="[img_example_big_insertion_with_soft_clips]" height="400" >
 </p>
+<p align="center">
+  <img src=[img_example_big_insertion_with_soft_clips] height="400" >
+</p>
+
 
 Following the path of those reads results in finding a large phage (~40kbp) inserted inside nalC, breaking the gene and causing increased antibiotic resistance. Thus, ARVIA's BLAST variant calling method can be used to detect these kind of variants through the use of assemblies.
 
@@ -461,6 +465,13 @@ pip install -i https://test.pypi.org/simple/ arvia
         PAVCRA: Pseudomonas Aeruginosa Variant Calling Resistance Analysis
         PARVI: P. Aeruginosa Resistance Variant Inspector
 -->
+
+
+[hola][home]
+
+[home]: https://github.com/pablo-aja-macaya/ARVIA
+[img_example_big_insertion_with_soft_clips]: https://github.com/pablo-aja-macaya/ARVIA/arvia/data/examples/example_big_insertion_with_soft_clips.png
+
 
 <!-- 
 [home]: https://github.com/pablo-aja-macaya/ARVIA
