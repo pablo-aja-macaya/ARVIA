@@ -596,7 +596,7 @@ def create_merged_xlsx_result(
     worksheet = writer.sheets[sheet_name]
     worksheet.autofit()  # autofit row widths
     worksheet.set_row(1, 45)  # height of row
-    worksheet.set_column_pixels(first_col=6, last_col=len(temp.columns)+1, width=180) # set max width from column N to last
+    worksheet.set_column_pixels(first_col=6, last_col=len(temp.columns)+1, width=190) # set max width from column N to last
     worksheet.set_column_pixels(first_col=3, last_col=4, width=85) # set max width for mlst and mlst_model
     worksheet.set_column(0, 0, 15)  # width of first column
     worksheet.freeze_panes(2, 1)  # freeze first 2 rows and first column
