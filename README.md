@@ -213,7 +213,7 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 ## Output
 
 ARVIA's main output in `--output_folder` is the following:
-- **`ARVIA.xlsx`**: Formatted excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes**. 
+- **`ARVIA.xlsx`**: Formatted excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes** ([example available here](arvia/data/examples/example_result.xlsx)). 
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
   - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
   -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
