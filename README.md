@@ -9,7 +9,9 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. See [Usage](#usage) and [Installation](#installation) sections. Its main functions are:
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. You can see an example of the main output [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result.xlsx). See [Usage](#usage) and [Installation](#installation) sections for more information. 
+
+Its main functions are:
 - **Variant calling in PAO1**:
   - **Point mutations** (Single Nucleotide Variants or SNV, indels, frameshifts) 
   - Possible **missing features** (e.g. lost genes due to chromosomic rearrangement).
@@ -21,6 +23,8 @@ ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas
 - **MLST identification** (only with assembly!).
 - Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
 - **Interactive HTML IGV reports** to visualize point mutations in important genes.
+
+
 
 
 <p align="center">
@@ -99,22 +103,30 @@ git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
 cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 ```
-
 <!-- 
-# Testing package updates (this one works)
-mamba create -n arvia_test_env \
-    'snakemake==7.18.0' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
-    seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+```sh
+# Download miniconda and install
+wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64.sh
+bash Miniconda3-py38_4.10.3-Linux-x86_64.sh
 
-mamba create -n arvia_test_env \
-    'snakemake==9.8.1' 'python>=3.8.10' 'pandas>=1.5.0' 'numpy>=1.23.1' 'biopython>=1.78' 'rich-argparse>=1.6.0' 'colorama>=0.4.4' 'odfpy>=1.4.1' 'setuptools<81' xlsxwriter \
-    seqkit==2.1.0 'pigz>=2.4' \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0 
+# Reopen terminal so conda is activated
 
-conda activate arvia_test_env
-python setup.py develop
--->
+# Remove autoactivation to base environment (Optional)
+conda config --set auto_activate_base false
+
+# Add channels and install mamba
+conda config --add channels defaults
+conda config --add channels r
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+# Set priority of channels
+conda config --set channel_priority flexible
+
+# Install mamba
+conda install mamba -n base -c conda-forge
+``` -->
+
 
 ## Input
 

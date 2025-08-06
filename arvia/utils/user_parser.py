@@ -1,8 +1,6 @@
 from colorama import Fore, Style
-from pathlib import Path
 import argparse, textwrap
 import os
-import git
 
 # import arvia
 from arvia.arvia import VERSION
