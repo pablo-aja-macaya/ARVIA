@@ -402,23 +402,18 @@ pip install -i https://test.pypi.org/simple/ arvia
 <!-- [hola][home] -->
 
 [home]: https://github.com/pablo-aja-macaya/ARVIA
-[usage]: https://github.com/Pablo-Aja-Macaya/ARVIA/#usage
-[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
-[input]: https://github.com/Pablo-Aja-Macaya/ARVIA/#input
-[input-yaml-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#input-yaml-convention
-[file-naming-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA/#file-naming-convention
-[output]: https://github.com/Pablo-Aja-Macaya/ARVIA/#output
-[rationale-behind-additional-steps-in-variant-calling]: https://github.com/Pablo-Aja-Macaya/ARVIA/#rationale-behind-additional-steps-in-variant-calling
-[full-command-list]: https://github.com/Pablo-Aja-Macaya/ARVIA/#full-command-list
-[test]: https://github.com/Pablo-Aja-Macaya/ARVIA/#test
-[citation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#citation
+[usage]: https://github.com/Pablo-Aja-Macaya/ARVIA#usage
+[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA#installation
+[input]: https://github.com/Pablo-Aja-Macaya/ARVIA#input
+[input-yaml-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA#input-yaml-convention
+[file-naming-convention]: https://github.com/Pablo-Aja-Macaya/ARVIA#file-naming-convention
+[output]: https://github.com/Pablo-Aja-Macaya/ARVIA#output
+[rationale-behind-additional-steps-in-variant-calling]: https://github.com/Pablo-Aja-Macaya/ARVIA#rationale-behind-additional-steps-in-variant-calling
+[full-command-list]: https://github.com/Pablo-Aja-Macaya/ARVIA#full-command-list
+[test]: https://github.com/Pablo-Aja-Macaya/ARVIA#test
+[citation]: https://github.com/Pablo-Aja-Macaya/ARVIA#citation
 
 
-
-<!-- 
-[home]: https://github.com/pablo-aja-macaya/ARVIA
-[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
--->
 
 
 
