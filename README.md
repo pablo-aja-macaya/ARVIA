@@ -121,7 +121,7 @@ python setup.py develop
 ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. Single-end reads will be considered long reads such as PacBio or Oxford Nanopore Technologies (ONT). It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample.
 
 > [!IMPORTANT]
-> Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, which requires an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
+> Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, acquired resistance genes and MLST identification, which require an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
 >
 > ARVIA gives an idea of coverage/depth of each gene, but quality control of your samples with CheckM/CheckM2 is recommended, as they will tell you how complete/contaminated your genome is.
 
@@ -415,8 +415,8 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00395 PA4109 ampR
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
-            - [] tabla comparativa a lo largo
             - [] use links in readme that work on pypi (relative links dont work)
+            - [~] tabla comparativa a lo largo
             - [nah] add approximate depth if using reads
             - [nah] hideable snakemake progress bar?
             - [X] actualizar imagen pipeline
@@ -461,8 +461,9 @@ pip install -i https://test.pypi.org/simple/ arvia
         PARVI: P. Aeruginosa Resistance Variant Inspector
 -->
 
-<!-- [home]: https://github.com/Pablo-Aja-Macaya/ARVIA
+<!-- 
+[home]: https://github.com/pablo-aja-macaya/ARVIA
 [installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
-
+-->
 
 
