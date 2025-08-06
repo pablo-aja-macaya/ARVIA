@@ -67,6 +67,7 @@ dependencies:
   - dpath=2.2.0=pyha770c72_0
   - dropbox=12.0.2=pyhd8ed1ab_0
   - entrez-direct=22.4=he881be0_0
+  - et_xmlfile=2.0.0=pyhd8ed1ab_0
   - exceptiongroup=1.2.2=pyhd8ed1ab_0
   - executing=2.1.0=pyhd8ed1ab_0
   - expat=2.7.1=hecca717_0
@@ -203,7 +204,8 @@ dependencies:
   - odfpy=1.4.1=py_0
   - openjdk=22.0.1=hb622114_0
   - openmpi=4.1.6=hc5af2df_101
-  - openssl=3.5.0=h7b32b05_1
+  - openpyxl=3.1.5=py38h01eb140_0
+  - openssl=3.5.2=h26f9b46_0
   - p11-kit=0.24.1=hc5aa10d_0
   - packaging=25.0=pyh29332c3_1
   - paml=4.10.9=h7b50bb2_0

@@ -92,7 +92,7 @@ Installation through **mamba** is highly recommended. A conda release of ARVIA w
 ```sh
 # Create main environment where ARVIA runs
 mamba create -n arvia \
-    snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter ipykernel \
+    snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter openpyxl=3.1 ipykernel \
     seqkit==2.1.0 'pigz>=2.4' ncbi-amrfinderplus mlst unzip igv-reports \
     perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0
     
@@ -103,7 +103,8 @@ git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
 cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 ```
-<!-- 
+
+In case you need help installing mamba from scratch, this should help:
 ```sh
 # Download miniconda and install
 wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64.sh
@@ -125,7 +126,7 @@ conda config --set channel_priority flexible
 
 # Install mamba
 conda install mamba -n base -c conda-forge
-``` -->
+```
 
 
 ## Input
