@@ -83,7 +83,7 @@ Check out more options, like `--cores`, in the [Full command list](#full-command
 > [!NOTE]
 > This application has been **designed for Linux systems** and tested in **Ubuntu**.
 
-Installation through mamba is highly recommended:
+Installation through **mamba** is highly recommended. A conda release of ARVIA will hopefully happen soon but, for now, you can install it like this:
 
 ```sh
 # Create main environment where ARVIA runs
@@ -123,7 +123,7 @@ ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly
 > [!IMPORTANT]
 > Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, acquired resistance genes and MLST identification, which require an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
 >
-> ARVIA gives an idea of coverage/depth of each gene, but quality control of your samples with CheckM/CheckM2 is recommended, as they will tell you how complete/contaminated your genome is.
+> ARVIA gives an idea of coverage/depth of each gene, but additional quality control of your samples with CheckM/CheckM2 is highly recommended, as they will tell you how complete/contaminated your genome is.
 
 
 ### Input YAML convention
@@ -217,9 +217,10 @@ ARVIA's main output in `--output_folder` is the following:
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
   - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
   -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
-  - **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)`
+  - **Mixed positions** appear with `(Fails QC: {mut_prot}%, {depth}x)`.
   - **Possible SNV polymorphisms** appear as `(POLY)`.
   - Variant calling using **closest oprD** is available in section `PA0958-alt`.
+  - **Gene coverage** appears for each gene as `NZC={nzc}% Depth={depth}x`, where NZC is non-zero coverage percentage (percentage of the gene that is covered at least once).
 
 
 <p align="center">
