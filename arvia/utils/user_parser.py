@@ -167,6 +167,13 @@ parser_test_arvia__in_out.add_argument(
     help=f"Output folder",
     dest="output_folder",
 )
+parser_test_arvia__in_out.add_argument(
+    "-f", "--full_run", 
+    required=False,
+    action="store_true",
+    help=f"Fully run `arvia run` instead of --previsualize mode.",
+    dest="full_run",
+)
 
 parser_test_arvia__opt_params.add_argument("-h", "--help", action="help", help="show this help message and exit")
 

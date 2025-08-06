@@ -8,7 +8,7 @@ import yaml
 from colorama import Fore, Style
 import traceback
 
-def test_arvia_pipeline_input(main_output_folder: Path):
+def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
     # Variables
     # main_output_folder = "/home/usuario/Proyectos/Results/tests/arvia/test_pipeline"
     sratoolkit_url = "https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.2.1/sratoolkit.3.2.1-ubuntu64.tar.gz"
@@ -184,9 +184,13 @@ def test_arvia_pipeline_input(main_output_folder: Path):
 
     # Test running ARVIA
     try:
-        CONSOLE_STDOUT.log("Running ARVIA with input YAML and --previsualize...", style="info")
         _ = run(f"mkdir -p {arvia_folder}", check=True, shell=True)
-        _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} --previsualize > {arvia_folder}/arvia.log", check=True, shell=True)
+        if full_run:
+            CONSOLE_STDOUT.log("Running ARVIA with input YAML and without --previsualize...", style="info")
+            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} > {arvia_folder}/arvia.log", check=True, shell=True)
+        else:
+            CONSOLE_STDOUT.log("Running ARVIA with input YAML and --previsualize...", style="info")
+            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} --previsualize > {arvia_folder}/arvia.log", check=True, shell=True)
 
         # CONSOLE_STDOUT.log("Running ARVIA with input YAML...")
         # _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder}", check=True, shell=True)

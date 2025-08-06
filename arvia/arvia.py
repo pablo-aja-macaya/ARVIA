@@ -50,7 +50,7 @@ def main():
             )
         
         elif command == "test":
-            _ = test_arvia_pipeline_input(main_output_folder=parameters["output_folder"])
+            _ = test_arvia_pipeline_input(main_output_folder=parameters["output_folder"], full_run=parameters["full_run"])
 
         elif command == "dbs":
             # Run
