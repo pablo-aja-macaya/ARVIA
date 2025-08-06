@@ -85,7 +85,7 @@ Check out more options, like `--cores`, in the [Full command list](#full-command
 ## Installation
 
 > [!NOTE]
-> This application has been **designed for Linux systems** and tested in **Ubuntu**.
+> This application has been **designed for Linux systems** and tested in **Ubuntu 20.04.4**.
 
 Installation through **mamba** is highly recommended. A conda release of ARVIA will hopefully happen soon but, for now, you can install it like this:
 
