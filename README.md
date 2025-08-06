@@ -122,6 +122,8 @@ ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly
 
 > [!IMPORTANT]
 > Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, which requires an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
+>
+> ARVIA gives an idea of coverage/depth of each gene, but quality control of your samples with CheckM/CheckM2 is recommended, as they will tell you how complete/contaminated your genome is.
 
 
 ### Input YAML convention
@@ -227,7 +229,8 @@ ARVIA's main output in `--output_folder` is the following:
 
 
 Other output in `--output_folder`:
-- **`ARVIA.tsv`**: Same as `ARVIA.xlsx` but more easily processable by other tools.
+- **`ARVIA_wide.tsv`**: Same as `ARVIA.xlsx` but in tsv format, more easily processable by other tools.
+- **`ARVIA_long.tsv`**: Same as `ARVIA.xlsx` but in tsv and long format, more easily processable by other tools.
 - **`results_per_sample/{ID}/`**: Folder with results from each sample
   - **`{ID}_amrfinderplus.tsv`**: Acquired resistance genes detected by amrfinderplus (only with assembly!).
   - **`{ID}_mlst.tsv`**: Closest MLST detected, important when assembly is not fully complete (only with assembly!). The model used with its allele combinations separated in all, new, partial, missing and mixed are also available. 
@@ -351,7 +354,6 @@ Aja-Macaya, P. (2025). ARVIA [Computer software]. https://github.com/pablo-aja-m
 Or:
 
 ```
-
 @software{
   Aja-Macaya_ARVIA_2025,
   author = {Aja-Macaya, Pablo},
@@ -411,14 +413,14 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00104 PA3721 nalC
               - [] ARGA00104 PA4522 ampD
               - [] ARGA00395 PA4109 ampR
-            - [] actualizar imagen pipeline
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
             - [] tabla comparativa a lo largo
             - [] use links in readme that work on pypi (relative links dont work)
-            - [X] automatic reference download (included)
             - [nah] add approximate depth if using reads
             - [nah] hideable snakemake progress bar?
+            - [X] actualizar imagen pipeline
+            - [X] automatic reference download (included)
             - [X] orden de columnas en xlsx que sea assembly, snippy, coverage
             - [X] informe html de igvvariant
             - [X] añadir funcion para incrementar cores por rule si hay menos muestras

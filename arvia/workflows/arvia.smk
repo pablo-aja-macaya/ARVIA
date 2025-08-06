@@ -131,7 +131,8 @@ onstart:
     # Delete previous result if it exists
     if Path(XLSX_WIDE_TABLE).exists():
         shell(f"rm {XLSX_WIDE_TABLE}")
-        shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}.tsv")
+        shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_wide.tsv")
+        shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_long.tsv")
 
 # shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
@@ -707,6 +708,7 @@ rule merge_results:
         default_result = Path(RESULTS_MERGED_OUTPUT, "pao1_snippy_comparison.xlsx"),
         advanced_result = Path(RESULTS_MERGED_OUTPUT, "full_wide.xlsx"),
         advanced_result_tsv = Path(RESULTS_MERGED_OUTPUT, "full_wide.tsv"),
+        advanced_result_long_tsv = Path(RESULTS_MERGED_OUTPUT, "full_wide.long.tsv"),
         combined_long = Path(RESULTS_MERGED_OUTPUT, "full_long.tsv"),
     params:
         barcodes = list(INPUT_FILES.keys()),
@@ -756,7 +758,10 @@ rule all:
 onsuccess:
     combined_advanced_result = rules.merge_results.output.advanced_result
     combined_advanced_result_tsv = rules.merge_results.output.advanced_result_tsv
+    combined_advanced_result_long_tsv = rules.merge_results.output.advanced_result_long_tsv
+
     shell(f"cp {combined_advanced_result} {XLSX_WIDE_TABLE}")
-    shell(f"cp {combined_advanced_result_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}.tsv")
+    shell(f"cp {combined_advanced_result_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_wide.tsv")
+    shell(f"cp {combined_advanced_result_long_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_long.tsv")
 
 

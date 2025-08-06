@@ -261,7 +261,7 @@ def paeruginosa_combine_all_mutational_res(
     temp_pivot = (
         temp.drop_duplicates()
         .groupby(["bc", "gene_id"], sort=False, dropna=False)["mutation_prot"]
-        .apply(lambda x: ", ".join(list(x)))
+        .apply(lambda x: "; ".join(list(x)))
         .reset_index(name="muts")
         .pivot(index="bc", columns=["gene_id"], values="muts")
     )
@@ -272,7 +272,7 @@ def paeruginosa_combine_all_mutational_res(
     temp_oprd = (
         oprd_df.drop_duplicates()
         .groupby(["bc", "gene_id"], sort=False, dropna=False)["mutation_prot"]
-        .apply(lambda x: ", ".join(list(x)))
+        .apply(lambda x: "; ".join(list(x)))
         .reset_index(name="muts")[
             [
                 "bc",
@@ -616,8 +616,33 @@ def create_merged_xlsx_result(
     # ---- Save to .tsv also ----
     # Drop first row in multilevel column index
     temp_pivot.columns = temp_pivot.columns.droplevel(0)
+    
+    # Remove line breaks
     temp_pivot.columns = [i.replace("\n", "") for i in temp_pivot.columns]
+    
+    # Save wide table to tsv
     temp_pivot.to_csv(f"{Path(output_file).parent}/{Path(output_file).stem}.tsv", sep="\t")
+    
+    # Save long table to tsv
+    melted_df = pd.melt(temp_pivot.reset_index(), id_vars='bc', var_name="section", value_name="value")
+    melted_df.to_csv(f"{Path(output_file).parent}/{Path(output_file).stem}.long.tsv", sep="\t", index=None)
+    
+    # l = []
+    # for row in melted_df.to_dict("records"):
+    #     l += [
+    #         {
+    #             "bc": row["bc"],
+    #             "section": row["section"],
+    #             "value": i,
+    #             "presence": "yes"
+    #         } for i in row["value"].split(", ")
+    #     ]
+
+    # # comparative_pivot = pd.DataFrame(l).drop_duplicates().pivot(index=["section", "value"], columns="bc", values="presence").fillna("-")
+    # comparative_pivot = melted_df.pivot(index="section", columns="bc", values="value").fillna("-")
+    # comparative_pivot.to_excel("/home/usuario/Proyectos/Results/tests/arvia/test.xlsx")
+    # print("\n", comparative_pivot.sort_values("section"))
+    # raise Exception
 
     return True
 
