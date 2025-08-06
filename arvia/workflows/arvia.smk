@@ -171,7 +171,7 @@ rule snippy:
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: 6
+    threads: 5
     conda:
         CONDA_ENVS["arvia"]
     log:
@@ -237,7 +237,7 @@ use rule snippy as paeruginosa_mutations with:
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "arvia.log")
 
@@ -351,7 +351,7 @@ rule makeblastdb_from_assembly:
         dbtype="nucl",  # nucl | prot
     conda:
         CONDA_ENVS["arvia"] # uses this but it just needs blast
-    threads: get_snakemake_threads(recommended=10, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT, "{barcode}", "arvia.log")
     shell:
@@ -370,7 +370,7 @@ rule blast_paeruginosa_genes_to_assembly:
     output:
         folder=directory(Path(BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT,"{barcode}")),
         res=Path(BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT,"{barcode}","{barcode}.tsv"),
-    threads: get_snakemake_threads(recommended=10, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     params:
@@ -412,7 +412,7 @@ rule align_oprd:
         coverage = Path(ALIGN_OPRD, "{barcode}", "coverage.tsv"),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
-    threads: get_snakemake_threads(recommended=12, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
@@ -495,7 +495,7 @@ use rule snippy as paeruginosa_oprd with:
         maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     log:
         Path(SNIPPY_OPRD, "{barcode}", "arvia.log")
 
@@ -555,7 +555,7 @@ rule amrfinderplus:
     output:
         folder=directory(Path(AMRFINDER_OUTPUT, "{barcode}")),
         res=Path(AMRFINDER_OUTPUT, "{barcode}", "{barcode}.tsv"),
-    threads: get_snakemake_threads(recommended=6, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
+    threads: get_snakemake_threads(recommended=4, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
