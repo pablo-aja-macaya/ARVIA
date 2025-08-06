@@ -213,7 +213,7 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
 ## Output
 
 ARVIA's main output in `--output_folder` is the following:
-- **`ARVIA.xlsx`**: Formatted excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes** ([example available here](arvia/data/examples/example_result.xlsx)). 
+- **`ARVIA.xlsx`**: Formatted excel table containing **pipeline used, mlst, mlst model, PDC, acquired antibiotic resistance genes, variant calling and coverage of relevant chromosomic genes** ([example available here](https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/arvia/data/examples/example_result.xlsx)). 
   - **Color** appears when a gene has **low coverage**, or if there are **structurally relevant mutations (*, ?, fs, frameshift, possible_missing_feature...)**. 
   - **Acquired resistance genes** can have suffixes like `*` (high identity and coverage, mutated) or `?` (high identity with low coverage, can indicate split protein). 
   -  In **MLST** if not all alleles match a specific profile the closest one will be signalled with `!`.
@@ -224,7 +224,7 @@ ARVIA's main output in `--output_folder` is the following:
 
 
 <p align="center">
-  <img src="arvia/data/examples/example_arvia_result.png" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_result.png" >
 </p>
 
 
@@ -257,7 +257,7 @@ Mixed/heterogenous mutations (e.g. where 50% of reads indicate C and 50% indicat
 In the following image we can see an example of mixed position, where the mutation occurs in 66% of reads:
 
 <p align="center">
-  <img src="arvia/data/examples/example_mixed_position.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_mixed_position.png" height="400" >
 </p>
 
 
@@ -266,7 +266,7 @@ In the following image we can see an example of mixed position, where the mutati
 Some genes influence antibiotic resistance when they are inactivated. One method is the loss of these genes due to chromosomic rearrengments (others include frameshifts, indels and SNVs). Thus, ARVIA detects which genes have low coverage and indicates them as `possible_missing_features`. An example can be seen below:
 
 <p align="center">
-  <img src="arvia/data/examples/example_missing_feature.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_missing_feature.png" height="400" >
 </p>
 
 ### Chromosomic rearrengments
@@ -276,16 +276,13 @@ In some cases, large chromosomic rearrengments, such as the insertion of phages,
 For example, in the following sample we can see nalC with no apparent structural mutation:
 
 <p align="center">
-  <img src="arvia/data/examples/example_big_insertion.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" height="400" >
 </p>
 
 However, if we focus on the position marked by the red arrow and activate soft clipped sections (parts of reads that do not align to the selected region) we can see that these reads align somewhere else:
 
 <p align="center">
-  <img src="[img_example_big_insertion_with_soft_clips]" height="400" >
-</p>
-<p align="center">
-  <img src=[img_example_big_insertion_with_soft_clips] height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" height="400" >
 </p>
 
 
@@ -402,6 +399,19 @@ pip install -i https://test.pypi.org/simple/ arvia
 ```
 
 
+<!-- [hola][home] -->
+
+[home]: https://github.com/pablo-aja-macaya/ARVIA
+
+
+<!-- 
+[home]: https://github.com/pablo-aja-macaya/ARVIA
+[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
+-->
+
+
+
+
 <!-- 
 - [] Herramienta variant calling p. aeruginosa    
     - Funciones:
@@ -465,17 +475,3 @@ pip install -i https://test.pypi.org/simple/ arvia
         PAVCRA: Pseudomonas Aeruginosa Variant Calling Resistance Analysis
         PARVI: P. Aeruginosa Resistance Variant Inspector
 -->
-
-
-[hola][home]
-
-[home]: https://github.com/pablo-aja-macaya/ARVIA
-[img_example_big_insertion_with_soft_clips]: https://github.com/pablo-aja-macaya/ARVIA/arvia/data/examples/example_big_insertion_with_soft_clips.png
-
-
-<!-- 
-[home]: https://github.com/pablo-aja-macaya/ARVIA
-[installation]: https://github.com/Pablo-Aja-Macaya/ARVIA/#installation
--->
-
-
