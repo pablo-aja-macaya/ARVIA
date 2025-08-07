@@ -97,8 +97,11 @@ mamba create -n arvia \
     
 conda activate arvia
 
-# Install ARVIA
-git clone https://github.com/Pablo-Aja-Macaya/ARVIA.git
+# Install ARVIA from pip
+pip install arvia
+
+# OR install from github
+git clone https://github.com/pablo-aja-macaya/ARVIA.git
 cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 ```
@@ -401,7 +404,7 @@ Cortes-Lara, S., del Barrio-Tofiño, E., López-Causapé, C., Oliver, A., Martí
 
 ### Upload to TestPyPi
 
-```
+```sh
 cd ARVIA/
 conda activate twine
 
@@ -409,10 +412,10 @@ conda activate twine
 python -m build
 
 # Upload to TestPyPi with twine
-twine upload --repository testpypi dist/*
+twine upload --repository pypi dist/*
 
 # Now you can pip install
-pip install -i https://test.pypi.org/simple/ arvia
+pip install arvia # -i https://test.pypi.org/simple/ 
 
 ```
 
@@ -449,20 +452,20 @@ pip install -i https://test.pypi.org/simple/ arvia
     - Funciones:
         - [X] Input: paired reads, long reads or assembly
         - [] To-do    
-            - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
-              - [] ARGA00097 PA0929 pirR
-              - [] ARGA00457 PA0427 oprM
-              - [] ARGA00581 PA0929 pirR
-              - [] ARGA00534 PA0929 pirR
-              - [] ARGA00032 PA0424 mexR
-              - [] ARGA00086 PA0424 mexR
-              - [] ARGA00396 PA2057 sppR
-              - [] ARGA00104 PA3721 nalC
-              - [] ARGA00104 PA4522 ampD
-              - [] ARGA00395 PA4109 ampR
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
             - [~] tabla comparativa a lo largo
+            - [X] arreglar el print de check_truncations en ciertos casos, ejemplos:
+              - [X] ARGA00097 PA0929 pirR
+              - [X] ARGA00457 PA0427 oprM
+              - [X] ARGA00581 PA0929 pirR
+              - [X] ARGA00534 PA0929 pirR
+              - [X] ARGA00032 PA0424 mexR
+              - [X] ARGA00086 PA0424 mexR
+              - [X] ARGA00396 PA2057 sppR
+              - [X] ARGA00104 PA3721 nalC
+              - [X] ARGA00104 PA4522 ampD
+              - [X] ARGA00395 PA4109 ampR
             - [nah] add approximate depth if using reads
             - [nah] hideable snakemake progress bar?
             - [X] use links in readme that work on pypi (relative links dont work)
