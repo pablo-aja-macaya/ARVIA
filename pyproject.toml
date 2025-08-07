@@ -1,6 +1,6 @@
 [project]
 name = "arvia"
-version = "v0.2.2"
+version = "v0.3.0"
 authors = [
   { name="Pablo Aja", email="paabloaja@gmail.com" },
 ]
@@ -8,9 +8,9 @@ description = "ARVIA (Antibiotic Resistance Variant Identifier for Pseudomonas a
 readme = "README.md"
 requires-python = ">= 3.8, <3.9"
 classifiers=[
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: GPL-3.0-only",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3.8",
 ]
@@ -23,6 +23,7 @@ dependencies = [
     "biopython>=1.78",
     "rich-argparse==1.6.0",
     "toml==0.10.2",
+    "openpyxl==3.1",
     "xlsxwriter",
 ]
 
@@ -46,5 +47,5 @@ packages = ["arvia"]
 arvia = "arvia.arvia:main"
 
 [project.urls]
-Homepage = "https://github.com/Pablo-Aja-Macaya/ARVIA"
-Issues = "https://github.com/Pablo-Aja-Macaya/ARVIA/issues"
+Homepage = "https://github.com/pablo-aja-macaya/ARVIA"
+Issues = "https://github.com/pablo-aja-macaya/ARVIA/issues"
