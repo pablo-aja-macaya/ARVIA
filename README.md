@@ -41,7 +41,6 @@ Its main functions are:
 - [Output](#output)
 - [Rationale behind additional steps in variant calling](#rationale-behind-additional-steps-in-variant-calling)
 - [Full command list](#full-command-list)
-- [Test](#test)
 - [Citation](#citation) 
 
 
@@ -104,7 +103,22 @@ cd ARVIA
 python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 ```
 
-In case you need help installing mamba from scratch, this should help:
+To finish installation and update/install the needed databases, please run:
+
+```sh
+arvia dbs
+```
+
+In order to test ARVIA's installation, execute the following command, which downloads a set of reads and assemblies from NCBI and tries to run the pipeline:
+
+```sh
+arvia test --output_folder test_arvia
+```
+
+
+
+
+In case you need help installing conda and mamba from scratch, this could help (although it is probably best you follow their installation guide):
 ```sh
 # Download miniconda and install
 wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64.sh
@@ -313,15 +327,6 @@ The porin oprD is highly variable and very implicated in antibiotic resistance. 
 Sometimes mutations don't have any effect on antibiotic resistance and are just normal part of *P. aeruginosa* lineages. An article by [Cortes-Lara et al. (2021)](https://doi.org/10.1016/j.cmi.2021.05.011) defined possible polymorphisms in multiple genes, out of which ARVIA extracts SNV substitutions and indicates them with suffix `(POLY)`. This allows researchers to look out for the actual relevant mutations without checking each one.
 
 
-## Test
-
-In order to test ARVIA's installation, execute the following command:
-
-```sh
-arvia test --output_folder test_arvia
-```
-
-This command downloads a set of reads and assemblies from NCBI and tries to run the pipeline.
 
 ## Full command list 
 Full command list available with `arvia --help`. Here is `arvia run -h`:
@@ -447,9 +452,9 @@ pip install -i https://test.pypi.org/simple/ arvia
             - [] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [] ARGA00097 PA0929 pirR
               - [] ARGA00457 PA0427 oprM
-              - [] ARGA00032 PA0424 mexR
               - [] ARGA00581 PA0929 pirR
               - [] ARGA00534 PA0929 pirR
+              - [] ARGA00032 PA0424 mexR
               - [] ARGA00086 PA0424 mexR
               - [] ARGA00396 PA2057 sppR
               - [] ARGA00104 PA3721 nalC
@@ -457,10 +462,10 @@ pip install -i https://test.pypi.org/simple/ arvia
               - [] ARGA00395 PA4109 ampR
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
-            - [] use links in readme that work on pypi (relative links dont work)
             - [~] tabla comparativa a lo largo
             - [nah] add approximate depth if using reads
             - [nah] hideable snakemake progress bar?
+            - [X] use links in readme that work on pypi (relative links dont work)
             - [X] actualizar imagen pipeline
             - [X] automatic reference download (included)
             - [X] orden de columnas en xlsx que sea assembly, snippy, coverage

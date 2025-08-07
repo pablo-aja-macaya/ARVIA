@@ -100,8 +100,28 @@ def check_truncations(
                         print(input_file, "\n", row)
                         raise Exception("Unexpected condition 0")
                 else:
-                    print(input_file, "\n", row)
-                    return np.nan
+                    # print(input_file, "\n", row)
+                    # print(qstops)
+                    # print(sstops)
+                    # print(qseq_codon_prop)
+                    # print(sseq_codon_prop)
+                    # print(row["qseq"])
+                    # print(row["sseq"])
+                    if codon_prop_is_equal:
+                        return np.nan
+                    elif not codon_prop_is_equal:
+                        if sseq_codon_prop_is_larger:
+                            return "frame_shift (disruptive insertion)"
+                        elif not sseq_codon_prop_is_larger:
+                            return "frame_shift (disruptive deletion)"
+                        else:
+                            print(input_file, "\n", row)
+                            raise Exception("Unexpected condition 2")
+                    else:
+                        print(input_file, "\n", row)
+                        raise Exception("Unexpected condition 3")
+
+                    raise Exception("Unexpected condition 3.1")
 
             elif sstops_is_larger:
                 if codon_prop_is_equal:
