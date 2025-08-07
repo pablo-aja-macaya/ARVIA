@@ -3,7 +3,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
-    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA" height="70">
+    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA" style='width: 25%; object-fit: contain'>
   </picture>
 </p>
 
@@ -28,7 +28,7 @@ Its main functions are:
 
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_sp_v0.1.1.png" height="600" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_sp_v0.1.1.png" style='width: 100%; object-fit: contain'>
 </p>
 
 
@@ -254,7 +254,7 @@ ARVIA's main output in `--output_folder` is the following:
 
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_result.png" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_result.png" style='width: 100%; object-fit: contain' >
 </p>
 
 
@@ -287,7 +287,7 @@ Mixed/heterogenous mutations (e.g. where 50% of reads indicate C and 50% indicat
 In the following image we can see an example of mixed position, where the mutation occurs in 66% of reads:
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_mixed_position.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_mixed_position.png" style='width: 70%; object-fit: contain' >
 </p>
 
 
@@ -296,7 +296,7 @@ In the following image we can see an example of mixed position, where the mutati
 Some genes influence antibiotic resistance when they are inactivated. One method is the loss of these genes due to chromosomic rearrengments (others include frameshifts, indels and SNVs). Thus, ARVIA detects which genes have low coverage and indicates them as `possible_missing_features`. An example can be seen below:
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_missing_feature.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_missing_feature.png" style='width: 100%; object-fit: contain' >
 </p>
 
 ### Chromosomic rearrengments
@@ -306,13 +306,13 @@ In some cases, large chromosomic rearrengments, such as the insertion of phages,
 For example, in the following sample we can see nalC with no apparent structural mutation:
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" style='width: 100%; object-fit: contain'>
 </p>
 
 However, if we focus on the position marked by the red arrow and activate soft clipped sections (parts of reads that do not align to the selected region) we can see that these reads align somewhere else:
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" height="400" >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" style='width: 100%; object-fit: contain' >
 </p>
 
 
