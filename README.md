@@ -3,7 +3,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
-    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA" style='width: 25%; object-fit: contain'>
+    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
   </picture>
 </p>
 
