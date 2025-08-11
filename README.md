@@ -312,7 +312,7 @@ For example, in the following sample we can see nalC with no apparent structural
 However, if we focus on the position marked by the red arrow and activate soft clipped sections (parts of reads that do not align to the selected region) we can see that these reads align somewhere else:
 
 <p align="center">
-  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion.png" style='width: 100%; object-fit: contain' >
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_big_insertion_with_soft_clips.png" style='width: 100%; object-fit: contain' >
 </p>
 
 
