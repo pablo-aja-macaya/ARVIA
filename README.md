@@ -257,9 +257,10 @@ ARVIA's main output in `--output_folder` is the following:
 </p>
 
 - **`ARVIA_sc.xlsx`**: Formatted table containing a more **fine grained snippy comparison (SC) between samples** ([example available here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx)). 
-  - **Only snippy module's results are included: default snippy, possible missing features, mixed positions and polymorphisms**. 
-  - Variant calling of closest oprD reference, acquired resistance genes or mlst is not displayed here. 
+  - **Only snippy module's results are included: default snippy, possible missing features, mixed positions and polymorphisms**. Thus, variant calling using BLAST, closest oprD reference, acquired resistance genes or mlst is **not displayed here**. 
+  - **Easier to detect differences** between sample mutations.
   - In this case **color** displays mutation quality.
+
 
 <p align="center">
   <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_sc_result.png" style='width: 100%; object-fit: contain' >
