@@ -119,8 +119,27 @@ def prepare_mutations_for_wide_pivot(data: pd.DataFrame):
         )
 
         # Extract mutation parts (nucl, prot...)
+        def check_mut_format(row):
+            # Example of row["mut"] = [('missense_variant', '1472C>T', 'Ala491Val')]
+            if row["mut"]:
+                # Check if the supposed protein mutation is just a number
+                # This happens in splice region variants like: 
+                # -> splice_region_variant&stop_retained_variant c.2420_*5delGACAGGTinsAACGGGG p.808
+                #                                                                                 |> this part
+                # If it is a number then return the full effect, else keep as is
+                try:
+                    _ = int(row["mut"][0][2])
+                    return ("", "", row["EFFECT"])
+                except Exception as e:                
+                    return row["mut"][0]
+            else:
+                # If pattern did not match then row["mut"] will be an empty list
+                # Then we return the full effect
+                return ("", "", row["EFFECT"])
+
         data["mut"] = data["EFFECT"].str.findall("(.*) c\.(.*) p\.(.*)")
-        data["mut"] = data.apply(lambda row: row["mut"][0] if row["mut"] else ("", "", row["EFFECT"]), axis=1)
+        # data["mut"] = data.apply(lambda row: row["mut"][0] if row["mut"] else ("", "", row["EFFECT"]), axis=1)
+        data["mut"] = data.apply(check_mut_format, axis=1)
         data[["mutation_type", "mutation_nucl", "mutation_prot"]] = pd.DataFrame(
             data["mut"].to_list(), columns=["mutation_type", "mutation_nucl", "mutation_prot"]
         )

@@ -454,6 +454,7 @@ pip install arvia # -i https://test.pypi.org/simple/
         - [] To-do    
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
+            - [X] En ARGA00457 PA0004 GyrB sólo aparece "808" como mutación
             - [X] add parameters to command line (min_depth, maxsoft)
             - [~] tabla comparativa a lo largo
             - [X] arreglar el print de check_truncations en ciertos casos, ejemplos:
