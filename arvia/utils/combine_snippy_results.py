@@ -138,7 +138,6 @@ def prepare_mutations_for_wide_pivot(data: pd.DataFrame):
                 return ("", "", row["EFFECT"])
 
         data["mut"] = data["EFFECT"].str.findall("(.*) c\.(.*) p\.(.*)")
-        # data["mut"] = data.apply(lambda row: row["mut"][0] if row["mut"] else ("", "", row["EFFECT"]), axis=1)
         data["mut"] = data.apply(check_mut_format, axis=1)
         data[["mutation_type", "mutation_nucl", "mutation_prot"]] = pd.DataFrame(
             data["mut"].to_list(), columns=["mutation_type", "mutation_nucl", "mutation_prot"]
@@ -623,6 +622,7 @@ def create_merged_xlsx_result(
     # Save
     workbook.close()
 
+    # ---- Reload excel ----
     # Load again and delete multiindex row (bc), should be third line
     # If it is not deleted it could be hidden, but when the user orders the excel
     # other row will be hidden. Thus, we just try to remove it
@@ -630,8 +630,20 @@ def create_merged_xlsx_result(
     sheet = wb[sheet_name]
     assert sheet.cell(row=3, column=1).value == "bc", f"Unexpected: Row 3, column 1 was not 'bc'. Stopping just in case, check {output_file=}"
     sheet.delete_rows(3, 1)
-    wb.save(output_file)
 
+    # Format A2 to add hyperlink
+    sheet['A2'].hyperlink = "https://github.com/pablo-aja-macaya/ARVIA"
+    sheet['A2'].value = "ARVIA Github"
+    sheet['A2'].style = "Hyperlink"
+    sheet['A2'].alignment = openpyxl.styles.Alignment(horizontal='center', vertical="center")
+    sheet['A2'].font = openpyxl.styles.Font(name='Calibri', bold=True, underline="single")
+    
+    # Format A1
+    sheet['A1'].value = ""
+
+    # Save again
+    wb.save(output_file)
+    
     # ---- Save to .tsv also ----
     # Drop first row in multilevel column index
     temp_pivot.columns = temp_pivot.columns.droplevel(0)
