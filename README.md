@@ -360,6 +360,8 @@ Input/Output:
   -o, --output_folder path                          Output folder (default: ./arvia)
 
 Optional Arguments:
+  -d, --min_depth int                               Minimum depth for mutation to pass (--mincov in snippy) (default: 5)
+  -s, --maxsoft int                                 Maximum soft clipping allowed (--maxsoft in snippy) (default: 1000)
   -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
   -p, --previsualize                                Previsualize pipeline to see if everything is as expected (default: False)
   --use_conda                                       If True, use conda environment specified by snakefile (default: False)
