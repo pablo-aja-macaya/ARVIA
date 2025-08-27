@@ -252,11 +252,18 @@ ARVIA's main output in `--output_folder` is the following:
   - Variant calling using **closest oprD** is available in section `PA0958-alt`.
   - **Gene coverage** appears for each gene as `NZC={nzc}% Depth={depth}x`, where NZC is non-zero coverage percentage (percentage of the gene that is covered at least once).
 
-
 <p align="center">
   <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_result.png" style='width: 100%; object-fit: contain' >
 </p>
 
+- **`ARVIA_sc.xlsx`**: Formatted table containing a more **fine grained snippy comparison (SC) between samples** ([example available here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx)). 
+  - **Only snippy module's results are included: default snippy, possible missing features, mixed positions and polymorphisms**. 
+  - Variant calling of closest oprD reference, acquired resistance genes or mlst is not displayed here. 
+  - In this case **color** displays mutation quality.
+
+<p align="center">
+  <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_sc_result.png" style='width: 100%; object-fit: contain' >
+</p>
 
 
 Other output in `--output_folder`:
@@ -456,7 +463,7 @@ pip install arvia # -i https://test.pypi.org/simple/
             - [] igvreport add info on mutations (fails qc, poly, etc)
             - [X] En ARGA00457 PA0004 GyrB sólo aparece "808" como mutación
             - [X] add parameters to command line (min_depth, maxsoft)
-            - [~] tabla comparativa a lo largo
+            - [X] tabla comparativa a lo largo
             - [X] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [X] ARGA00097 PA0929 pirR
               - [X] ARGA00457 PA0427 oprM

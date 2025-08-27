@@ -224,26 +224,47 @@ def get_default_snippy_combination(
     pivoted_df = pivoted_df.fillna("-")
     pivoted_df = pivoted_df.style.applymap(color_cells, subset=pd.IndexSlice[:, columns_to_paint])
     pivoted_df = pivoted_df.apply_index(highlight_header, axis="columns", level=[0])
+    pivoted_df = pivoted_df.apply_index(lambda s: [
+            "text-align: left; vertical-align: middle"
+            for v in s
+        ], axis="index")
 
     # Writer object
     if output_file:
+        sheet_name = "Snippy module comparison"
+
+        # ---- Save a xlsx ----
         writer = pd.ExcelWriter(output_file, engine="xlsxwriter")
 
         # Convert the styled dataframe to an XlsxWriter Excel object in specific sheet
-        pivoted_df.to_excel(writer, sheet_name="Sheet1")
+        pivoted_df.to_excel(writer, sheet_name=sheet_name)
 
         # Select sheet and apply formatting
         workbook = writer.book
-        worksheet = writer.sheets["Sheet1"]
-        # worksheet.autofit()  # autofit row widths
-        # worksheet.set_row(1, 45)  # height of row
-        # worksheet.set_row(2, 2, [], {"hidden": True})  # row is hidden
-        worksheet.set_column(4, 5, 30)  # width of columns 4-5
-        worksheet.set_column(7, 7 + len(pivoted_df.columns), 20)  # width of sample columns
-        worksheet.freeze_panes(1, 7)  # freeze first row and first 7 column
+        sheet = writer.sheets[sheet_name]
+        # sheet.autofit()  # autofit row widths
+        # sheet.set_row(1, 45)  # height of row
+        # sheet.set_row(2, 2, [], {"hidden": True})  # row is hidden
+        sheet.set_column(1, 1, 10)  # width of column 1
+        sheet.set_column(4, 5, 30)  # width of columns 4-5
+        # sheet.set_column(6, 6, 23)  # width of column 6
+        sheet.set_column(7, 7 + len(pivoted_df.columns), 20)  # width of sample columns
+        sheet.freeze_panes(1, 7)  # freeze first row and first 7 column
 
         # Save
         workbook.close()
+
+        # ---- Load again and paint remaining things (i dont know how paint multiindex header in pandas) ----
+        wb = openpyxl.load_workbook(output_file)
+        sheet = wb[sheet_name]
+
+        for cell in [f"{i}1" for i in list("ABCDEFG")]:
+            sheet[cell].alignment = openpyxl.styles.Alignment(horizontal='center', vertical="center")
+            sheet[cell].font = openpyxl.styles.Font(name='Calibri', bold=True, color="FFFFFF")
+            sheet[cell].fill = openpyxl.styles.PatternFill("solid", fgColor="2a6099")
+
+        # Save again
+        wb.save(output_file)
 
     return df_copy, bcs
 

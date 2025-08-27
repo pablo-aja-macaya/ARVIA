@@ -759,6 +759,7 @@ rule all:
 
 
 onsuccess:
+    default_result = rules.merge_results.output.default_result
     combined_advanced_result = rules.merge_results.output.advanced_result
     combined_advanced_result_tsv = rules.merge_results.output.advanced_result_tsv
     combined_advanced_result_long_tsv = rules.merge_results.output.advanced_result_long_tsv
@@ -766,5 +767,6 @@ onsuccess:
     shell(f"cp {combined_advanced_result} {XLSX_WIDE_TABLE}")
     shell(f"cp {combined_advanced_result_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_wide.tsv")
     shell(f"cp {combined_advanced_result_long_tsv} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_long.tsv")
+    shell(f"cp {default_result} {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_sc.xlsx")
 
 
