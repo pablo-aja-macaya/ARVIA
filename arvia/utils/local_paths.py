@@ -73,6 +73,8 @@ BASE_YAML_CONFIG = {
     },
     "output": {"output_folder": None},
     "general_params": {
+        "min_depth": int,
+        "maxsoft": int,
         "previsualize": "yes",
         "barcodes": [],
         "cores": 60,

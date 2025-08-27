@@ -167,8 +167,8 @@ rule snippy:
         ref_fna=temp(Path("reference/ref.fa")),
     params:
         selected_input=None, # "paired_end" | "single_end" | "assembly",
-        min_depth=config.get("snippy", {}).get("min_depth", 5),
-        maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
+        min_depth=config.get("min_depth", 5),
+        maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: 5
@@ -233,8 +233,8 @@ use rule snippy as paeruginosa_mutations with:
         ref_fna=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "reference", "ref.fa")),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
-        min_depth=config.get("snippy", {}).get("min_depth", 5),
-        maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
+        min_depth=config.get("min_depth", 5),
+        maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
@@ -491,8 +491,8 @@ use rule snippy as paeruginosa_oprd with:
         ref_fna=temp(Path(SNIPPY_OPRD, "{barcode}", "reference", "ref.fa")),
     params:
         selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
-        min_depth=config.get("snippy", {}).get("min_depth", 5),
-        maxsoft=config.get("snippy", {}).get("maxsoft", 1000),
+        min_depth=config.get("min_depth", 5),
+        maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
     threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)

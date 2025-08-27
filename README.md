@@ -269,7 +269,7 @@ Other output in `--output_folder`:
   - **`{ID}_paeruginosa_gene_coverage.tsv`**: Coverage of each gene.
   - **`{ID}_paeruginosa_muts.tsv`**: All mutations reported by snippy without any filters.
   - **`{ID}_paeruginosa_muts_filtered.tsv`**: All non-synonymous mutations reported by snippy in relevant genes related to antibiotic resistance.
-  - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy in relevant genes. Click on table entries to go to their position. Two types of entries are avilable, the locus itself with the number of mutations detected by snippy (e.g. `PA0931 - pirA - ferric enterobactin receptor PirA (1 non-synonymous reported mutations)`) and the mutations themselves starting with `-->` (e.g. `-->PA0931_missense_variant_c.1108G>A_p.Ala370Thr_(A:29_G:0)`)
+  - **`{ID}_paeruginosa_muts_filtered.html`**: IGV-report of filtered mutations reported by snippy in relevant genes. Click on table entries to go to their position. Two types of entries are avilable, the locus itself with the number of mutations detected by snippy (e.g. `PA0931 - pirA - ferric enterobactin receptor PirA (1 non-synonymous reported mutations)`) and the mutations themselves starting with `-->` (e.g. `-->PA0931_missense_variant_c.1108G>A_p.Ala370Thr_(A:29_G:0)`). Only the surrounding area is loaded.
   - **`{ID}_selected_oprd_ref.txt`**: Closest oprD reference selected.
   - **`{ID}_selected_oprd_muts.tsv`**: Mutations detected in closest oprD reference. 
 - `temp/`: Folder with intermediate steps
@@ -454,6 +454,7 @@ pip install arvia # -i https://test.pypi.org/simple/
         - [] To-do    
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
+            - [X] add parameters to command line (min_depth, maxsoft)
             - [~] tabla comparativa a lo largo
             - [X] arreglar el print de check_truncations en ciertos casos, ejemplos:
               - [X] ARGA00097 PA0929 pirR

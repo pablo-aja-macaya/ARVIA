@@ -101,6 +101,24 @@ parser_run_arvia__in_out.add_argument(
     dest="output_folder",
 )
 parser_run_arvia__opt_params.add_argument(
+    "-d", "--min_depth", 
+    required=False,
+    metavar="int",
+    default=5,
+    type=int,
+    help=f"Minimum depth for mutation to pass (--mincov in snippy)",
+    dest="min_depth",
+)
+parser_run_arvia__opt_params.add_argument(
+    "-s", "--maxsoft", 
+    required=False,
+    metavar="int",
+    default=1000,
+    type=int,
+    help=f"Maximum soft clipping allowed (--maxsoft in snippy)",
+    dest="maxsoft",
+)
+parser_run_arvia__opt_params.add_argument(
     "-c", "--cores", 
     required=False,
     metavar="int",
