@@ -75,7 +75,10 @@ INPUT_FILES = check_input_file_dict_and_decide_pipeline(INPUT_FILES)
 
 # Filter samples if --barcodes was used
 if config.get("barcodes"):
+    bcs_without_files = [i for i in config["barcodes"] if i not in list(INPUT_FILES.keys())]
+    assert len(bcs_without_files)==0, f"At least a barcode given with parameter --barcodes is not present in input files' expected IDs ({bcs_without_files}). \nExpected at least one of: {list(INPUT_FILES.keys())}\n\nAre you sure you gave the corred IDs?\n"
     INPUT_FILES = {k:v for k,v in INPUT_FILES.items() if k in config["barcodes"]}
+
 
 
 # ---- Output folders ----
