@@ -32,7 +32,9 @@ warnings.simplefilter(action='ignore', category=UserWarning) # remove warning fr
 DATETIME_OF_CALL = datetime.datetime.now()
 
 
-
+#==================#
+# ---- Logger ---- #
+#==================#
 if config:
     snakemake_console_log = config.get("snakemake_console_log")
 
@@ -62,8 +64,9 @@ if snakemake_console_log is not None:
 
         logger.handlers = [LogHandler(None,None)] 
 
-
-# ---- Input set-up ----
+#========================#
+# ---- Input set-up ---- #
+#========================#
 # Generate dictionary INPUT_FILES depending if user gave a yaml (--input_yaml) or two list of files (--reads and --assemblies)
 if config.get("input_yaml"):
     INPUT_FILES = input_file_dict_from_yaml(config.get("input_yaml"))
@@ -80,8 +83,10 @@ if config.get("barcodes"):
     INPUT_FILES = {k:v for k,v in INPUT_FILES.items() if k in config["barcodes"]}
 
 
+#==========================#
+# ---- Output folders ---- #
+#==========================#
 
-# ---- Output folders ----
 PIPELINE_OUTPUT = config["output_folder"]
 PIPELINE_WD_OUTPUT = f"{PIPELINE_OUTPUT}/temp"
 
@@ -118,10 +123,14 @@ RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
 RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 XLSX_WIDE_TABLE = f"{PIPELINE_OUTPUT}/ARVIA.xlsx"
 
-# ---- Params ----
+#==================#
+# ---- Params ---- #
+#==================#
 CLEAN_SNIPPY_FOLDERS = False
 
-# --- Other ----
+#================#
+# --- Other ---- #
+#================#
 # Save file manifest
 file_manifest_df = input_files_dict_to_df(INPUT_FILES)
 shell(f"mkdir -p {PIPELINE_OUTPUT}/logs")
@@ -139,12 +148,13 @@ onstart:
 
 # shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
-##########################################
+#========================================#
 # --------------- Rules ---------------- #
-##########################################
+#========================================#
 
-
-# ---- Common ----
+####################
+# ---- Common ---- #
+####################
 def get_if_use_assembly_or_reads(wc):
     bc_reads_type = INPUT_FILES[wc.barcode]["reads_type"]
     return bc_reads_type if bc_reads_type else "assembly"
@@ -217,10 +227,9 @@ rule snippy:
         ) &> {log}
         """
 
-
-
-
-# ---- Pseudomonas aeruginosa Snippy PAO1 ----
+################################################
+# ---- Pseudomonas aeruginosa Snippy PAO1 ---- #
+################################################
 use rule snippy as paeruginosa_mutations with:
     input:
         assembly=lambda wc: get_input_assembly(wc),
@@ -262,8 +271,9 @@ rule process_paeruginosa_mutations:
         df = filter_snippy_result(input.res, output.res)
 
 
-
-# ---- igv-reports ----
+#########################
+# ---- igv-reports ---- #
+#########################
 rule igv_report:
     input:
         snippy_res = rules.process_paeruginosa_mutations.output.res,
@@ -327,11 +337,9 @@ rule igv_report:
         shell(f"{cmd} &> {output.folder}/igvreport.log")
 
 
-
-
-
-
-# ---- Pseudomonas aeruginosa blast reference genes ----
+##########################################################
+# ---- Pseudomonas aeruginosa blast reference genes ---- #
+##########################################################
 rule extract_paeruginosa_ref_genes:
     input:
         ref_gbk=PAERUGINOSA_GENOME_GBK,
@@ -403,7 +411,9 @@ rule process_blast_truncations:
         df.to_csv(output.res, sep="\t", index=None)
 
 
-# ---- Pseudomonas aeruginosa Snippy Closest oprD ----
+########################################################
+# ---- Pseudomonas aeruginosa Snippy Closest oprD ---- #
+########################################################
 rule align_oprd:
     input:
         ref = OPRD_NUCL,
@@ -502,7 +512,9 @@ use rule snippy as paeruginosa_oprd with:
     log:
         Path(SNIPPY_OPRD, "{barcode}", "arvia.log")
 
-# ---- MLST ----
+##################
+# ---- MLST ---- #
+##################
 rule mlst:
     input:
         assembly=lambda wc: get_input_assembly(wc),
@@ -550,8 +562,9 @@ rule process_mlst:
         )
 
 
-
-# ---- AMRFinder ----
+#######################
+# ---- AMRFinder ---- #
+#######################
 rule amrfinderplus:
     input:
         assembly=lambda wc: get_input_assembly(wc),
@@ -595,8 +608,7 @@ rule process_amrfinderplus:
             amrfinder_catalog_file=amrfinder_catalog_file,
             output_file=output.res
         )
-
-
+        
 # # ---- Get input stats ----
 # rule get_estimated_coverage:
 #     input:
@@ -618,7 +630,9 @@ rule process_amrfinderplus:
 #         df["est_lowest_coverage"] = df["sum_len"].apply(lambda x: int(x/(params.estimated_upper_genome_size_mb*1000000)))
 #         df.to_csv(output.cov, sep="\t", index=None)
 
-# ---------------
+####################
+# ---- Puller ---- #
+####################
 def decide_steps(wc):
     # use_assembly_or_reads = get_if_use_assembly_or_reads(wc)
     # bc_reads_type = INPUT_FILES[wc.barcode]["reads_type"]
