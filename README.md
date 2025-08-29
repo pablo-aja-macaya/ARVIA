@@ -47,14 +47,32 @@ Its main functions are:
 
 ## Usage
 
-You can run ARVIA easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
+You can **run ARVIA** easily with an `input.yaml` file (see [**Input YAML convention**](#input-yaml-convention)) containing the input files:
 
 ```sh
 # Run ARVIA
 arvia run --input_yaml input.yaml --output_folder arvia
 ```
 
-If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can also give them all with `--reads` and/or `--assemblies` and ARVIA will associate each file to their `sample_id`:
+You can also **previsualize** what the pipeline is going to do with `--previsualize`:
+```sh
+# Run ARVIA with preview
+arvia run --input_yaml input.yaml --output_folder arvia --previsualize
+```
+
+And **subset to specific samples** with `--barcodes`:
+```sh
+# Run ARVIA selecting specific samples in input
+arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
+```
+
+If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in YAML and add `--one_to_one` in command (see [**Input YAML convention**](#input-yaml-convention)):
+```sh
+# Run ARVIA doing one to one comparisons
+arvia run --input_yaml input.yaml --output_folder arvia --one_to_one
+```
+
+If your files follow [**ARVIA's naming convention**](#file-naming-convention), you can also give them all with `--reads` and/or `--assemblies` and/or `--gbks` and ARVIA will associate each file to their `sample_id`:
 
 ```sh
 # Full pipeline (reads+assemblies)
@@ -66,18 +84,6 @@ arvia run --assemblies folder/*.fasta --output_folder arvia
 # Partial pipeline using only reads (truncation information in assembly from assembly is missing)
 arvia run --reads folder/*.fastq.gz --output_folder arvia
 ```
-
-> [!TIP]
-> You can also previsualize what the pipeline is going to do with `--previsualize`:
->```sh
-># Run ARVIA
->arvia run --input_yaml input.yaml --output_folder arvia --previsualize
->```
-> And subset to specific samples with `--barcodes`:
->```sh
-># Run ARVIA
->arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
->```
 
 Check out more options, like `--cores`, in the [Full command list](#full-command-list).
 
@@ -118,9 +124,7 @@ In order to test ARVIA's installation, execute the following command, which down
 arvia test --output_folder test_arvia
 ```
 
-
-
-
+<!-- 
 In case you need help installing conda and mamba from scratch, this could help (although it is probably best you follow their installation guide):
 ```sh
 # Download miniconda and install
@@ -143,7 +147,7 @@ conda config --set channel_priority flexible
 
 # Install mamba
 conda install mamba -n base -c conda-forge
-```
+``` -->
 
 
 ## Input
@@ -162,21 +166,25 @@ In order to use `--input_yaml` generate a YAML file with the following structure
 
 ```yaml
 # -- Input template --
-# SAMPLE_10: # <- Will be used as ID
+# SAMPLE_10: # <- Will be used as ID (file paths dont need to include the ID)
 #   reads:
 #     - path/to/blablabla_R1.fastq.gz
 #     - path/to/blablabla_R2.fastq.gz
 #   assembly:
 #     - path/to/blablabla.fasta
+#   gbk: # -> only if you want to do one to one comparisons between samples using this as reference
+#     - path/to/blablabla.gbk
 
 # -- Your samples --
-# Complete example with paired reads and assembly
+# Complete example with paired reads, assembly and gbk (gbk for --one_to_one)
 ARGA00024:
   reads:
     - input/ARGA00024_R2.fastq.gz
     - input/ARGA00024_R1.fastq.gz
   assembly:
     - input/ARGA00024.fasta
+  gbk:
+    - input/ARGA00024.gbk
 
 # Example with only single-end long reads
 # you dont need to specify assembly key if you dont have it
@@ -230,7 +238,7 @@ with open(input_yaml_file, "w") as out_handle:
 
 ### File naming convention
 
-You can see the convention expected for `--reads` and `--assemblies` with `--help`:
+You can see the convention expected for `--reads`, `--assemblies` and `--gbks` with `--help`:
 
 ```sh
 -r, --reads path [path ...]         Input reads files. Can be paired-end or single-end and must follow one of these
@@ -238,6 +246,8 @@ You can see the convention expected for `--reads` and `--assemblies` with `--hel
                                     '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz'
 -a, --assemblies path [path ...]    Input assembly files. Must follow one of these structures:
                                     '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+-g, --gbks path [path ...]          Input annotated assembly files in GBK format. Only used in 1 vs 1 comparisons 
+                                    if given --one_to_one. Must follow one of these structures: '{sample_id}.{gbk}' (default: None)
 ```
 
 ## Output
@@ -265,6 +275,9 @@ ARVIA's main output in `--output_folder` is the following:
 <p align="center">
   <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/examples/example_arvia_sc_result.png" style='width: 100%; object-fit: contain' >
 </p>
+
+
+- **`one_to_one/ref_{ID}.tsv`** : If given `--one_to_one` and at least a `.gbk` file for one sample ARVIA will run the variant calling module of each sample against the given references, in the same format as `ARVIA_sc.xlsx`. You will also find `mutation_count.tsv` in the same folder, where the distance of each sample (column) to each reference (row) is shown in the form of total variants (including SNVs, indels, synonymous variants...).
 
 
 Other output in `--output_folder`:
@@ -357,9 +370,13 @@ Input/Output:
                                                     None)
   -a, --assemblies path [path ...]                  Input assembly files. Must follow one of these structures:
                                                     '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+  -g, --gbks path [path ...]                        Input annotated assembly files in GBK format. Only used in 1 vs 1 comparisons if given
+                                                    --one_to_one. Must follow one of these structures: '{sample_id}.{gbk}' (default: None)
   -o, --output_folder path                          Output folder (default: ./arvia)
 
-Optional Arguments:
+Additional Arguments:
+  --one_to_one                                      Compare input samples between themselves using the assembly/annotated assembly of each
+                                                    one as reference. At least one assembly is neccessary. (default: False)
   -d, --min_depth int                               Minimum depth for mutation to pass (--mincov in snippy) (default: 5)
   -s, --maxsoft int                                 Maximum soft clipping allowed (--maxsoft in snippy) (default: 1000)
   -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
@@ -500,6 +517,25 @@ pip install arvia # -i https://test.pypi.org/simple/
             - [X] in results_per_sample
                 - [X] format blast table (add header at least)
                 - [X] add original muts without filters
+
+      # Cambios para poner 1 vs 1
+      - [] recibir genomas anotados
+          - --gbk *.gbk
+          - Añadir gbk en yaml
+          - Dejar que se pueda hacer sólo con ensamblaje? Sólo se verían cuántas mutaciones tienen pero no el efecto.
+          - Si alguna no tiene ensamblaje avisar, pero hacer la comparación usando los que sí tienen?
+      - [] Añadir comando de comparación bool: --one_to_one
+      - [] Se pueden usar ensamblajes o lecturas (habría que indicar cuál se ha usado?)
+      - [] Añadir rules de 1vs1
+      - [] Añadir resumen en tablas, idealmente un excel con una sheet por cada referencia 
+
+      # Poner para cualquier referencia ?
+      - [] Parametrizar gbk
+      - [] Parametrizar loci de interes
+      - [] Quitar el paeruginosa=TRUE (sólo usaría los genes de la PAO)
+      - [] Quitar lo de oprD
+      - [] Añadir más modelos de mlst
+      - [] Revisar si hay alguna cosa más exclusiva de pseudomonas
 
     - Dependencies:
         - python

@@ -63,7 +63,7 @@ parser_run_arvia = subparsers.add_parser(
 )
 parser_run_arvia__in_out = parser_run_arvia.add_argument_group("Input/Output")
 parser_run_arvia__req_params = parser_run_arvia.add_argument_group("Required arguments")
-parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Optional arguments")
+parser_run_arvia__opt_params = parser_run_arvia.add_argument_group("Additional arguments")
 
 parser_run_arvia__in_out.add_argument(
     "-i", "--input_yaml", 
@@ -92,6 +92,15 @@ parser_run_arvia__in_out.add_argument(
     dest="assemblies",
 )
 parser_run_arvia__in_out.add_argument(
+    "-g", "--gbks", 
+    required=False,
+    metavar="path",
+    type=os.path.abspath,
+    nargs="+",
+    help=f"Input annotated assembly files in GBK format. Only used in 1 vs 1 comparisons if given --one_to_one. Must follow one of these structures: '{{sample_id}}.{{gbk}}'",
+    dest="gbks",
+)
+parser_run_arvia__in_out.add_argument(
     "-o", "--output_folder", 
     required=False,
     metavar="path",
@@ -99,6 +108,13 @@ parser_run_arvia__in_out.add_argument(
     type=os.path.abspath,
     help=f"Output folder",
     dest="output_folder",
+)
+parser_run_arvia__opt_params.add_argument(
+    "--one_to_one", 
+    required=False,
+    action="store_true",
+    help=f"Compare input samples between themselves using the assembly/annotated assembly of each one as reference. At least one assembly is neccessary.",
+    dest="one_to_one",
 )
 parser_run_arvia__opt_params.add_argument(
     "-d", "--min_depth", 

@@ -25,6 +25,7 @@ from arvia.utils.local_paths import PAERUGINOSA_GENOME_GBK#, PAERUGINOSA_GENOME_
 from arvia.utils.local_paths import CONDA_ENVS
 from arvia.utils.snakemake_common import get_snakemake_threads
 from arvia.utils.prepare_files_for_igvreport import process_gff_and_muts
+from arvia.utils.process_snippy_one_to_one import process_snippy_one_to_one
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # remove warning from pandas
 warnings.simplefilter(action='ignore', category=UserWarning) # remove warning from deprecated package in setuptools
@@ -112,6 +113,8 @@ BLAST_PAERUGINOSA_GENES_TO_ASSEMBLY_OUTPUT = f"{PAERUGINOSA_TRUNC_OUTPUT}/03_bla
 PROCESS_BLAST_TRUNCATIONS= f"{PAERUGINOSA_TRUNC_OUTPUT}/04_process"
 
 # Other
+SNIPPY_ONE_TO_ONE_RUN = f"{PIPELINE_WD_OUTPUT}/one_to_one/run"
+SNIPPY_ONE_TO_ONE = f"{PIPELINE_WD_OUTPUT}/one_to_one"
 MLST_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/run"
 MLST_PROCESS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/mlst/process"
 AMRFINDER_OUTPUT = f"{PIPELINE_WD_OUTPUT}/amrfinder/run"
@@ -120,6 +123,7 @@ IGV_REPORTS_OUTPUT = f"{PIPELINE_WD_OUTPUT}/igvreports"
 
 # Results
 RESULTS_PER_SAMPLE_OUTPUT = f"{PIPELINE_OUTPUT}/results_per_sample"
+SNIPPY_ONE_TO_ONE_RES = f"{PIPELINE_OUTPUT}/one_to_one"
 RESULTS_MERGED_OUTPUT = f"{PIPELINE_WD_OUTPUT}/results_merged"
 XLSX_WIDE_TABLE = f"{PIPELINE_OUTPUT}/ARVIA.xlsx"
 
@@ -145,6 +149,7 @@ onstart:
         shell(f"rm {XLSX_WIDE_TABLE}")
         shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_wide.tsv")
         shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_long.tsv")
+        shell(f"rm {Path(XLSX_WIDE_TABLE).parent}/{Path(XLSX_WIDE_TABLE).stem}_sc.xlsx")
 
 # shell(f"conda env export > {PIPELINE_OUTPUT}/logs/environment.yml") # TODO: decide if this stays or not (can take a bit of time to export environment)
 
@@ -155,15 +160,18 @@ onstart:
 ####################
 # ---- Common ---- #
 ####################
-def get_if_use_assembly_or_reads(wc):
-    bc_reads_type = INPUT_FILES[wc.barcode]["reads_type"]
+def get_if_use_assembly_or_reads(wc, bc):
+    bc_reads_type = INPUT_FILES[bc]["reads_type"]
     return bc_reads_type if bc_reads_type else "assembly"
 
-def get_input_assembly(wc):
-    return INPUT_FILES[wc.barcode]["assembly"]
+def get_input_assembly(wc, bc):
+    return INPUT_FILES[bc]["assembly"]
 
-def get_input_reads(wc):
-    return INPUT_FILES[wc.barcode]["reads"]
+def get_input_reads(wc, bc):
+    return INPUT_FILES[bc]["reads"]
+
+def get_input_gbk(wc, bc):
+    return INPUT_FILES[bc]["gbk"]
 
 rule snippy:
     input:
@@ -232,8 +240,8 @@ rule snippy:
 ################################################
 use rule snippy as paeruginosa_mutations with:
     input:
-        assembly=lambda wc: get_input_assembly(wc),
-        reads=lambda wc: get_input_reads(wc),
+        assembly=lambda wc: get_input_assembly(wc, wc.barcode),
+        reads=lambda wc: get_input_reads(wc, wc.barcode),
         ref_gbk=PAERUGINOSA_GENOME_GBK,
     output:
         folder=directory(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}")),
@@ -244,7 +252,7 @@ use rule snippy as paeruginosa_mutations with:
         ref_gff=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "reference", "ref.gff")),
         ref_fna=temp(Path(PAERUGINOSA_MUTS_OUTPUT, "{barcode}", "reference", "ref.fa")),
     params:
-        selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
+        selected_input=lambda wc: get_if_use_assembly_or_reads(wc, wc.barcode), # "paired_end" | "single_end" | "assembly",
         min_depth=config.get("min_depth", 5),
         maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
@@ -354,7 +362,7 @@ rule extract_paeruginosa_ref_genes:
 
 rule makeblastdb_from_assembly:
     input:
-        ref=lambda wc: get_input_assembly(wc),
+        ref=lambda wc: get_input_assembly(wc, wc.barcode),
     output:
         folder=directory(Path(MAKEBLASTDB_FROM_ASSEMBLY_OUTPUT, "{barcode}")),
     params:
@@ -417,14 +425,14 @@ rule process_blast_truncations:
 rule align_oprd:
     input:
         ref = OPRD_NUCL,
-        assembly=lambda wc: get_input_assembly(wc),
-        reads=lambda wc: get_input_reads(wc),
+        assembly=lambda wc: get_input_assembly(wc, wc.barcode),
+        reads=lambda wc: get_input_reads(wc, wc.barcode),
     output:
         folder = directory(Path(ALIGN_OPRD, "{barcode}")),
         bam = temp(Path(ALIGN_OPRD, "{barcode}", "aln.bam")),
         coverage = Path(ALIGN_OPRD, "{barcode}", "coverage.tsv"),
     params:
-        selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
+        selected_input=lambda wc: get_if_use_assembly_or_reads(wc, wc.barcode), # "paired_end" | "single_end" | "assembly",
     threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
@@ -491,8 +499,8 @@ rule decide_best_oprd_ref:
 
 use rule snippy as paeruginosa_oprd with:
     input:
-        assembly=lambda wc: get_input_assembly(wc),
-        reads=lambda wc: get_input_reads(wc),
+        assembly=lambda wc: get_input_assembly(wc, wc.barcode),
+        reads=lambda wc: get_input_reads(wc, wc.barcode),
         ref_gbk=rules.decide_best_oprd_ref.output.selected_ref,
     output:
         folder = directory(Path(SNIPPY_OPRD, "{barcode}")),
@@ -503,7 +511,7 @@ use rule snippy as paeruginosa_oprd with:
         ref_gff=temp(Path(SNIPPY_OPRD, "{barcode}", "reference", "ref.gff")),
         ref_fna=temp(Path(SNIPPY_OPRD, "{barcode}", "reference", "ref.fa")),
     params:
-        selected_input=lambda wc: get_if_use_assembly_or_reads(wc), # "paired_end" | "single_end" | "assembly",
+        selected_input=lambda wc: get_if_use_assembly_or_reads(wc, wc.barcode), # "paired_end" | "single_end" | "assembly",
         min_depth=config.get("min_depth", 5),
         maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
@@ -517,7 +525,7 @@ use rule snippy as paeruginosa_oprd with:
 ##################
 rule mlst:
     input:
-        assembly=lambda wc: get_input_assembly(wc),
+        assembly=lambda wc: get_input_assembly(wc, wc.barcode),
     output:
         folder=directory(Path(MLST_OUTPUT, "{barcode}")),
         res=Path(MLST_OUTPUT, "{barcode}", "{barcode}.tsv"),
@@ -567,7 +575,7 @@ rule process_mlst:
 #######################
 rule amrfinderplus:
     input:
-        assembly=lambda wc: get_input_assembly(wc),
+        assembly=lambda wc: get_input_assembly(wc, wc.barcode),
     output:
         folder=directory(Path(AMRFINDER_OUTPUT, "{barcode}")),
         res=Path(AMRFINDER_OUTPUT, "{barcode}", "{barcode}.tsv"),
@@ -608,7 +616,95 @@ rule process_amrfinderplus:
             amrfinder_catalog_file=amrfinder_catalog_file,
             output_file=output.res
         )
-        
+
+
+###############################
+# ---- Snippy one to one ---- #
+###############################
+use rule snippy as snippy_one_to_one with:
+    input:
+        # ref_gbk=Path(BAKTA_OUTPUT, "{ref_barcode}", "{ref_barcode}.gbk"),
+        # reads=[i.replace("{barcode}", "{query_barcode}") for i in READS_INPUT],
+        assembly=lambda wc: get_input_assembly(wc, wc.query_barcode),
+        reads=lambda wc: get_input_reads(wc, wc.query_barcode),
+        ref_gbk=lambda wc: get_input_gbk(wc, wc.ref_barcode),
+    output:
+        folder = directory(Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}")),
+        res = Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "snps.tab"),
+        res_with_het=Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "snps.nofilt.tab"),
+        gene_coverage=Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "gene_coverage.tsv"),
+        bam=temp(Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "snps.bam")),
+        ref_gff=temp(Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "reference", "ref.gff")),
+        ref_fna=temp(Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "reference", "ref.fa")),    
+    params:
+        selected_input=lambda wc: get_if_use_assembly_or_reads(wc, wc.query_barcode), # "paired_end" | "single_end" | "assembly",
+        min_depth=config.get("min_depth", 5),
+        maxsoft=config.get("maxsoft", 1000),
+        arvia_dir=ARVIA_DIR,
+        cleanup=CLEAN_SNIPPY_FOLDERS,
+    threads: 5
+    conda:
+        CONDA_ENVS["arvia"]
+    log:
+        Path(SNIPPY_ONE_TO_ONE_RUN, "ref_{ref_barcode}__vs__{query_barcode}", "arvia.log")
+
+
+def get_ids_with_gbk(wc):
+    ids = list(INPUT_FILES.keys())
+    ids_with_gbk = [k for k,v in INPUT_FILES.items() if v.get("gbk") ]
+    return ids, ids_with_gbk
+
+def get_input_for_one_to_one(wc):
+    """
+    Get input for rule process_parallel_snippy
+    only using samples with .gbk as reference
+    """
+    ids, ids_with_gbk = get_ids_with_gbk(wc)
+    return expand(
+        rules.snippy_one_to_one.output.folder, #Path(SNIPPY_ONE_TO_ONE, "run", "ref_{ref_barcode}__vs__{query_barcode}"), 
+        ref_barcode=ids_with_gbk,
+        query_barcode=ids
+    )
+
+rule process_snippy_one_to_one:
+    input:
+        folders=lambda wc: get_input_for_one_to_one(wc)
+    output:
+        folder = directory(SNIPPY_ONE_TO_ONE_RES),
+        mutation_count = Path(SNIPPY_ONE_TO_ONE_RES, "mutation_count.tsv"),
+    run:
+        shell("mkdir -p {output.folder}")
+        ids, ids_with_gbk = get_ids_with_gbk(wildcards)
+
+        # Get mutation counts
+        one_to_one_folder = list(set([str(Path(i).parent) for i in input.folders]))
+        assert len(one_to_one_folder)==1, f"Unexpected list length: {one_to_one_folder}"
+        one_to_one_folder = one_to_one_folder[0]
+        _ = process_snippy_one_to_one(
+            one_to_one_folder, 
+            output.mutation_count, 
+            ids_with_gbk, 
+            ids
+        )
+
+        # Combine 
+        # Default results with no truncation info or oprd
+        # Rows are mutations and columns are samples
+        for ref_id in ids_with_gbk:
+            out_file = f"{output.folder}/ref_{ref_id}.xlsx"
+            default_df, bcs = get_default_snippy_combination(
+                [f"{one_to_one_folder}/ref_{ref_id}__vs__{i}/snps.nofilt.tab" for i in ids],
+                out_file, 
+                selected_bcs=[], 
+                paeruginosa=False
+            )
+            default_df.to_csv(Path(Path(out_file).parent, Path(out_file).stem + ".tsv"), sep="\t", index=None)
+
+
+
+
+
+
 # # ---- Get input stats ----
 # rule get_estimated_coverage:
 #     input:
@@ -763,13 +859,25 @@ rule merge_results:
             amrfinderplus_fs=expand(rules.get_results_per_sample.params.amrfinderplus, barcode=bcs_with_assembly),
             mlst_fs=expand(rules.get_results_per_sample.params.mlst, barcode=bcs_with_assembly),
         )
-        
+
+
+CAN_ONE_TO_ONE_BE_DONE = False
+if config["one_to_one"] is True:
+    if len([k for k,v in INPUT_FILES.items() if v.get("gbk")])>=1:
+        CAN_ONE_TO_ONE_BE_DONE = True
+    else:
+        raise Exception("Error: --one_to_one used but no .gbk files in input")
+
+
 rule all:
     input:
         results_per_sample_folders = expand(rules.get_results_per_sample.output.folder, zip, barcode=list(INPUT_FILES.keys())),
         combined_long = rules.merge_results.output.combined_long,
         merged_advanced_result = rules.merge_results.output.advanced_result,
+        _ = rules.process_snippy_one_to_one.output.folder if CAN_ONE_TO_ONE_BE_DONE else [],
     default_target: True
+
+
 
 
 onsuccess:

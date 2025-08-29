@@ -70,9 +70,11 @@ BASE_YAML_CONFIG = {
         "input_yaml": None,
         "reads": [],
         "assemblies": [],
+        "gbks": [],
     },
     "output": {"output_folder": None},
     "general_params": {
+        "one_to_one": bool,
         "min_depth": int,
         "maxsoft": int,
         "previsualize": "yes",

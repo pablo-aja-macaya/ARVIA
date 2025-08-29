@@ -242,14 +242,17 @@ def get_default_snippy_combination(
         # Select sheet and apply formatting
         workbook = writer.book
         sheet = writer.sheets[sheet_name]
+
+        first_sample_col = 7 if "polymorphic_substitution" in df.columns else 6
+
         # sheet.autofit()  # autofit row widths
         # sheet.set_row(1, 45)  # height of row
         # sheet.set_row(2, 2, [], {"hidden": True})  # row is hidden
         sheet.set_column(1, 1, 10)  # width of column 1
         sheet.set_column(4, 5, 30)  # width of columns 4-5
         # sheet.set_column(6, 6, 23)  # width of column 6
-        sheet.set_column(7, 7 + len(pivoted_df.columns), 20)  # width of sample columns
-        sheet.freeze_panes(1, 7)  # freeze first row and first 7 column
+        sheet.set_column(first_sample_col, first_sample_col + len(pivoted_df.columns), 20)  # width of sample columns
+        sheet.freeze_panes(1, first_sample_col)  # freeze first row and first 7 column
 
         # Save
         workbook.close()

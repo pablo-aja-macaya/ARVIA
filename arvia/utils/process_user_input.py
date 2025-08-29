@@ -19,7 +19,9 @@ INPUT_FILE_PATTERNS = {
         r"(.+).fas$",
         r"(.+).fa$",
     ],
-
+    "gbk": [
+        r"(.+).gbk$",
+    ],
 }
 
 
@@ -38,12 +40,13 @@ class UniqueKeyLoader(yaml.SafeLoader):
 
 def associate_user_input_files(config: dict) -> dict:
     """    
-    Transform user input ({"reads": [], "assemblies": []}) into expected dictionary associating sample ids in name file.
+    Transform user input via command line (e.g. --reads) into expected dictionary associating sample ids in name file.
     Sample IDs are extracted from files through a set of possible patterns
     # Input:
     {
         "reads": ["f1","f2","f3"],
-        "assemblies": ["f4"]
+        "assemblies": ["f4"],
+        "gbks": [] # optionañ
     }
     # Output:
     {
@@ -53,7 +56,8 @@ def associate_user_input_files(config: dict) -> dict:
         },
         "ARGA00190": { 
             "reads": ["ARGA00190.fastq.gz"],
-            "assembly": ["ARGA00190.fasta"]
+            "assembly": ["ARGA00190.fasta"],
+            "gbk": ["ARGA00190.gbk"],
         },
     }
     """
@@ -63,7 +67,7 @@ def associate_user_input_files(config: dict) -> dict:
         #     "assembly": ["ARGA00461.fasta"]
         # },
     }
-    for f in sorted(config["reads"]) + sorted(config["assemblies"]):
+    for f in sorted(config["reads"]) + sorted(config["assemblies"]) + sorted(config["gbks"]):
         pattern_detected = False
         for pat_type, pats in INPUT_FILE_PATTERNS.items():
             for pat in pats:
@@ -76,11 +80,14 @@ def associate_user_input_files(config: dict) -> dict:
                         d[bc] = {
                             "reads": [],
                             "assembly": [],
+                            "gbk": [],
                         }
                     if pat_type=="reads":
                         d[bc]["reads"] += [f]
                     elif pat_type=="assembly":
                         d[bc]["assembly"] += [f]
+                    elif pat_type=="gbk":
+                        d[bc]["gbk"] += [f]
                     pattern_detected = True
                     break
 
@@ -98,11 +105,14 @@ def input_file_dict_from_yaml(yaml_input):
             - reads.fastq.gz
         assembly:
             - assembly.fasta
+        gbk:
+            - assembly.gbk
     # Output
     {
         "sample_id": {
             "reads": ["reads.fastq.gz"],
-            "assembly": ["assembly.fasta"]
+            "assembly": ["assembly.fasta"],
+            "gbk": ["assembly.gbk"],
         }
     }
 
@@ -114,7 +124,7 @@ def input_file_dict_from_yaml(yaml_input):
     # Ensure the dict has the keys "reads" and "assembly" in each sample, each containning a list (can be empty)
     for k,v in d.items():
         # If main keys are not present initialize them with a list
-        for i in ["reads","assembly"]:
+        for i in ["reads", "assembly", "gbk"]:
             if not v.get(i):
                 v[i] = []
             else:
@@ -130,13 +140,18 @@ def check_input_file_dict_and_decide_pipeline(d):
     for k,v in d.items():
         reads = v["reads"]
         assembly = v["assembly"]
+        gbk = v["gbk"]
 
         assert type(reads)==list, "Reads are not in list format"
         assert type(assembly)==list, "Assembly is not in list format"
+        assert type(gbk)==list, "Annotated assembly (.gbk) is not in list format"
         assert len(reads)<=2, "Only 0-2 reads files per sample is supported"
         assert len(assembly)<=1, "Only 0-1 assembly file per sample is supported"
+        assert len(gbk)<=1, "Only 0-1 annotated assembly file per sample is supported"
         check_reads_exists = [i for i in reads if not Path(i).exists()]
         check_assembly_exists = [i for i in assembly if not Path(i).exists()]
+        check_gbk_exists = [i for i in gbk if not Path(i).exists()]
+
         # If reads are supplied
         if (len(reads) in [1,2]):
             assert len(check_reads_exists)==0, f"At least a file path does not exist: {check_reads_exists}"
@@ -165,6 +180,7 @@ def expand_input_file_dict_into_multiple_cols(row):
     """
     read_file_count: int = len(row["temp"]["reads"])
     assembly_file_count: int = len(row["temp"]["assembly"])
+    gbk_file_count: int = len(row["temp"]["gbk"])
     pipeline = row["temp"]["pipeline"]
 
     if read_file_count==2:
@@ -177,6 +193,9 @@ def expand_input_file_dict_into_multiple_cols(row):
 
     if assembly_file_count == 1:
         row["assembly"] = row["temp"]["assembly"][0]
+
+    if gbk_file_count == 1:
+        row["gbk"] = row["temp"]["gbk"][0]
 
     if pipeline:
         row["pipeline"] = pipeline

@@ -39,9 +39,11 @@ def main():
         if command == "run":
             if not parameters["input_yaml"] and (not parameters["reads"] and not parameters["assemblies"]):
                 log_error_and_raise("Provide files with --input_yaml or, if files follow specified format, use --reads and/or --assemblies, please.")
-            elif parameters["input_yaml"] and (parameters["reads"] or parameters["assemblies"]):
-                log_error_and_raise("You can only provide --input_yaml OR --reads and/or --assemblies")
-            
+            elif parameters["input_yaml"] and (parameters["reads"] or parameters["assemblies"] or parameters["gbks"]):
+                log_error_and_raise("You can only provide [--input_yaml] OR [--reads and/or --assemblies and/or --gbks]")
+            elif parameters["gbks"] and not parameters["one_to_one"]:
+                CONSOLE_STDOUT.log(f"You specified --gbks but not --one_to_one. Comparison between samples will not be performed.", style="info", highlight=False)
+
             # Run
             run_snakemake(
                 f"{ARVIA_DIR}/workflows/arvia.smk",
