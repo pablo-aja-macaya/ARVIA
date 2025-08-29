@@ -362,29 +362,29 @@ Usage: arvia run [-i path] [-r path [path ...]] [-a path [path ...]] [-o path] [
 ARVIA: Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa
 
 Input/Output:
-  -i, --input_yaml path                             Input files from a YAML. Each key is a sample_id containing two lists of paths with keys
-                                                    'reads' and 'assembly' (default: None)
-  -r, --reads path [path ...]                       Input reads files. Can be paired-end or single-end and must follow one of these
-                                                    structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
-                                                    '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz' (default:
-                                                    None)
-  -a, --assemblies path [path ...]                  Input assembly files. Must follow one of these structures:
-                                                    '{sample_id}.{fasta,fna,fa,fas}' (default: None)
-  -g, --gbks path [path ...]                        Input annotated assembly files in GBK format. Only used in 1 vs 1 comparisons if given
-                                                    --one_to_one. Must follow one of these structures: '{sample_id}.{gbk}' (default: None)
-  -o, --output_folder path                          Output folder (default: ./arvia)
+  -i, --input_yaml path                 Input files from a YAML. Each key is a sample_id containing two lists of paths with keys
+                                        'reads' and 'assembly' (default: None)
+  -r, --reads path [path ...]           Input reads files. Can be paired-end or single-end and must follow one of these
+                                        structures: '{sample_id}.fastq.gz' / '{sample_id}_R[1,2].fastq.gz' /
+                                        '{sample_id}_[1,2].fastq.gz' / '{sample_id}_S\d+_L\d+_R[1,2]_\d+.fastq.gz' (default:
+                                        None)
+  -a, --assemblies path [path ...]      Input assembly files. Must follow one of these structures:
+                                        '{sample_id}.{fasta,fna,fa,fas}' (default: None)
+  -g, --gbks path [path ...]            Input annotated assembly files in GBK format. Only used in 1 vs 1 comparisons if given
+                                        --one_to_one. Must follow one of these structures: '{sample_id}.{gbk}' (default: None)
+  -o, --output_folder path              Output folder (default: ./arvia)
 
 Additional Arguments:
-  --one_to_one                                      Compare input samples between themselves using the assembly/annotated assembly of each
-                                                    one as reference. At least one assembly is neccessary. (default: False)
-  -d, --min_depth int                               Minimum depth for mutation to pass (--mincov in snippy) (default: 5)
-  -s, --maxsoft int                                 Maximum soft clipping allowed (--maxsoft in snippy) (default: 1000)
-  -c, --cores int                                   Number of cores (default is available cores - 1) (default: 63)
-  -p, --previsualize                                Previsualize pipeline to see if everything is as expected (default: False)
-  --use_conda                                       If True, use conda environment specified by snakefile (default: False)
-  --barcodes str [str ...]                          Space separated list of sample IDs. Only these samples will be processed (default: None)
-  --draw_wf str                                     Draw pipeline to this path (PDF) (default: None)
-  -h, --help                                        show this help message and exit
+  --one_to_one                          Compare input samples between themselves using the assembly/annotated assembly of each
+                                        one as reference. At least one assembly is neccessary. (default: False)
+  -d, --min_depth int                   Minimum depth for mutation to pass (--mincov in snippy) (default: 5)
+  -s, --maxsoft int                     Maximum soft clipping allowed (--maxsoft in snippy) (default: 1000)
+  -c, --cores int                       Number of cores (default is available cores - 1) (default: 63)
+  -p, --previsualize                    Previsualize pipeline to see if everything is as expected (default: False)
+  --use_conda                           If True, use conda environment specified by snakefile (default: False)
+  --barcodes str [str ...]              Space separated list of sample IDs. Only these samples will be processed (default: None)
+  --draw_wf str                         Draw pipeline to this path (PDF) (default: None)
+  -h, --help                            show this help message and exit
 ```
 
 
