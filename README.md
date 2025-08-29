@@ -66,7 +66,7 @@ And **subset to specific samples** with `--barcodes`:
 arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
 ```
 
-If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in `input.yaml` and add `--one_to_one` in command line (see [**Input YAML convention**](#input-yaml-convention)):
+If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in `input.yaml` (this can be very demanding depending on how many samples) and add `--one_to_one` in command line (see [**Input YAML convention**](#input-yaml-convention)).
 ```sh
 # Run ARVIA doing one to one comparisons
 arvia run --input_yaml input.yaml --output_folder arvia --one_to_one

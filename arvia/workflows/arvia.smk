@@ -642,7 +642,7 @@ use rule snippy as snippy_one_to_one with:
         maxsoft=config.get("maxsoft", 1000),
         arvia_dir=ARVIA_DIR,
         cleanup=CLEAN_SNIPPY_FOLDERS,
-    threads: 5
+    threads: get_snakemake_threads(recommended=5, samples=len(list(INPUT_FILES.keys())), available=workflow.cores)
     conda:
         CONDA_ENVS["arvia"]
     log:
