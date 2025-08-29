@@ -9,7 +9,7 @@
 
 ## Summary
 
-ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies. You can see an example of the main outputs [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result.xlsx) and [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx) (it also returns easily processable .tsv files). See [Usage](#usage) and [Installation](#installation) sections for more information. 
+ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies, or use **each one of your samples as reference to the rest** in variant calling. You can see an example of the main outputs [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result.xlsx) and [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx) (it also returns easily processable .tsv files). See [Usage](#usage) and [Installation](#installation) sections for more information. 
 
 Its main functions are:
 - **Variant calling in PAO1**:
@@ -66,7 +66,7 @@ And **subset to specific samples** with `--barcodes`:
 arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
 ```
 
-If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in `input.yaml` (this can be very demanding depending on how many samples) and add `--one_to_one` in command line (see [**Input YAML convention**](#input-yaml-convention)).
+If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in `input.yaml` and add `--one_to_one` in command line (see [**Input YAML convention**](#input-yaml-convention)). This can be very demanding depending on how many samples and references, reduce the cost by specifying `--barcodes`:
 ```sh
 # Run ARVIA doing one to one comparisons
 arvia run --input_yaml input.yaml --output_folder arvia --one_to_one
@@ -121,7 +121,7 @@ arvia dbs
 In order to test ARVIA's installation, execute the following command, which downloads a set of reads and assemblies from NCBI and tries to run the pipeline:
 
 ```sh
-arvia test --output_folder test_arvia
+arvia test
 ```
 
 <!-- 
@@ -152,17 +152,17 @@ conda install mamba -n base -c conda-forge
 
 ## Input
 
-ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. Single-end reads will be considered long reads such as PacBio or Oxford Nanopore Technologies (ONT). It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample.
+ARVIA takes **single-end/paired-end reads (long or short)** and/or an **assembly** for each sample given. Single-end reads will be considered long reads such as PacBio or Oxford Nanopore Technologies (ONT). It needs at least one of the two types of files, with a maximum of 1 assembly and 2 reads files per sample. It can also take one annotated genome `.gbk` file per sample for `--one_to_one` comparisons, using each `.gbk` as reference for variant calling.
 
 > [!IMPORTANT]
 > Selected **pipeline depends on user input**. Every part is available for each input type except the detection of truncated genes caused by big reordenations, acquired resistance genes and MLST identification, which require an assembly. It is **recommended to provide reads and an assembly** for a more in-depth analysis!
 >
-> ARVIA gives an idea of coverage/depth of each gene, but additional quality control of your samples with CheckM/CheckM2 is highly recommended, as they will tell you how complete/contaminated your genome is.
+> ARVIA gives an idea of coverage/depth of each gene, but **additional quality control of reads or of your assemblies with CheckM/CheckM2 is highly recommended**, as they will tell you how complete/contaminated your genome is.
 
 
 ### Input YAML convention
 
-In order to use `--input_yaml` generate a YAML file with the following structure, where keys are unique sample_ids, containing one or two lists named `reads` and `assembly` with their corresponding files (path can be relative from where ARVIA is executed):
+In order to use `--input_yaml` generate a YAML file with the following structure, where keys are unique sample_ids, containing at least one list named `reads` or `assembly` and an optional list named `gbk` (if you want to use `--one_to_one`) with their corresponding files (path can be relative from where ARVIA is executed):
 
 ```yaml
 # -- Input template --
