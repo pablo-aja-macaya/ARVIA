@@ -356,8 +356,8 @@ Sometimes mutations don't have any effect on antibiotic resistance and are just 
 Full command list available with `arvia --help`. Here is `arvia run -h`:
 
 ```sh
-Usage: arvia run [-i path] [-r path [path ...]] [-a path [path ...]] [-o path] [-c int] [-p] [--use_conda] [--barcodes str [str ...]]
-                 [--draw_wf str] [-h]
+Usage: arvia run [-i path] [-r path [path ...]] [-a path [path ...]] [-g path [path ...]] [-o path] [--one_to_one] [-d int] [-s int]
+                 [-c int] [-p] [--use_conda] [--barcodes str [str ...]] [--draw_wf str] [-h]
 
 ARVIA: Antibiotic Resistance Variant Identifier for Pseudomonas aeruginosa
 
