@@ -21,7 +21,7 @@ Its main functions are:
 - **Variant calling of closest oprD reference**. 
 - **Acquired resistance genes** (only with assembly!).
 - **MLST identification** (only with assembly!).
-- Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples.
+- Creation of **comparative tables** to more easily assess the cause of different phenotypes between samples. This includes **comparisons using PAO1 or any of the input samples as reference**, if given at least one `.gbk` file as input. 
 - **Interactive HTML IGV reports** to visualize point mutations in important genes.
 
 
@@ -66,7 +66,7 @@ And **subset to specific samples** with `--barcodes`:
 arvia run --input_yaml input.yaml --output_folder arvia --barcodes sample1 sample2 sample3
 ```
 
-If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in YAML and add `--one_to_one` in command (see [**Input YAML convention**](#input-yaml-convention)):
+If you want to do **one to one variant calling** in your input samples, using each one as reference for the others, add `.gbk` files for at least one sample in `input.yaml` and add `--one_to_one` in command line (see [**Input YAML convention**](#input-yaml-convention)):
 ```sh
 # Run ARVIA doing one to one comparisons
 arvia run --input_yaml input.yaml --output_folder arvia --one_to_one
@@ -106,10 +106,10 @@ conda activate arvia
 # Install ARVIA from pip
 pip install arvia
 
-# OR install from github
-git clone https://github.com/pablo-aja-macaya/ARVIA.git
-cd ARVIA
-python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
+# # OR install from github for development version
+# git clone https://github.com/pablo-aja-macaya/ARVIA.git
+# cd ARVIA
+# python -m pip install -e . # "-e" allows for editable mode, else "python -m pip install ."
 ```
 
 To finish installation and update/install the needed databases, please run:

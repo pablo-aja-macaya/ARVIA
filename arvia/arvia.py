@@ -18,7 +18,7 @@ def main():
             # If there are arguments
             if len(sys.argv)>1:
                 # And the first argument is one of these commands (subparsers) and has additional arguments
-                if (sys.argv[1] in ["run", "test"] and len(sys.argv)>2) or sys.argv[1] in ["dbs"]: # ATTENTION: possible commands have to be stated here
+                if (sys.argv[1] in ["run", "test"] and len(sys.argv)>2) or sys.argv[1] in ["dbs", "test"]: # ATTENTION: possible commands have to be stated here
                     # keep going
                     return None
             # Elseif no real arguments are given then print help
