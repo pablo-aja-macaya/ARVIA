@@ -1,4 +1,4 @@
-<a>
+<a href="https://github.com/pablo-aja-macaya/ARVIA">
   <p align="left">
     <!-- <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header.png" height="70" > -->
     <picture>
@@ -6,7 +6,6 @@
       <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
       <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
     </picture>
-
   </p>
 </a>
 ## Summary
