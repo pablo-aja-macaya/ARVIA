@@ -4,7 +4,6 @@ plugins:
   - jekyll-seo-tag
 minima:
   skin: dark # Or auto if you want it to switch with your system settings.
-minima:
   social_links:
     - title: ARVIA repository at GitHub
       icon: github
