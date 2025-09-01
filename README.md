@@ -1,10 +1,11 @@
 <p align="left">
   <!-- <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header.png" height="70" > -->
-  <picture>
+  <a><picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
     <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
   </picture>
+  </a>
 </p>
 
 ## Summary
@@ -481,6 +482,8 @@ pip install arvia # -i https://test.pypi.org/simple/
         - [] To-do    
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
+            - [] in sc table it would be cool to add mlst if available and sort columns by that first
+            - [] pmf parameter 
             - [X] En ARGA00457 PA0004 GyrB sólo aparece "808" como mutación
             - [X] add parameters to command line (min_depth, maxsoft)
             - [X] tabla comparativa a lo largo
@@ -519,15 +522,15 @@ pip install arvia # -i https://test.pypi.org/simple/
                 - [X] add original muts without filters
 
       # Cambios para poner 1 vs 1
-      - [] recibir genomas anotados
+      - [X] recibir genomas anotados
           - --gbk *.gbk
           - Añadir gbk en yaml
           - Dejar que se pueda hacer sólo con ensamblaje? Sólo se verían cuántas mutaciones tienen pero no el efecto.
           - Si alguna no tiene ensamblaje avisar, pero hacer la comparación usando los que sí tienen?
-      - [] Añadir comando de comparación bool: --one_to_one
+      - [X] Añadir comando de comparación bool: --one_to_one
       - [] Se pueden usar ensamblajes o lecturas (habría que indicar cuál se ha usado?)
-      - [] Añadir rules de 1vs1
-      - [] Añadir resumen en tablas, idealmente un excel con una sheet por cada referencia 
+      - [X] Añadir rules de 1vs1
+      - [X] Añadir resumen en tablas, idealmente un excel con una sheet por cada referencia 
 
       # Poner para cualquier referencia ?
       - [] Parametrizar gbk
