@@ -1,13 +1,14 @@
-<p align="left">
-  <!-- <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header.png" height="70" > -->
-  <a><picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
-    <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
-  </picture>
-  </a>
-</p>
+<a>
+  <p align="left">
+    <!-- <img src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header.png" height="70" > -->
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
+      <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
+      <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
+    </picture>
 
+  </p>
+</a>
 ## Summary
 
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies, or use **each one of your samples as reference to the rest** in variant calling. You can see an example of the main outputs [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result.xlsx) and [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx) (it also returns easily processable .tsv files). See [Usage](#usage) and [Installation](#installation) sections for more information. 
