@@ -3,3 +3,12 @@ plugins:
   - jekyll-remote-theme
 minima:
   skin: dark # Or auto if you want it to switch with your system settings.
+minima:
+  social_links:
+    - title: ARVIA repository at GitHub
+      icon: github
+      url: "https://github.com/pablo-aja-macaya/ARVIA"
+    - title: Pablo Aja-Macaya ORCID Profile
+      icon: fa-orcid
+      url: "https://orcid.org/0000-0001-6296-5949"
+
