@@ -8,6 +8,7 @@
     </picture>
   </p>
 </a>
+
 ## Summary
 
 ARVIA (**A**ntibiotic **R**esistance **V**ariant **I**dentifier for *Pseudomonas **a**eruginosa*) takes **single-end/paired-end reads (long or short)** and/or an **assembly** per sample to perform exhaustive **variant calling** of genes related to antibiotic resistance in *Pseudomonas aeruginosa*. Additionally, it can extract **acquired resistance genes** and **MLST** from assemblies, or use **each one of your samples as reference to the rest** in variant calling. You can see an example of the main outputs [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result.xlsx) and [here](https://github.com/pablo-aja-macaya/ARVIA/raw/refs/heads/main/arvia/data/examples/example_result_sc.xlsx) (it also returns easily processable .tsv files). See [Usage](#usage) and [Installation](#installation) sections for more information. 
