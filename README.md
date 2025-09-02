@@ -4,7 +4,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_bb.png">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png">
-      <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='max-height: 90px; min-height: 80px; max-width: 55%; object-fit: contain'>
+      <img alt="ARVIA Logo" src="https://github.com/pablo-aja-macaya/ARVIA/raw/main/arvia/data/arvia_header_wb.png" style='width: 30%; object-fit: contain'>
   </picture>
   </a>
 </p>
@@ -448,8 +448,8 @@ pip install arvia # -i https://test.pypi.org/simple/
 
 ```
 
-<!-- * .
-{:toc} -->
+* Do not remove this line (it will not be displayed)
+{:toc}
 
 <!-- [hola][home] -->
 <!-- 
