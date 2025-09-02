@@ -48,7 +48,7 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
         log_error_and_raise(f"{e}")
 
     # Create main directory
-    CONSOLE_STDOUT.log(f"Creating output folder... (main_output_folder)", style="muted")
+    CONSOLE_STDOUT.log(f"Creating output folder... ({main_output_folder})", style="muted")
     _ = run(f"mkdir -p {main_output_folder} {sratoolkit_folder} {arvia_folder}", check=True, shell=True)
 
     # Test ARVIA help menus
