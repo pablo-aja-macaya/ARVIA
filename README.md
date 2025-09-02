@@ -94,7 +94,7 @@ Check out more options, like `--cores`, in the [Full command list](#full-command
 > [!NOTE]
 > This application has been **designed for Linux systems** and tested in **Ubuntu 20.04.4**.
 
-Installation through **mamba** is highly recommended. A conda release of ARVIA will hopefully happen soon but, for now, you can install it like this:
+Installation through **mamba** is highly recommended. A conda release of ARVIA will hopefully happen soon but, for now, you can install from [PyPi](https://pypi.org/project/arvia/) with pip and conda like this:
 
 ```sh
 # Create main environment where ARVIA runs
@@ -440,7 +440,7 @@ conda activate twine
 # Create build dist
 python -m build
 
-# Upload to TestPyPi with twine
+# Upload to PyPi with twine
 twine upload --repository pypi dist/*
 
 # Now you can pip install
