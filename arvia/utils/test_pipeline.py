@@ -30,6 +30,10 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
             "GCA_043962715.1": {
                 "url": "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/GCA_043962715.1/download?include_annotation_type=GENOME_FASTA&hydrated=FULLY_HYDRATED",
                 "file_type": "assembly",
+            },
+            "GCA_043962715.1_gbk": {
+                "url": "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/GCA_043962715.1/download?include_annotation_type=GENOME_GBFF&hydrated=FULLY_HYDRATED",
+                "file_type": "gbk"
             }
         }
     }
@@ -59,7 +63,7 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
         log_error_and_raise(f"{traceback.format_exc()}\nFailed running ARVIA's help messages: {e}")
 
     # Download sratoolkit and decompress
-    if not Path(fasterq_dump).exists():
+    if not glob.glob(fasterq_dump):
         try:
             CONSOLE_STDOUT.log("Installing SRA Toolkit...", style="info")
             CONSOLE_STDOUT.log("Downloading SRA Toolkit...", style="muted")
@@ -72,7 +76,7 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
         CONSOLE_STDOUT.log("fasterqdump present, skipping download of SRA Toolkit...", style="info")
 
     # ---- Download files ----
-    FILES_DICT = {key: {"paired-end": [], "single-end": [], "assembly": []} for key in TEST_SAMPLES.keys()}
+    FILES_DICT = {key: {"paired-end": [], "single-end": [], "assembly": [], "gbk": []} for key in TEST_SAMPLES.keys()}
     
     CONSOLE_STDOUT.log("Downloading files...", style="info")
     try:
@@ -80,6 +84,7 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
             for accession_id, vv in v.items():
                 CONSOLE_STDOUT.log(f"Downloading {accession_id} from {biosample_id}", style="muted")
                 dw_folder = f"{main_output_folder}/dw/{biosample_id}/{accession_id}"
+                assert not Path(dw_folder).exists(), ""
                 _ = run(f"mkdir -p {dw_folder}", check=True, shell=True)
 
                 # Download reads from SRA
@@ -102,21 +107,22 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
                         FILES_DICT[biosample_id]["paired-end"] = fs
                 
                 # Download assembblies using links
-                elif vv["file_type"]=="assembly":
+                elif vv["file_type"] in ["assembly", "gbk"]:
+                    file_suffix = ".fna" if vv["file_type"] == "assembly" else ".gbff"
                     _ = run(
                         f"wget --quiet -O {dw_folder}/ncbi_download.zip '{vv['url']}' > {dw_folder}/download.log", 
                         check=True, shell=True
                     )
                     _ = run(
-                        f"unzip -qq -j {dw_folder}/ncbi_download.zip 'ncbi_dataset/data/*/*_genomic.fna' -d '{dw_folder}' > {dw_folder}/decompress.log", 
+                        f"unzip -qq -j {dw_folder}/ncbi_download.zip 'ncbi_dataset/data/*/*{file_suffix}' -d '{dw_folder}' > {dw_folder}/decompress.log", 
                         check=True, shell=True
                     )
                     _ = run(f"rm {dw_folder}/ncbi_download.zip", check=True, shell=True)
-                    fs = glob.glob(f"{dw_folder}/*.fna")
+                    fs = glob.glob(f"{dw_folder}/*{file_suffix}")
                     if len(fs) == 1:
-                        FILES_DICT[biosample_id]["assembly"] = fs
+                        FILES_DICT[biosample_id][vv["file_type"]] = fs
                     else:
-                        raise Exception(f"Expected only one assembly: {fs=}")
+                        raise Exception(f"Expected only one assembly/gbk: {fs=}")
                     
                 else:
                     raise Exception(f"Unexpected file_type: {vv['file_type']}")
@@ -133,6 +139,28 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
         for biosample_id, values in FILES_DICT.items():
             out_handle.write(f"# ---- {biosample_id} ----\n")  # section title
 
+            # Full with short reads, assembly and gbk
+            yaml.dump(
+                {
+                    f"{biosample_id}_full_pe_with_gbk": {
+                        "reads": values["paired-end"],
+                        "assembly": values["assembly"],
+                        "gbk": values["gbk"],
+                    },
+                }, 
+                out_handle, default_flow_style=False, sort_keys=False
+            )
+            # Full with long reads, assembly and gbk
+            yaml.dump(
+                {
+                    f"{biosample_id}_full_se_with_gbk": {
+                        "reads": values["single-end"],
+                        "assembly": values["assembly"],
+                        "gbk": values["gbk"],
+                    },
+                }, 
+                out_handle, default_flow_style=False, sort_keys=False
+            )
             # Full with short reads and assembly
             yaml.dump(
                 {
@@ -187,10 +215,10 @@ def test_arvia_pipeline_input(main_output_folder: Path, full_run: bool = False):
         _ = run(f"mkdir -p {arvia_folder}", check=True, shell=True)
         if full_run:
             CONSOLE_STDOUT.log("Running ARVIA with input YAML and without --previsualize...", style="info")
-            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} > {arvia_folder}/arvia.log", check=True, shell=True)
+            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} --one_to_one > {arvia_folder}/arvia.log", check=True, shell=True)
         else:
             CONSOLE_STDOUT.log("Running ARVIA with input YAML and --previsualize...", style="info")
-            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} --previsualize > {arvia_folder}/arvia.log", check=True, shell=True)
+            _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder} --one_to_one --previsualize > {arvia_folder}/arvia.log", check=True, shell=True)
 
         # CONSOLE_STDOUT.log("Running ARVIA with input YAML...")
         # _ = run(f"arvia run --input_yaml {input_yaml_file} --output_folder {arvia_folder}", check=True, shell=True)

@@ -231,7 +231,7 @@ parser_installdb_arvia__in_out.add_argument(
     "-o", "--output_folder", 
     required=False,
     metavar="path",
-    default="./.arvia_dbs",
+    default="./arvia_dbs",
     type=os.path.abspath,
     help=f"Output folder",
     dest="output_folder",
