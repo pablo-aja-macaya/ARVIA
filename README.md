@@ -101,7 +101,7 @@ Installation through **mamba** is highly recommended. A conda release of ARVIA w
 mamba create -n arvia \
     snakemake==7.18.0 python=3.8 pandas==1.5.0 numpy==1.23.1 'biopython>=1.78' rich-argparse==1.6.0 'colorama==0.4.4' 'odfpy==1.4.1' 'setuptools<=70' toml==0.10.2 xlsxwriter openpyxl=3.1 ipykernel \
     seqkit==2.1.0 'pigz>=2.4' ncbi-amrfinderplus mlst unzip igv-reports \
-    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 blast=2.16.0
+    perl-bioperl snippy==4.6.0 snpEff==4.3.1t bcftools=1.21 openssl==3.5.0 samtools=1.18 vt=0.57721 blast=2.16.0
     
 conda activate arvia
 
@@ -431,7 +431,7 @@ Cortes-Lara, S., del Barrio-Tofiño, E., López-Causapé, C., Oliver, A., Martí
 
 ## Development
 
-### Upload to TestPyPi
+### Upload to PyPi
 
 ```sh
 cd ARVIA/
@@ -448,8 +448,32 @@ pip install arvia # -i https://test.pypi.org/simple/
 
 ```
 
-* Do not remove this line (it will not be displayed)
-{:toc}
+### Upload/update to bioconda
+
+Update conda-recipes
+```sh
+# Make sure our master is up to date with Bioconda
+git checkout master
+git pull upstream master
+git push origin master
+
+# Create and checkout a new branch for our work
+git checkout -b update_arvia
+```
+
+Test recipe
+```sh
+cd bioconda-recipes
+conda activate bioconda
+
+# optional linting
+bioconda-utils lint --git-range master --packages arvia
+
+# build and test
+bioconda-utils build --docker --mulled-test --git-range master --packages arvia
+
+```
+
 
 <!-- [hola][home] -->
 <!-- 
@@ -483,6 +507,7 @@ pip install arvia # -i https://test.pypi.org/simple/
     - Funciones:
         - [X] Input: paired reads, long reads or assembly
         - [] To-do    
+            - [X] Doing arvia --version does not return version, it just shows help
             - [] in xlsx output check it looks good on every platform (breaks like \n dont work in windows)
             - [] igvreport add info on mutations (fails qc, poly, etc)
             - [] in sc table it would be cool to add mlst if available and sort columns by that first
