@@ -118,6 +118,7 @@ def process_mlst_result(input_file: Path, mlst_dbs_folder: Path, output_file: Pa
                 "partial_match_alleles": "; ".join(partial_match_alleles),
                 "missing_alleles": "; ".join(missing_alleles),
                 "mixed_alleles": "; ".join(mixed_alleles),
+                "file": i["file"],
                 # "new_alleles": f"{len(novel_alleles)}/{mlst_model_alleles_count}",
                 # "partial_match_alleles": f"{len(partial_match_alleles)}/{mlst_model_alleles_count}",
                 # "missing_alleles": f"{len(missing_alleles)}/{mlst_model_alleles_count}",
