@@ -448,7 +448,7 @@ pip install arvia # -i https://test.pypi.org/simple/
 
 ```
 
-### Upload/update to bioconda
+<!-- ### Upload/update to bioconda
 
 Update conda-recipes
 ```sh
@@ -472,7 +472,19 @@ bioconda-utils lint --git-range master --packages arvia
 # build and test
 bioconda-utils build --docker --mulled-test --git-range master --packages arvia
 
+``` -->
+
+### Docker build
+
+```sh
+# Build and run simple test
+docker build --tag arvia .
+
+# Run full test
+docker run -v $(pwd):/output -it --rm arvia \
+  arvia test -o /output/arvia -f
 ```
+
 
 
 <!-- [hola][home] -->
