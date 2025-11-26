@@ -12,7 +12,7 @@ import numpy as np
 import openpyxl
 
 
-def concat_files(file_list, selected_bcs=[], header="infer"):
+def concat_files(file_list, selected_bcs=[], header="infer", sep=None):
     l = []
     for i in file_list:
         folder = Path(i).parent
@@ -20,7 +20,7 @@ def concat_files(file_list, selected_bcs=[], header="infer"):
         if selected_bcs and bc not in selected_bcs:
             continue
         try:
-            temp_df = pd.read_csv(i, sep=None, header=header, engine="python")
+            temp_df = pd.read_csv(i, sep=sep, header=header, engine="python")
             temp_df["bc"] = bc
             l.append(temp_df)
 
@@ -123,14 +123,14 @@ def prepare_mutations_for_wide_pivot(data: pd.DataFrame):
             # Example of row["mut"] = [('missense_variant', '1472C>T', 'Ala491Val')]
             if row["mut"]:
                 # Check if the supposed protein mutation is just a number
-                # This happens in splice region variants like: 
+                # This happens in splice region variants like:
                 # -> splice_region_variant&stop_retained_variant c.2420_*5delGACAGGTinsAACGGGG p.808
                 #                                                                                 |> this part
                 # If it is a number then return the full effect, else keep as is
                 try:
                     _ = int(row["mut"][0][2])
                     return ("", "", row["EFFECT"])
-                except Exception as e:                
+                except Exception as e:
                     return row["mut"][0]
             else:
                 # If pattern did not match then row["mut"] will be an empty list
@@ -224,10 +224,9 @@ def get_default_snippy_combination(
     pivoted_df = pivoted_df.fillna("-")
     pivoted_df = pivoted_df.style.applymap(color_cells, subset=pd.IndexSlice[:, columns_to_paint])
     pivoted_df = pivoted_df.apply_index(highlight_header, axis="columns", level=[0])
-    pivoted_df = pivoted_df.apply_index(lambda s: [
-            "text-align: left; vertical-align: middle"
-            for v in s
-        ], axis="index")
+    pivoted_df = pivoted_df.apply_index(
+        lambda s: ["text-align: left; vertical-align: middle" for v in s], axis="index"
+    )
 
     # Writer object
     if output_file:
@@ -262,8 +261,8 @@ def get_default_snippy_combination(
         sheet = wb[sheet_name]
 
         for cell in [f"{i}1" for i in list("ABCDEFG")]:
-            sheet[cell].alignment = openpyxl.styles.Alignment(horizontal='center', vertical="center")
-            sheet[cell].font = openpyxl.styles.Font(name='Calibri', bold=True, color="FFFFFF")
+            sheet[cell].alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+            sheet[cell].font = openpyxl.styles.Font(name="Calibri", bold=True, color="FFFFFF")
             sheet[cell].fill = openpyxl.styles.PatternFill("solid", fgColor="2a6099")
 
         # Save again
@@ -339,11 +338,7 @@ def paeruginosa_combine_all_mutational_res(
     # -- Truncations based on assembly --
     truncations_df = concat_files(truncation_fs)
     truncations_df["locus_gene"] = (
-        truncations_df["locus_tag"].astype(str)
-        + "__"
-        + truncations_df["gene"].astype(str)
-        + "__"
-        + "(Assembly BLAST)"
+        truncations_df["locus_tag"].astype(str) + "__" + truncations_df["gene"].astype(str) + "__" + "(Assembly BLAST)"
     )
     temp_truncation = truncations_df.pivot(index="bc", columns="locus_gene", values="comment")
 
@@ -407,19 +402,17 @@ def paeruginosa_combine_all_mutational_res(
     # Check if all genes appear in all sections of the table
     # (For example, if snippy didnt find a mutation its column will not appear)
     for ref_locus, ref_gene_name in AERUGINOSA_GENES.items():
-        for section in ["Snippy"]: # "Assembly BLAST", "Gene coverage", 
+        for section in ["Snippy"]:  # "Assembly BLAST", "Gene coverage",
             for bc in set(yyy["bc"].to_list()):
                 long_section = f"{ref_locus}__{ref_gene_name}__({section})"
-                conditions = (
-                    (yyy["bc"]==bc)
-                    & (yyy["section"]==long_section)
-                    & (yyy["locus_tag"]==ref_locus)
-                )
-                if len(yyy[conditions])==0:
+                conditions = (yyy["bc"] == bc) & (yyy["section"] == long_section) & (yyy["locus_tag"] == ref_locus)
+                if len(yyy[conditions]) == 0:
                     yyy = pd.concat(
                         [
                             yyy,
-                            pd.DataFrame({"bc": [bc], "section": [long_section], "value": ["-"], "locus_tag": [ref_locus]})
+                            pd.DataFrame(
+                                {"bc": [bc], "section": [long_section], "value": ["-"], "locus_tag": [ref_locus]}
+                            ),
                         ]
                     )
     yyy = yyy.reset_index(drop=True).sort_values(["bc", "locus_tag", "section"], ascending=True)
@@ -427,23 +420,25 @@ def paeruginosa_combine_all_mutational_res(
     # Fill values of samples without blast result with something that indicates the sample did not have an assembly
     if bcs_without_assembly:
         yyy.loc[
-            (yyy["section"].str.contains("Assembly BLAST")) 
-            & (yyy["bc"].isin(bcs_without_assembly)) 
-            & (yyy["value"]=="-"), 
-            "value"
+            (yyy["section"].str.contains("Assembly BLAST"))
+            & (yyy["bc"].isin(bcs_without_assembly))
+            & (yyy["value"] == "-"),
+            "value",
         ] = "No assembly given"
-    
+
     # Save this table, which is the long version of the final table and contains everthing
     zzz = yyy.copy()
-    zzz["section"] = zzz["section"].str.replace("(","").str.replace(")","")
-    zzz[["_","gene","section"]] = zzz["section"].str.split("__", expand=True) # the string in this field at this point is like "PA0424__mexR__Gene coverage"
-    zzz = zzz.drop(columns = ["_"])
-    zzz = zzz[["bc","locus_tag", "gene","section","value"]]
+    zzz["section"] = zzz["section"].str.replace("(", "").str.replace(")", "")
+    zzz[["_", "gene", "section"]] = zzz["section"].str.split(
+        "__", expand=True
+    )  # the string in this field at this point is like "PA0424__mexR__Gene coverage"
+    zzz = zzz.drop(columns=["_"])
+    zzz = zzz[["bc", "locus_tag", "gene", "section", "value"]]
 
     # Sort with specific order
-    expected_categories = ['Snippy', 'Assembly BLAST', 'Gene coverage', 'closest reference', 'closest reference used']
+    expected_categories = ["Snippy", "Assembly BLAST", "Gene coverage", "closest reference", "closest reference used"]
     temp = [i for i in zzz.section.unique() if i not in expected_categories]
-    assert len(temp)==0, f"At least a value from was not in expected_categories: {temp}"
+    assert len(temp) == 0, f"At least a value from was not in expected_categories: {temp}"
     zzz["section"] = pd.Categorical(zzz["section"], categories=expected_categories)
     zzz = zzz.sort_values(["bc", "locus_tag", "section"], ascending=True)
 
@@ -459,7 +454,7 @@ def create_merged_xlsx_result(
     input_files_dict: dict,
     amrfinderplus_fs: list = [],
     mlst_fs: list = [],
-    ):
+):
 
     # output_file = "/home/usuario/Proyectos/Results/tests/arvia/ARVIA.xlsx"
     # combined_long_f = "/home/usuario/Proyectos/Results/tests/arvia/arvia/temp/results_merged/full_long.tsv"
@@ -490,36 +485,29 @@ def create_merged_xlsx_result(
                 "bc": bcs,
                 "S1": [s1 for i in range(0, len(bcs))],
                 "S2": [s2 for i in range(0, len(bcs))],
-                "value": [value for i in range(0, len(bcs))]
+                "value": [value for i in range(0, len(bcs))],
             }
         )
 
     # ---- Pipelines ----
-    pipelines_df = pd.DataFrame(
-        [
-            {"bc": k, "pipeline": v["pipeline"]} for k,v in input_files_dict.items()
-        ]
-    )
-    pipelines_df.columns = ["bc","value"]
+    pipelines_df = pd.DataFrame([{"bc": k, "pipeline": v["pipeline"]} for k, v in input_files_dict.items()])
+    pipelines_df.columns = ["bc", "value"]
     pipelines_df["S1"] = ""
     pipelines_df["S2"] = "Pipeline"
 
     # ---- Pipelines ----
-    reads_type_df = pd.DataFrame(
-        [
-            {"bc": k, "reads_type": v["reads_type"]} for k,v in input_files_dict.items()
-        ]
-    )
-    reads_type_df.columns = ["bc","value"]
+    reads_type_df = pd.DataFrame([{"bc": k, "reads_type": v["reads_type"]} for k, v in input_files_dict.items()])
+    reads_type_df.columns = ["bc", "value"]
     reads_type_df["S1"] = ""
     reads_type_df["S2"] = "Reads type"
     reads_type_df["value"] = reads_type_df["value"].fillna("-")
 
-
     # ---- Mutations ----
-    combined_long_df = pd.read_csv(combined_long_f, sep="\t")    
+    combined_long_df = pd.read_csv(combined_long_f, sep="\t")
     combined_long_df["S1"] = combined_long_df["locus_tag"]
-    combined_long_df["S2"] = combined_long_df.apply(lambda r: f"{r['locus_tag']} \n{r['gene']} \n({r['section']})", axis=1)
+    combined_long_df["S2"] = combined_long_df.apply(
+        lambda r: f"{r['locus_tag']} \n{r['gene']} \n({r['section']})", axis=1
+    )
 
     # ---- Amrfinder ----
     # Read and process
@@ -531,11 +519,21 @@ def create_merged_xlsx_result(
         # subtype: ANTIGEN, BIOCIDE, HEAT, METAL, PORIN, STX_TYPE
         # class: antibiotic class
         element_is_pdc = amrfinder_df["mod_element_symbol"].str.contains("blaPDC")
-        element_is_amr = amrfinder_df["type"]=="AMR"
-        element_is_stress = amrfinder_df["type"]=="STRESS"
-        element_is_vir = amrfinder_df["type"]=="VIRULENCE"
-        amr_genes = amrfinder_df[~element_is_pdc & (element_is_amr | element_is_stress)].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
-        amr_pdc = amrfinder_df[element_is_pdc & element_is_amr].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
+        element_is_amr = amrfinder_df["type"] == "AMR"
+        element_is_stress = amrfinder_df["type"] == "STRESS"
+        element_is_vir = amrfinder_df["type"] == "VIRULENCE"
+        amr_genes = (
+            amrfinder_df[~element_is_pdc & (element_is_amr | element_is_stress)]
+            .groupby("bc", group_keys=True)["mod_element_symbol"]
+            .apply(lambda x: "; ".join(sorted(x)))
+            .reset_index(name="value")
+        )
+        amr_pdc = (
+            amrfinder_df[element_is_pdc & element_is_amr]
+            .groupby("bc", group_keys=True)["mod_element_symbol"]
+            .apply(lambda x: "; ".join(sorted(x)))
+            .reset_index(name="value")
+        )
         # vir_genes = amrfinder_df[element_is_vir].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
         # stress_genes = amrfinder_df[element_is_stress].groupby("bc", group_keys=True)["mod_element_symbol"].apply(lambda x: "; ".join(sorted(x))).reset_index(name="value")
 
@@ -551,12 +549,12 @@ def create_merged_xlsx_result(
 
     else:
         amr_genes = generate_expected_empty_dataframe(
-            bcs=list(combined_long_df["bc"].unique()), 
+            bcs=list(combined_long_df["bc"].unique()),
             s1=assembly_analysis_section_name,
             s2="Other AMR Genes",
         )
         amr_pdc = generate_expected_empty_dataframe(
-            bcs=list(combined_long_df["bc"].unique()), 
+            bcs=list(combined_long_df["bc"].unique()),
             s1=assembly_analysis_section_name,
             s2="PDC",
         )
@@ -568,15 +566,15 @@ def create_merged_xlsx_result(
         mlst_df = mlst_df[["bc", "mlst_model", "value"]]
 
         # Prepare for merge
-        mlst_model_df = mlst_df[["bc","mlst_model"]].rename(columns={"mlst_model":"value"})
-        mlst_df = mlst_df[["bc","value"]]
+        mlst_model_df = mlst_df[["bc", "mlst_model"]].rename(columns={"mlst_model": "value"})
+        mlst_df = mlst_df[["bc", "value"]]
         mlst_model_df["S1"] = assembly_analysis_section_name
         mlst_model_df["S2"] = "MLST Model"
         mlst_df["S1"] = assembly_analysis_section_name
         mlst_df["S2"] = "MLST"
     else:
         mlst_df = generate_expected_empty_dataframe(
-            bcs=list(combined_long_df["bc"].unique()), 
+            bcs=list(combined_long_df["bc"].unique()),
             s1=assembly_analysis_section_name,
             s2="MLST",
         )
@@ -605,22 +603,25 @@ def create_merged_xlsx_result(
     # Pivot
     index_cols = ["bc"]
     idx = pd.IndexSlice
-    no_assembly_given_cols = ["MLST","MLST Model","PDC","Other AMR Genes"]
+    no_assembly_given_cols = ["MLST", "MLST Model", "PDC", "Other AMR Genes"]
     temp_pivot = df.pivot(index=index_cols, columns=["S1", "S2"], values="value")
 
     # On those bcs that did not have an assembly, they will have np.nan in mlst, pdc etc
     # we want to fill those with "No assembly given"
     # It can also happen that an assembly was given but the analysis returned a np.nan
     # in that case we fillna with "-"
-    only_reads_bc_pos = temp_pivot[("", "Pipeline")]=="only_reads"
-    temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("No assembly given")
-    temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]] = temp_pivot.loc[~only_reads_bc_pos, idx[:,no_assembly_given_cols]].fillna("-")
+    only_reads_bc_pos = temp_pivot[("", "Pipeline")] == "only_reads"
+    temp_pivot.loc[only_reads_bc_pos, idx[:, no_assembly_given_cols]] = temp_pivot.loc[
+        only_reads_bc_pos, idx[:, no_assembly_given_cols]
+    ].fillna("No assembly given")
+    temp_pivot.loc[~only_reads_bc_pos, idx[:, no_assembly_given_cols]] = temp_pivot.loc[
+        ~only_reads_bc_pos, idx[:, no_assembly_given_cols]
+    ].fillna("-")
 
     # Format pivot with colors
     temp = (
-        temp_pivot
-        .style.applymap(
-            color_cells_v2, #subset=[i for i in temp_pivot.columns if i[1] not in no_assembly_given_cols ]
+        temp_pivot.style.applymap(
+            color_cells_v2,  # subset=[i for i in temp_pivot.columns if i[1] not in no_assembly_given_cols ]
         )
         .apply_index(highlight_header, axis="columns", level=[0, 1])
         .apply_index(highlight_header, axis="index")
@@ -638,8 +639,10 @@ def create_merged_xlsx_result(
     worksheet = writer.sheets[sheet_name]
     worksheet.autofit()  # autofit row widths
     worksheet.set_row(1, 45)  # height of row
-    worksheet.set_column_pixels(first_col=6, last_col=len(temp.columns)+1, width=190) # set max width from column N to last
-    worksheet.set_column_pixels(first_col=3, last_col=4, width=85) # set max width for mlst and mlst_model
+    worksheet.set_column_pixels(
+        first_col=6, last_col=len(temp.columns) + 1, width=190
+    )  # set max width from column N to last
+    worksheet.set_column_pixels(first_col=3, last_col=4, width=85)  # set max width for mlst and mlst_model
     worksheet.set_column(0, 0, 15)  # width of first column
     worksheet.freeze_panes(2, 1)  # freeze first 2 rows and first column
 
@@ -652,36 +655,38 @@ def create_merged_xlsx_result(
     # other row will be hidden. Thus, we just try to remove it
     wb = openpyxl.load_workbook(output_file)
     sheet = wb[sheet_name]
-    assert sheet.cell(row=3, column=1).value == "bc", f"Unexpected: Row 3, column 1 was not 'bc'. Stopping just in case, check {output_file=}"
+    assert (
+        sheet.cell(row=3, column=1).value == "bc"
+    ), f"Unexpected: Row 3, column 1 was not 'bc'. Stopping just in case, check {output_file=}"
     sheet.delete_rows(3, 1)
 
     # Format A2 to add hyperlink
-    sheet['A2'].hyperlink = "https://github.com/pablo-aja-macaya/ARVIA"
-    sheet['A2'].value = "ARVIA Github"
-    sheet['A2'].style = "Hyperlink"
-    sheet['A2'].alignment = openpyxl.styles.Alignment(horizontal='center', vertical="center")
-    sheet['A2'].font = openpyxl.styles.Font(name='Calibri', bold=True, underline="single")
-    
+    sheet["A2"].hyperlink = "https://github.com/pablo-aja-macaya/ARVIA"
+    sheet["A2"].value = "ARVIA Github"
+    sheet["A2"].style = "Hyperlink"
+    sheet["A2"].alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+    sheet["A2"].font = openpyxl.styles.Font(name="Calibri", bold=True, underline="single")
+
     # Format A1
-    sheet['A1'].value = ""
+    sheet["A1"].value = ""
 
     # Save again
     wb.save(output_file)
-    
+
     # ---- Save to .tsv also ----
     # Drop first row in multilevel column index
     temp_pivot.columns = temp_pivot.columns.droplevel(0)
-    
+
     # Remove line breaks
     temp_pivot.columns = [i.replace("\n", "") for i in temp_pivot.columns]
-    
+
     # Save wide table to tsv
     temp_pivot.to_csv(f"{Path(output_file).parent}/{Path(output_file).stem}.tsv", sep="\t")
-    
+
     # Save long table to tsv
-    melted_df = pd.melt(temp_pivot.reset_index(), id_vars='bc', var_name="section", value_name="value")
+    melted_df = pd.melt(temp_pivot.reset_index(), id_vars="bc", var_name="section", value_name="value")
     melted_df.to_csv(f"{Path(output_file).parent}/{Path(output_file).stem}.long.tsv", sep="\t", index=None)
-    
+
     # l = []
     # for row in melted_df.to_dict("records"):
     #     l += [
@@ -700,4 +705,3 @@ def create_merged_xlsx_result(
     # raise Exception
 
     return True
-
